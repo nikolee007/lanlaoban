@@ -66,12 +66,15 @@ export const tursoDb = {
     await ensureSchema()
     try {
       const now = new Date().toISOString()
-      const r = await c.execute({
-        sql: 'INSERT INTO "User" ("email","password","name","createdAt","updatedAt") VALUES (?,?,?,?,?) RETURNING *',
-        args: [email, password, name || email.split('@')[0], now, now],
+      const displayName = name || email.split('@')[0]
+      await c.execute({
+        sql: 'INSERT INTO "User" ("email","password","name","createdAt","updatedAt") VALUES (?,?,?,?,?)',
+        args: [email, password, displayName, now, now],
       })
-      return r.rows[0] || null
-    } catch { return null }
+      // 回查获取完整数据（包含自动生成的 id）
+      const r2 = await c.execute({ sql: 'SELECT * FROM "User" WHERE "email" = ?', args: [email] })
+      return r2.rows[0] || { id: 0, email, password, name: displayName }
+    } catch (e) { console.error('[turso] createUser error:', e); return null }
   },
 
   async getProfile(userId: number): Promise<any | null> {

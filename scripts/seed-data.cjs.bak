@@ -1,0 +1,3840 @@
+/**
+ * 懒老板全球供应链 — 种子数据脚本 (增强版)
+ *
+ * 100+ 供应商 / 200+ 商品 / 覆盖15个产业带 / 真实感口碑数据
+ *
+ * 用法:
+ *   node scripts/seed-data.cjs              # 追加数据
+ *   node scripts/seed-data.cjs --drop       # 清空后重新插入
+ *
+ * 环境变量: DATABASE_URL (从 .env / .env.local 读取)
+ */
+
+const { PrismaClient } = require('@prisma/client');
+
+const prisma = new PrismaClient();
+
+// =====================================================================
+//  分类数据 (保持不变)
+// =====================================================================
+const categories = [
+  { name: '消费电子',        type: 'crossborder', icon: '📱', sortOrder: 1 },
+  { name: '手机配件',        type: 'crossborder', icon: '🔌', sortOrder: 2, parentName: '消费电子' },
+  { name: '智能穿戴',        type: 'crossborder', icon: '⌚', sortOrder: 3, parentName: '消费电子' },
+  { name: '小家电',          type: 'both',        icon: '🔌', sortOrder: 4, parentName: '消费电子' },
+  { name: '服装服饰',        type: 'both',        icon: '👗', sortOrder: 5 },
+  { name: '女装',            type: 'both',        icon: '👗', sortOrder: 6, parentName: '服装服饰' },
+  { name: '男装',            type: 'both',        icon: '👔', sortOrder: 7, parentName: '服装服饰' },
+  { name: '运动服装',        type: 'crossborder', icon: '🏃', sortOrder: 8, parentName: '服装服饰' },
+  { name: '童装',            type: 'both',        icon: '👶', sortOrder: 9, parentName: '服装服饰' },
+  { name: '鞋类',            type: 'both',        icon: '👟', sortOrder: 10 },
+  { name: '运动鞋',          type: 'both',        icon: '👟', sortOrder: 11, parentName: '鞋类' },
+  { name: '拖鞋凉鞋',        type: 'both',        icon: '🩴', sortOrder: 12, parentName: '鞋类' },
+  { name: '家居家具',        type: 'domestic',    icon: '🪑', sortOrder: 13 },
+  { name: '客厅家具',        type: 'domestic',    icon: '🛋️', sortOrder: 14, parentName: '家居家具' },
+  { name: '卧室家具',        type: 'domestic',    icon: '🛏️', sortOrder: 15, parentName: '家居家具' },
+  { name: '家纺布艺',        type: 'both',        icon: '🛏️', sortOrder: 16 },
+  { name: '日用百货',        type: 'both',        icon: '🧴', sortOrder: 17 },
+  { name: '厨房用品',        type: 'both',        icon: '🍳', sortOrder: 18, parentName: '日用百货' },
+  { name: '收纳整理',        type: 'both',        icon: '📦', sortOrder: 19, parentName: '日用百货' },
+  { name: '饰品配件',        type: 'crossborder', icon: '💍', sortOrder: 20 },
+  { name: '文具办公',        type: 'both',        icon: '✏️', sortOrder: 21 },
+  { name: '玩具潮玩',        type: 'both',        icon: '🧸', sortOrder: 22 },
+  { name: '宠物用品',        type: 'crossborder', icon: '🐾', sortOrder: 23 },
+  { name: '卫浴陶瓷',        type: 'both',        icon: '🚽', sortOrder: 24 },
+  { name: '灯具照明',        type: 'crossborder', icon: '💡', sortOrder: 25 },
+  { name: '食品加工',        type: 'domestic',    icon: '🍜', sortOrder: 26 },
+  { name: '箱包皮具',        type: 'both',        icon: '👜', sortOrder: 27 },
+  { name: '五金工具',        type: 'both',        icon: '🔧', sortOrder: 28 },
+];
+
+// =====================================================================
+//  口碑数据生成 (丰富版)
+// =====================================================================
+
+const chineseNames = [
+  '王建国', '李明辉', '张海燕', '陈志强', '刘洋', '赵丽华', '孙伟', '周杰',
+  '吴涛', '郑秀兰', '马超', '黄晓明', '林志强', '何小芳', '郭德纲', '梁晓燕',
+  '宋丹丹', '唐国强', '韩红', '曹雪芹', '许文强', '邓超', '冯小刚', '彭于晏',
+  '蒋大为', '沈腾', '杨幂', '周迅', '章子怡', '刘亦菲', '赵薇', '范冰冰',
+  '李连杰', '甄子丹', '吴京', '黄渤', '徐峥', '王宝强', '刘德华', '张学友',
+  '郭富城', '黎明', '周润发', '梁朝伟', '张国荣', '梅艳芳', '邓丽君', '王菲',
+  '那英', '孙楠', '韩磊', '腾格尔', '张靓颖', '李宇春', '周深', '毛不易',
+  '蔡徐坤', '周杰伦', '林俊杰', '王力宏', '陶喆', '罗志祥', '吴克群', '潘玮柏',
+  '陈奕迅', '杨千嬅', '容祖儿', '谢霆锋', '王一博', '肖战', '易烊千玺', '王俊凯',
+  '陈道明', '王志文', '陈宝国', '张国立', '李雪健', '倪大红', '于和伟', '张译',
+  '段奕宏', '廖凡', '王景春', '张涵予', '彭昱畅', '刘昊然', '吴磊', '白敬亭',
+  '赵丽颖', '杨紫', '迪丽热巴', '古力娜扎', '关晓彤', '欧阳娜娜', '张子枫', '周冬雨',
+  '陈凯歌', '张艺谋', '冯小刚', '姜文', '贾樟柯', '宁浩', '徐克', '王家卫',
+];
+
+const platforms = ['1688', 'Amazon', 'TikTokShop', 'Shopee', 'Lazada', 'Temu', 'Wish', 'eBay', 'AliExpress', 'SHEIN'];
+
+const reviewContentPools = {
+  electronics: [
+    '音质清晰，降噪效果超出预期，续航实测比标称还要长，连续听了8小时还有电',
+    '用了两周才来评价，做工扎实，手感很好，比市面上同价位的强太多了',
+    '第3次拿货了，品质一直很稳定，客户反馈很好，售后率很低',
+    '跟描述一致，测试了所有功能都正常，包装也很用心，适合跨境',
+    '性价比很高，对比了3家工厂最终选了这家，事实证明选择正确',
+    '发货速度很快，样品3天就收到了，大货的品质和样品一致',
+    '已经推给美国那边的客户了，第一批试单500台反应不错',
+    '电子产品就怕品控不稳定，但目前合作了半年还没出过问题',
+    '技术支持很到位，技术文档和认证资料都很齐全，省了很多事',
+    '亚马逊上架后出单稳定，利润空间还可以，准备加大采购量',
+    '样品测试了所有功能，配对速度快，信号稳定，满意',
+    'TikTok上找达人推了一波，转化率还不错，货已经在路上了',
+  ],
+  clothing: [
+    '面料手感很好，洗了一次没有缩水掉色，做工细节处理到位',
+    '版型很好，按照尺码表选的非常合身，试穿效果很不错',
+    '拿样确认后下了大货，出货前拍了照片确认，质量把控严格',
+    '客户说穿着很舒服，已经返单了，第二批数量翻倍',
+    '色差控制得很好，跟样品一致，不用担心色差退货问题',
+    'Temu上架后跑得不错，性价比很高，转化率比预期好',
+    '包装很规范，每件都独立包装，吊牌齐全，可以直接上架',
+    '广州的厂就是靠谱，款式更新快，跟得上市场潮流',
+    '跨境电商爆款，1688上询盘很多，已经出了几个大柜',
+    '用料扎实，走线工整，拉链顺滑，细节做得不错',
+  ],
+  homeFurniture: [
+    '实木家具纹理漂亮，没有异味，组装后很稳固，客户评价很高',
+    '海绵密度够，坐了几个月没有塌陷，布艺也好清洗',
+    '岩板台面质感很好，耐磨耐热，顾客反馈很满意',
+    '物流包装很到位，木架加固，收到没有任何磕碰',
+    '佛山家具名不虚传，工艺水准很高，性价比远超预期',
+    '客户在美国的线上店铺卖得很好，返单率很高',
+    '定制尺寸也做得很好，沟通顺畅，交货准时',
+    '油漆工艺不错，颜色均匀，没有流挂和色差',
+  ],
+  dailyGoods: [
+    '义乌的东西就是便宜又好用，走量神器，利润空间不错',
+    '品质稳定，多次回购了，每次发货都很快',
+    '包装很精致，送礼也拿得出手，好评率高',
+    '价格有优势，在跨境电商平台上有竞争力',
+    '混批政策灵活，拿样也方便，很适合小卖家起步',
+    '物流很快，下单到收货不到一周，包装也没有破损',
+    '1688上销量一直在涨，回头客很多',
+    '产品质量比想象中好，已经推荐给同行了',
+  ],
+  shoes: [
+    '穿了一个月了，鞋底耐磨，鞋面也没有开胶，质量不错',
+    '脚感舒适，不用磨合期，第一天穿就很合脚',
+    '透气性很好，跑步运动后脚不闷汗，好评',
+    '晋江的鞋就是好，做工细致，款式也新潮',
+    '第一批货已经卖完了，客户反馈都很好，马上返单',
+    '尺码标准，按照尺码表选的非常合适',
+    '性价比很高，这个价格能买到这样的质量很划算',
+  ],
+  food: [
+    '样品试吃后很满意，口感新鲜，符合出口标准',
+    '保质期还有很长，生产日期很新鲜，客户很放心',
+    '包装密封性很好，没有漏气，运输过程中没有损坏',
+    '检测报告齐全，海关通关顺利，出口资质完善',
+    '味道纯正，客户反馈很好，已经签了长期合同',
+    '价格有竞争力，质量也很稳定，适合长期合作',
+  ],
+  toys: [
+    '澄海的玩具果然名不虚传，质量好价格还便宜',
+    'EN71检测报告齐全，出口欧洲没问题，客户很满意',
+    '益智功能设计得很好，小朋友很喜欢玩',
+    'ABS材质没有异味，边缘光滑不伤手，安全性有保障',
+    '盲盒设计很受欢迎，隐藏款吸引力大，复购率高',
+    '样品确认后大货品质一致，没有偷工减料',
+    '包装精美，作为礼品也很合适，B端客户很满意',
+  ],
+  beauty: [
+    '做了皮肤测试，温和不刺激，敏感肌也能用',
+    '原料成分透明，检测报告齐全，出口资质完备',
+    '包装设计很上档次，客户很喜欢这种简约风格',
+    '复购率很高，客户用了都说好，已经形成口碑了',
+    '价格定位很准，在东南亚市场很有竞争力',
+    '样品试用效果不错，准备下试单',
+  ],
+  general: [
+    '品质稳定，多次回购，值得信赖的合作伙伴',
+    '物流速度很快，包装也很到位，没有破损',
+    '价格有优势，质量也有保障，性价比很高',
+    '沟通很顺畅，配合度高，响应及时',
+    '已经推荐给同行了，大家都很满意',
+    '样品和大货品质一致，没有落差，放心合作',
+    '跨境出口的证件都齐全，省了不少事',
+    '售后处理及时，有问题积极响应，服务态度好',
+  ],
+};
+
+function getReviewPool(productName, supplierTags) {
+  const allTags = supplierTags ? supplierTags.join(' ') + ' ' + productName : productName;
+  if (/耳机|音箱|音质|蓝牙|充电|数据线|手机|智能|电子|数码/i.test(allTags)) return reviewContentPools.electronics;
+  if (/服装|衣服|女装|男装|童装|内衣|运动服|瑜伽|连衣裙|T恤|衬衫/i.test(allTags)) return reviewContentPools.clothing;
+  if (/沙发|家具|茶几|床垫|桌|椅|柜|家居/i.test(allTags)) return reviewContentPools.homeFurniture;
+  if (/日用|收纳|厨房|保温|硅胶|塑料|清洁/i.test(allTags)) return reviewContentPools.dailyGoods;
+  if (/鞋|运动鞋|拖鞋|凉鞋|跑鞋/i.test(allTags)) return reviewContentPools.shoes;
+  if (/食品|海鲜|虾|鱼肉|调味|酱料|零食|茶叶|饮料/i.test(allTags)) return reviewContentPools.food;
+  if (/玩具|积木|盲盒|公仔|潮玩|遥控/i.test(allTags)) return reviewContentPools.toys;
+  if (/美妆|护肤|化妆品|面膜|洗面奶|口红/i.test(allTags)) return reviewContentPools.beauty;
+  return reviewContentPools.general;
+}
+
+function pickRandom(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function pickRandomN(arr, n) {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, n);
+}
+
+function generateReviews(targetId, targetType, productRating, productName, supplierTags) {
+  const count = 3 + Math.floor(Math.random() * 6); // 3-8
+  const pool = getReviewPool(productName, supplierTags);
+  const results = [];
+
+  for (let i = 0; i < count; i++) {
+    const platform = pickRandom(platforms);
+    const rating = Math.min(5, Math.max(1, +(productRating + (Math.random() - 0.5) * 1.2).toFixed(1)));
+    const name = pickRandom(chineseNames);
+    const reviewTexts = pickRandomN(pool, 2 + Math.floor(Math.random() * 3));
+
+    // Build keywords that embed username + content for realistic feel
+    const keywords = reviewTexts.map(t => `${name}: ${t}`);
+    // Add one more review-like keyword from a different perspective
+    const secondName = pickRandom(chineseNames.filter(n => n !== name));
+    const extraText = pickRandom(pool);
+    keywords.push(`${secondName}: ${extraText}`);
+
+    results.push({
+      targetId,
+      targetType,
+      platform,
+      rating,
+      reviewCount: Math.floor(30 + Math.random() * 500),
+      returnRate: +(Math.random() * 5 + 0.5).toFixed(1),
+      repurchaseRate: +(Math.random() * 35 + 10).toFixed(1),
+      keywords: JSON.stringify(keywords),
+      collectedAt: new Date(Date.now() - Math.floor(Math.random() * 60 * 86400000)),
+    });
+  }
+
+  return results;
+}
+
+// =====================================================================
+//  供应商数据 — 106家，覆盖15个产业带
+// =====================================================================
+
+const suppliers = [
+  // ═════════════════════════════════════════════════════════════════════
+  //  深圳 · 华强北 — 消费电子 (12家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '深圳市华创数码科技有限公司',
+    nameEn: 'Shenzhen Huachuang Digital Technology Co., Ltd.',
+    location: '广东深圳 · 华强北',
+    yearEstablished: 2012, employeeCount: 380,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FCC', 'RoHS', 'BSCI']),
+    businessTags: JSON.stringify(['蓝牙耳机', 'TWS耳机', '充电宝', '数据线', 'PCBA定制']),
+    exportDestinations: JSON.stringify(['美国', '德国', '英国', '日本', '巴西', '东南亚']),
+    rating: 4.8, reviewCount: 2340, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '蓝牙5.3 TWS降噪耳机 入耳式',
+        description: '搭载杰理AC7006芯片，ANC主动降噪-35dB，IPX5防水，续航6+18h。支持无线充电。月产能50万对。',
+        priceMin: 28.5, priceMax: 45.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FCC', 'RoHS']),
+        rating: 4.7, reviewCount: 15800,
+      },
+      {
+        name: '磁吸无线充电宝 20000mAh 快充版',
+        description: '支持MagSafe磁吸，PD 20W+QC 18W双向快充，LED数显电量。铝合金外壳，通过UN38.3航空认证。',
+        priceMin: 58.0, priceMax: 79.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FCC', 'RoHS', 'UN38.3']),
+        rating: 4.8, reviewCount: 23500,
+      },
+      {
+        name: '编织快充数据线 Type-C 1.2m 100W',
+        description: '尼龙编织线材，支持PD 100W快充，数据传输480Mbps。锌合金接口，弯折测试20000+次。',
+        priceMin: 6.8, priceMax: 12.5, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'RoHS']),
+        rating: 4.6, reviewCount: 42000,
+      },
+    ],
+  },
+  {
+    nameZh: '深圳中科微电子有限公司',
+    nameEn: 'Shenzhen Zhongke Microelectronics Co., Ltd.',
+    location: '广东深圳 · 南山科技园',
+    yearEstablished: 2015, employeeCount: 220,
+    annualExportRevenue: 800,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FCC', 'RoHS', 'IATF 16949']),
+    businessTags: JSON.stringify(['智能穿戴', '智能手表', '运动手环', '医疗穿戴']),
+    exportDestinations: JSON.stringify(['美国', '欧盟', '日本', '韩国', '中东']),
+    rating: 4.7, reviewCount: 1280, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '智能运动手表 AMOLED 1.43寸',
+        description: '1.43寸AMOLED屏，466×466分辨率。支持GPS+北斗定位，心率血氧监测，IP68防水。7-14天续航。',
+        priceMin: 85.0, priceMax: 145.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FCC', 'RoHS', 'IP68']),
+        rating: 4.6, reviewCount: 8700,
+      },
+    ],
+  },
+  {
+    nameZh: '深圳亿品电子有限公司',
+    nameEn: 'Shenzhen Yipin Electronics Co., Ltd.',
+    location: '广东深圳 · 龙华',
+    yearEstablished: 2010, employeeCount: 450,
+    annualExportRevenue: 2000,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'CE', 'FCC', 'UL', 'RoHS']),
+    businessTags: JSON.stringify(['蓝牙音箱', '便携音箱', '户外音响', '桌面音箱']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '南美', '非洲']),
+    rating: 4.5, reviewCount: 3160, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '便携蓝牙音箱 IPX7防水 30W',
+        description: '30W大功率，360°环绕立体声。IPX7级防水，户外可用。蓝牙5.3，TF卡/AUX。续航12小时。',
+        priceMin: 45.0, priceMax: 72.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FCC', 'RoHS', 'IPX7']),
+        rating: 4.5, reviewCount: 12100,
+      },
+    ],
+  },
+  {
+    nameZh: '深圳赛格智能科技有限公司',
+    nameEn: 'Shenzhen Saige Intelligent Technology Co., Ltd.',
+    location: '广东深圳 · 福田区',
+    yearEstablished: 2017, employeeCount: 180,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FCC', 'RoHS', 'UL']),
+    businessTags: JSON.stringify(['智能眼镜', 'VR眼镜', 'AR眼镜', '智能穿戴', '无人机']),
+    exportDestinations: JSON.stringify(['美国', '日本', '韩国', '欧洲', '中东']),
+    rating: 4.3, reviewCount: 890, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '智能音频眼镜 蓝牙5.3 防蓝光',
+        description: 'TR90超轻镜框仅28g，开放式定向传音。防蓝光镜片可选，触控操作。续航5小时通话/8小时听歌。',
+        priceMin: 65.0, priceMax: 120.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FCC', 'RoHS']),
+        rating: 4.2, reviewCount: 3400,
+      },
+      {
+        name: '无人机航拍 4K高清 三轴云台',
+        description: '4K/30fps超高清拍摄，三轴机械防抖云台。GPS+GLONASS双模定位，5级抗风。续航28分钟。',
+        priceMin: 280.0, priceMax: 520.0, currency: 'CNY', moq: 30,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FCC', 'RoHS']),
+        rating: 4.1, reviewCount: 2100,
+      },
+    ],
+  },
+  {
+    nameZh: '深圳华强微电子有限公司',
+    nameEn: 'Shenzhen Huaqiang Microelectronics Co., Ltd.',
+    location: '广东深圳 · 华强北',
+    yearEstablished: 2009, employeeCount: 150,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'RoHS', 'REACH']),
+    businessTags: JSON.stringify(['PCB', 'PCBA', '电子元器件', '电路板定制', 'SMT贴片']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '印度', '巴西']),
+    rating: 4.4, reviewCount: 1100, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '多层PCB电路板 4-12层 打样/批量',
+        description: 'FR-4玻纤板，4-12层多层板。最小线宽线距3/3mil，最小孔径0.2mm。支持加急打样24H出货。',
+        priceMin: 1.5, priceMax: 15.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'RoHS', 'UL']),
+        rating: 4.5, reviewCount: 9800,
+      },
+    ],
+  },
+  {
+    nameZh: '深圳鼎盛数码配件有限公司',
+    nameEn: 'Shenzhen Dingsheng Digital Accessories Co., Ltd.',
+    location: '广东深圳 · 龙岗区',
+    yearEstablished: 2014, employeeCount: 200,
+    annualExportRevenue: 700,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'CE', 'RoHS']),
+    businessTags: JSON.stringify(['手机壳', '手机配件', '屏幕保护膜', '平板配件']),
+    exportDestinations: JSON.stringify(['美国', '英国', '日本', '东南亚', '中东']),
+    rating: 4.5, reviewCount: 1500, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '透明防摔手机壳 军工认证',
+        description: '德国拜耳TPU原料，透明不发黄。四角气囊防摔，军工级2米跌落认证。精准开孔，支持MagSafe。',
+        priceMin: 3.5, priceMax: 8.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'RoHS']),
+        rating: 4.4, reviewCount: 32000,
+      },
+      {
+        name: '防窥钢化膜 2.5D弧边',
+        description: '9H硬度钢化玻璃，28°防窥角度。疏油层抗指纹，2.5D弧边贴合。自动吸附排气安装。',
+        priceMin: 4.0, priceMax: 9.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.3, reviewCount: 28000,
+      },
+    ],
+  },
+  {
+    nameZh: '深圳蓝媒科技有限公司',
+    nameEn: 'Shenzhen Lanmei Technology Co., Ltd.',
+    location: '广东深圳 · 宝安区',
+    yearEstablished: 2016, employeeCount: 120,
+    annualExportRevenue: 400,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FCC', 'RoHS']),
+    businessTags: JSON.stringify(['蓝牙音箱', '智能音箱', 'Soundbar', '音频方案']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚', '南美']),
+    rating: 4.4, reviewCount: 760, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: 'RGB游戏蓝牙音箱 桌面2.0',
+        description: '2.0声道桌面音箱，RGB幻彩灯效。蓝牙5.0+USB+AUX三模连接。3寸全频喇叭，10W*2输出。',
+        priceMin: 32.0, priceMax: 55.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'RoHS']),
+        rating: 4.4, reviewCount: 8900,
+      },
+    ],
+  },
+  {
+    nameZh: '深圳华芯智能科技有限公司',
+    nameEn: 'Shenzhen Huaxin Intelligent Technology Co., Ltd.',
+    location: '广东深圳 · 南山区',
+    yearEstablished: 2013, employeeCount: 280,
+    annualExportRevenue: 1100,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FCC', 'UL', 'RoHS', 'Wi-Fi Alliance']),
+    businessTags: JSON.stringify(['智能家居', '智能插座', '智能开关', 'WiFi模组']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '澳大利亚', '日本', '中东']),
+    rating: 4.6, reviewCount: 1800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: 'WiFi智能插座 带电量统计',
+        description: '支持Alexa/Google Home语音控制。电量统计功能，可查看实时功耗。远程定时开关，过载保护。',
+        priceMin: 12.0, priceMax: 22.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FCC', 'UL', 'RoHS']),
+        rating: 4.6, reviewCount: 15400,
+      },
+    ],
+  },
+  {
+    nameZh: '深圳创达车品电子有限公司',
+    nameEn: 'Shenzhen Chuangda Auto Electronics Co., Ltd.',
+    location: '广东深圳 · 龙华新区',
+    yearEstablished: 2011, employeeCount: 160,
+    annualExportRevenue: 550,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FCC', 'RoHS']),
+    businessTags: JSON.stringify(['行车记录仪', '车载电子', '车载充电器', '倒车影像']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '俄罗斯', '中东', '东南亚']),
+    rating: 4.3, reviewCount: 1200, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '4K超清行车记录仪 前后双录',
+        description: '前录4K/30fps，后录1080p。SONY IMX415传感器，F1.8大光圈夜视。GPS轨迹记录，停车监控。',
+        priceMin: 45.0, priceMax: 88.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FCC', 'RoHS']),
+        rating: 4.3, reviewCount: 6200,
+      },
+    ],
+  },
+  {
+    nameZh: '深圳盛世创新科技有限公司',
+    nameEn: 'Shenzhen Shengshi Innovation Technology Co., Ltd.',
+    location: '广东深圳 · 光明区',
+    yearEstablished: 2018, employeeCount: 90,
+    annualExportRevenue: 300,
+    certifications: JSON.stringify(['CE', 'FCC', 'RoHS']),
+    businessTags: JSON.stringify(['VR设备', '3C数码', '直播设备', '手机支架']),
+    exportDestinations: JSON.stringify(['美国', '日本', '韩国', '欧洲']),
+    rating: 4.2, reviewCount: 540, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: 'VR一体机 4K高清 6DOF',
+        description: '高通XR2芯片，4K Fast-LCD双屏。6DOF空间定位，手部追踪。256GB存储，含手柄一对。',
+        priceMin: 320.0, priceMax: 680.0, currency: 'CNY', moq: 20,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FCC', 'RoHS']),
+        rating: 4.0, reviewCount: 1800,
+      },
+    ],
+  },
+  {
+    nameZh: '深圳优品数码商行',
+    nameEn: 'Shenzhen Youpin Digital Trading Co.',
+    location: '广东深圳 · 华强北',
+    yearEstablished: 2019, employeeCount: 30,
+    annualExportRevenue: 150,
+    certifications: JSON.stringify([]),
+    businessTags: JSON.stringify(['数码配件', '手机壳', '屏幕膜', '数据线', '充电器', '分销']),
+    exportDestinations: JSON.stringify(['东南亚', '中东', '非洲', '南美']),
+    rating: 4.1, reviewCount: 420, isVerified: false, type: 'distributor',
+    products: [
+      {
+        name: 'USB-C快充充电器 20W GaN',
+        description: '氮化镓GaN技术，20W PD快充。兼容iPhone/安卓。折叠插脚，体积小巧仅35g。',
+        priceMin: 8.0, priceMax: 14.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: false,
+        certifications: JSON.stringify(['CE', 'FCC', 'RoHS']),
+        rating: 4.2, reviewCount: 12500,
+      },
+      {
+        name: '三合一磁吸充电支架',
+        description: '手机+手表+耳机三合一套装，磁吸快充。铝合金底座，防滑设计。支持iPhone/Apple Watch/AirPods。',
+        priceMin: 22.0, priceMax: 38.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: false,
+        rating: 4.1, reviewCount: 7800,
+      },
+    ],
+  },
+  {
+    nameZh: '深圳万物互联智能科技',
+    nameEn: 'Shenzhen Wanwu IoT Smart Technology Co., Ltd.',
+    location: '广东深圳 · 西丽',
+    yearEstablished: 2016, employeeCount: 130,
+    annualExportRevenue: 450,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FCC', 'RoHS', 'BLE SIG']),
+    businessTags: JSON.stringify(['物联网', '智能家居', '传感器', '蓝牙模组', 'WiFi模组']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '印度']),
+    rating: 4.5, reviewCount: 980, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '蓝牙BLE 5.2模组 低功耗',
+        description: 'Nordic nRF52840芯片方案，BLE 5.2。TX功率+8dBm，接收灵敏度-95dBm。支持Mesh组网。',
+        priceMin: 3.5, priceMax: 8.0, currency: 'CNY', moq: 1000,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FCC', 'RoHS', 'BLE SIG']),
+        rating: 4.6, reviewCount: 6500,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  广州 — 服装/美妆/皮具 (10家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '广州新丝路服装有限公司',
+    nameEn: 'Guangzhou New Silk Road Garment Co., Ltd.',
+    location: '广东广州 · 海珠区',
+    yearEstablished: 2005, employeeCount: 350,
+    annualExportRevenue: 1800,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'Oeko-Tex Standard 100', 'GOTS']),
+    businessTags: JSON.stringify(['女装', '连衣裙', '衬衫', '快时尚女装']),
+    exportDestinations: JSON.stringify(['美国', '英国', '法国', '意大利', '澳大利亚', '中东']),
+    rating: 4.6, reviewCount: 2750, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '法式复古碎花连衣裙 中长款',
+        description: '法式方领设计，泡泡袖，收腰A字裙摆。面料为100%涤纶雪纺，内衬亲肤。多色可选，S-2XL。',
+        priceMin: 32.0, priceMax: 55.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.7, reviewCount: 9200,
+      },
+      {
+        name: '纯棉印花短袖T恤 女款',
+        description: '100%精梳棉，240g重磅面料。宽松版型，多色多印花可选。领口加固处理不易变形。',
+        priceMin: 15.0, priceMax: 25.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.5, reviewCount: 18500,
+      },
+    ],
+  },
+  {
+    nameZh: '广州鼎盛运动服饰有限公司',
+    nameEn: 'Guangzhou Dingsheng Sportswear Co., Ltd.',
+    location: '广东广州 · 白云区',
+    yearEstablished: 2013, employeeCount: 280,
+    annualExportRevenue: 1100,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'Oeko-Tex']),
+    businessTags: JSON.stringify(['运动服', '健身服', '瑜伽服', '运动套装']),
+    exportDestinations: JSON.stringify(['美国', '加拿大', '英国', '德国', '澳大利亚']),
+    rating: 4.7, reviewCount: 1580, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '高弹力瑜伽运动套装 女款',
+        description: '高弹锦纶+氨纶面料，吸湿排汗速干。高腰设计，包裹性好不卷边。无缝编织工艺。支持定制LOGO。',
+        priceMin: 38.0, priceMax: 62.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.8, reviewCount: 11200,
+      },
+    ],
+  },
+  {
+    nameZh: '广州宝贝天地童装厂',
+    nameEn: 'Guangzhou Baby World Childrenswear Factory',
+    location: '广东广州 · 番禺区',
+    yearEstablished: 2010, employeeCount: 200,
+    annualExportRevenue: 700,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex Standard 100', 'ASTM', 'EN 14682']),
+    businessTags: JSON.stringify(['童装', '婴幼儿服装', '儿童套装', '婴儿爬服']),
+    exportDestinations: JSON.stringify(['美国', '欧盟', '日本', '韩国', '东南亚']),
+    rating: 4.8, reviewCount: 2100, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '纯棉婴儿连体爬服 3件套装',
+        description: '100%有机棉A类面料，无荧光剂。按扣设计方便换尿布，四季通用。0-24个月尺码。',
+        priceMin: 22.0, priceMax: 38.0, currency: 'CNY', moq: 300,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex', 'GOTS']),
+        rating: 4.9, reviewCount: 7800,
+      },
+    ],
+  },
+  {
+    nameZh: '广州威盛箱包有限公司',
+    nameEn: 'Guangzhou Weisheng Luggage Co., Ltd.',
+    location: '广东广州 · 花都区',
+    yearEstablished: 2010, employeeCount: 220,
+    annualExportRevenue: 900,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI']),
+    businessTags: JSON.stringify(['背包', '双肩包', '电脑包', '旅行包', '帆布包']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 1700, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '商务双肩背包 15.6寸电脑仓',
+        description: '900D防水尼龙面料，独立电脑仓加厚保护。USB外接充电口，防盗拉链。容量28L。',
+        priceMin: 32.0, priceMax: 58.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.6, reviewCount: 7800,
+      },
+    ],
+  },
+  {
+    nameZh: '广州美妆之源化妆品有限公司',
+    nameEn: 'Guangzhou Meizhuang Zhiyuan Cosmetics Co., Ltd.',
+    location: '广东广州 · 白云区',
+    yearEstablished: 2012, employeeCount: 180,
+    annualExportRevenue: 650,
+    certifications: JSON.stringify(['ISO 22716', 'GMPC', 'FDA', 'BSCI', 'SGS']),
+    businessTags: JSON.stringify(['护肤品', '面膜', '洗面奶', '精华液', '化妆品代工']),
+    exportDestinations: JSON.stringify(['美国', '日本', '韩国', '东南亚', '中东', '非洲']),
+    rating: 4.5, reviewCount: 1400, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '玻尿酸补水面膜 28ml 24片装',
+        description: '三重玻尿酸配方，补水锁水。蚕丝膜布，轻薄透气服帖。无酒精无色素，敏感肌适用。',
+        priceMin: 12.0, priceMax: 22.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'SGS']),
+        rating: 4.6, reviewCount: 21000,
+      },
+      {
+        name: '氨基酸洗面奶 温和洁面 120g',
+        description: '氨基酸表面活性剂，pH值5.5弱酸性。泡沫细腻丰富，洗后不紧绷。无皂基配方，适合所有肤质。',
+        priceMin: 8.0, priceMax: 15.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'SGS']),
+        rating: 4.5, reviewCount: 16800,
+      },
+    ],
+  },
+  {
+    nameZh: '广州白云皮具实业有限公司',
+    nameEn: 'Guangzhou Baiyun Leather Goods Industrial Co., Ltd.',
+    location: '广东广州 · 白云区',
+    yearEstablished: 2007, employeeCount: 260,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'REACH', 'SGS']),
+    businessTags: JSON.stringify(['皮具', '钱包', '手提包', '皮带', '真皮制品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '中东']),
+    rating: 4.4, reviewCount: 1900, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '头层牛皮男士钱包 横款',
+        description: '意大利进口头层牛皮，手工缝线。多卡位+大钞位+相片位。超薄设计，厚度仅1.2cm。礼盒包装。',
+        priceMin: 28.0, priceMax: 55.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['REACH', 'SGS']),
+        rating: 4.5, reviewCount: 7500,
+      },
+      {
+        name: 'PU女包 斜挎包 通勤款',
+        description: '高档PU面料，金属五金配件。可拆卸肩带，手提斜挎两用。隔层分区合理，容量够用。多色可选。',
+        priceMin: 22.0, priceMax: 42.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.3, reviewCount: 12300,
+      },
+    ],
+  },
+  {
+    nameZh: '广州时尚男装服饰有限公司',
+    nameEn: 'Guangzhou Fashion Menwear Co., Ltd.',
+    location: '广东广州 · 海珠区',
+    yearEstablished: 2011, employeeCount: 220,
+    annualExportRevenue: 850,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'Oeko-Tex']),
+    businessTags: JSON.stringify(['男装', '衬衫', '休闲裤', '夹克', 'POLO衫']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '南美']),
+    rating: 4.5, reviewCount: 1300, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '长袖牛津纺衬衫 男士商务休闲',
+        description: '100%全棉牛津纺面料，柔软透气。经典纽扣领，胸前贴袋设计。多色可选，S-4XL全尺码。',
+        priceMin: 18.0, priceMax: 32.0, currency: 'CNY', moq: 300,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.5, reviewCount: 9200,
+      },
+      {
+        name: '男士休闲直筒裤 四季款',
+        description: '棉涤混纺面料，挺括有型不起皱。中腰直筒版型，修身不紧绷。多色多码，适合通勤休闲。',
+        priceMin: 22.0, priceMax: 38.0, currency: 'CNY', moq: 300,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.4, reviewCount: 7800,
+      },
+    ],
+  },
+  {
+    nameZh: '广州品尚内衣有限公司',
+    nameEn: 'Guangzhou Pinshang Underwear Co., Ltd.',
+    location: '广东广州 · 番禺区',
+    yearEstablished: 2014, employeeCount: 150,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex', 'SGS']),
+    businessTags: JSON.stringify(['内衣', '文胸', '内裤', '家居服', '保暖内衣']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚', '俄罗斯']),
+    rating: 4.4, reviewCount: 980, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '无钢圈舒适文胸 蕾丝款',
+        description: '记忆合金软钢圈，零束缚感。蕾丝拼接设计，透气不闷热。加宽侧比，收副乳效果好。A-D杯。',
+        priceMin: 12.0, priceMax: 22.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.5, reviewCount: 15600,
+      },
+    ],
+  },
+  {
+    nameZh: '广州雅丽洁化妆品有限公司',
+    nameEn: 'Guangzhou Yalijie Cosmetics Co., Ltd.',
+    location: '广东广州 · 花都区',
+    yearEstablished: 2015, employeeCount: 120,
+    annualExportRevenue: 350,
+    certifications: JSON.stringify(['ISO 22716', 'GMPC', 'FDA']),
+    businessTags: JSON.stringify(['口红', '唇釉', '化妆品', '彩妆', '美妆']),
+    exportDestinations: JSON.stringify(['美国', '东南亚', '中东', '非洲', '南美']),
+    rating: 4.3, reviewCount: 680, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '哑光丝绒唇釉 6色套装',
+        description: '天鹅绒哑光质地，显色度高。含天然植物油脂，滋润不拔干。刷头设计精准勾勒唇形。6支套装。',
+        priceMin: 8.0, priceMax: 16.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'SGS']),
+        rating: 4.3, reviewCount: 8900,
+      },
+    ],
+  },
+  {
+    nameZh: '广州真功夫皮具护理品有限公司',
+    nameEn: 'Guangzhou Zhengongfu Leather Care Products Co., Ltd.',
+    location: '广东广州 · 黄埔区',
+    yearEstablished: 2016, employeeCount: 60,
+    annualExportRevenue: 150,
+    certifications: JSON.stringify(['ISO 9001', 'SGS']),
+    businessTags: JSON.stringify(['皮具护理', '鞋油', '皮革清洁', '保养品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚']),
+    rating: 4.2, reviewCount: 350, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '无色皮革保养油 去皱滋润 100ml',
+        description: '天然蜂蜡+貂油配方，深层滋养皮革。无色通用，适合各种颜色皮具。去皱增亮，延长皮具寿命。',
+        priceMin: 5.0, priceMax: 10.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['SGS']),
+        rating: 4.3, reviewCount: 4500,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  东莞 — 电子/小家电/五金 (8家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '东莞嘉华智能电子有限公司',
+    nameEn: 'Dongguan Jiahua Smart Electronics Co., Ltd.',
+    location: '广东东莞 · 长安镇',
+    yearEstablished: 2008, employeeCount: 520,
+    annualExportRevenue: 1500,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'CE', 'CB', 'RoHS', 'REACH']),
+    businessTags: JSON.stringify(['智能家居', '小家电', '空气炸锅', '料理机', '加湿器']),
+    exportDestinations: JSON.stringify(['美国', '德国', '法国', '英国', '日本', '澳大利亚']),
+    rating: 4.6, reviewCount: 1890, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '智能空气炸锅 5.5L 可视窗口',
+        description: '5.5L大容量，1200W火力。可视化玻璃窗口，12种智能菜单。触摸+旋钮操控，不粘涂层内胆。',
+        priceMin: 95.0, priceMax: 158.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'CB', 'RoHS', 'LFGB']),
+        rating: 4.7, reviewCount: 6800,
+      },
+      {
+        name: '便携式USB-C充电榨汁机 400ml',
+        description: '400ml容量，USB-C充电，无线便携。食品级Tritan材质，304不锈钢刀头。满电可榨15杯。',
+        priceMin: 32.0, priceMax: 52.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FDA', 'RoHS']),
+        rating: 4.5, reviewCount: 15300,
+      },
+    ],
+  },
+  {
+    nameZh: '东莞鸿泰数码科技有限公司',
+    nameEn: 'Dongguan Hongtai Digital Technology Co., Ltd.',
+    location: '广东东莞 · 虎门镇',
+    yearEstablished: 2016, employeeCount: 180,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'RoHS']),
+    businessTags: JSON.stringify(['手机壳', '手机配件', '平板配件', '3C数码']),
+    exportDestinations: JSON.stringify(['美国', '英国', '日本', '东南亚', '中东']),
+    rating: 4.4, reviewCount: 960, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '液态硅胶手机壳 全包防摔',
+        description: '液态硅胶材质，手感亲肤。全包边设计，镜头增高保护。支持MagSafe磁吸。适用iPhone 15/16系列。',
+        priceMin: 8.5, priceMax: 16.0, currency: 'CNY', moq: 300,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.4, reviewCount: 28600,
+      },
+    ],
+  },
+  {
+    nameZh: '东莞铭丰五金制品有限公司',
+    nameEn: 'Dongguan Mingfeng Hardware Products Co., Ltd.',
+    location: '广东东莞 · 大岭山镇',
+    yearEstablished: 2005, employeeCount: 380,
+    annualExportRevenue: 1300,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'IATF 16949', 'SGS']),
+    businessTags: JSON.stringify(['五金冲压', '精密五金', '模具制造', 'CNC加工', '金属配件']),
+    exportDestinations: JSON.stringify(['美国', '德国', '日本', '墨西哥', '东南亚']),
+    rating: 4.5, reviewCount: 1600, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '精密五金冲压件 按图定制',
+        description: '0.1-6.0mm金属板材冲压，精度±0.05mm。含连续模/工程模。材料：不锈钢/镀锌板/铝板/铜板。',
+        priceMin: 0.5, priceMax: 5.0, currency: 'CNY', moq: 10000,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['IATF 16949', 'SGS']),
+        rating: 4.6, reviewCount: 4200,
+      },
+    ],
+  },
+  {
+    nameZh: '东莞东城小霸王电器有限公司',
+    nameEn: 'Dongguan Dongcheng Xiaobawang Electric Co., Ltd.',
+    location: '广东东莞 · 石碣镇',
+    yearEstablished: 2010, employeeCount: 250,
+    annualExportRevenue: 800,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'CB', 'RoHS', 'CCC']),
+    businessTags: JSON.stringify(['小家电', '电饭煲', '电煮锅', '养生壶', '便携小锅']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '南美', '中东']),
+    rating: 4.5, reviewCount: 1100, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '多功能电煮锅 2L 蒸煮炒一体',
+        description: '2L容量，600W功率。食品级不粘涂层内胆，分离式电源线。配蒸笼，蒸煮炒涮多功能一体。',
+        priceMin: 25.0, priceMax: 42.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'CB', 'RoHS', 'CCC']),
+        rating: 4.5, reviewCount: 12000,
+      },
+      {
+        name: '迷你电饭煲 1.2L 一人食',
+        description: '1.2L小容量，适合1-2人。食品级不粘内胆，智能预约功能。煮饭/煮粥/煲汤/保温四合一。',
+        priceMin: 22.0, priceMax: 38.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'CB', 'CCC']),
+        rating: 4.4, reviewCount: 9800,
+      },
+    ],
+  },
+  {
+    nameZh: '东莞华阳电声科技有限公司',
+    nameEn: 'Dongguan Huayang Electroacoustic Technology Co., Ltd.',
+    location: '广东东莞 · 塘厦镇',
+    yearEstablished: 2012, employeeCount: 300,
+    annualExportRevenue: 900,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'RoHS', 'REACH']),
+    businessTags: JSON.stringify(['喇叭', '扬声器', '音响配件', '电声元件', 'PA喇叭']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '印度']),
+    rating: 4.4, reviewCount: 850, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '全频喇叭 3寸 20W 蓝牙音箱专用',
+        description: '钕磁铁驱动，20W额定功率。全频段响应80Hz-20kHz。阻抗4Ω/8Ω可选。适用于蓝牙音箱/智能音箱。',
+        priceMin: 3.0, priceMax: 8.0, currency: 'CNY', moq: 1000,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'RoHS']),
+        rating: 4.5, reviewCount: 7200,
+      },
+    ],
+  },
+  {
+    nameZh: '东莞金泰精密五金有限公司',
+    nameEn: 'Dongguan Jintai Precision Hardware Co., Ltd.',
+    location: '广东东莞 · 长安镇',
+    yearEstablished: 2009, employeeCount: 200,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'SGS']),
+    businessTags: JSON.stringify(['螺丝', '螺母', '紧固件', '车削件', 'CNC精密加工']),
+    exportDestinations: JSON.stringify(['美国', '德国', '日本', '意大利', '东南亚']),
+    rating: 4.5, reviewCount: 920, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '304不锈钢螺丝 精密紧固件 M3-M12',
+        description: 'A2-70 304不锈钢材质，耐腐蚀高强度。M3-M12多规格，长度6-100mm。支持非标定制。',
+        priceMin: 0.02, priceMax: 0.5, currency: 'CNY', moq: 50000,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['SGS', 'RoHS']),
+        rating: 4.5, reviewCount: 5800,
+      },
+    ],
+  },
+  {
+    nameZh: '东莞创元电子科技有限公司',
+    nameEn: 'Dongguan Chuangyuan Electronics Technology Co., Ltd.',
+    location: '广东东莞 · 寮步镇',
+    yearEstablished: 2013, employeeCount: 160,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'RoHS', 'UL']),
+    businessTags: JSON.stringify(['开关电源', '电源适配器', '充电器', '电源方案']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '澳大利亚', '巴西']),
+    rating: 4.3, reviewCount: 720, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '电源适配器 12V 2A 带UL认证',
+        description: '输入100-240V AC，输出12V 2A。六级能效，待机功耗<0.1W。过流/过压/短路三重保护。UL认证。',
+        priceMin: 5.0, priceMax: 10.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'UL', 'RoHS']),
+        rating: 4.3, reviewCount: 8500,
+      },
+    ],
+  },
+  {
+    nameZh: '东莞幸福小家电有限公司',
+    nameEn: 'Dongguan Xingfu Small Appliances Co., Ltd.',
+    location: '广东东莞 · 厚街镇',
+    yearEstablished: 2011, employeeCount: 220,
+    annualExportRevenue: 750,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'CE', 'CB', 'RoHS']),
+    businessTags: JSON.stringify(['加湿器', '香薰机', '电暖器', '除湿机', '个人护理']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '韩国', '日本', '东南亚']),
+    rating: 4.4, reviewCount: 1050, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '超声波香薰加湿器 500ml',
+        description: '500ml容量，可加精油香薰。静音运行≤25dB，夜灯功能。缺水自动断电，整夜安心使用。',
+        priceMin: 18.0, priceMax: 32.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'CB', 'RoHS']),
+        rating: 4.5, reviewCount: 11000,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  佛山 — 家具/家电/建材 (8家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '佛山顺德名匠家具有限公司',
+    nameEn: 'Foshan Shunde Mingjiang Furniture Co., Ltd.',
+    location: '广东佛山 · 顺德区',
+    yearEstablished: 2003, employeeCount: 420,
+    annualExportRevenue: 2500,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'CARB P2', 'FSC']),
+    businessTags: JSON.stringify(['客厅家具', '沙发', '茶几', '电视柜', '实木家具']),
+    exportDestinations: JSON.stringify(['美国', '加拿大', '英国', '德国', '中东', '东南亚']),
+    rating: 4.5, reviewCount: 3420, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '现代简约布艺沙发 三人位',
+        description: '高密度海绵座包，羽绒靠包。棉麻面料，可拆洗。实木框架+蛇形弹簧。多色可选，尺寸可定制。',
+        priceMin: 680.0, priceMax: 1280.0, currency: 'CNY', moq: 10,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CARB P2']),
+        rating: 4.5, reviewCount: 3200,
+      },
+      {
+        name: '轻奢岩板茶几 1.3m',
+        description: '12mm厚进口岩板台面，耐刮耐热。碳素钢框架+电镀工艺。带抽屉储物。尺寸1300×700×450mm。',
+        priceMin: 380.0, priceMax: 650.0, currency: 'CNY', moq: 20,
+        supportsDropShipping: false, supportsOEM: true,
+        rating: 4.6, reviewCount: 2100,
+      },
+    ],
+  },
+  {
+    nameZh: '佛山晚安家居有限公司',
+    nameEn: "Foshan Wan'an Home Furnishing Co., Ltd.",
+    location: '广东佛山 · 南海区',
+    yearEstablished: 2007, employeeCount: 350,
+    annualExportRevenue: 1600,
+    certifications: JSON.stringify(['ISO 9001', 'CertiPUR-US', 'OEKO-TEX', 'CFR 1633']),
+    businessTags: JSON.stringify(['床垫', '床架', '床头柜', '卧室家具', '乳胶床垫']),
+    exportDestinations: JSON.stringify(['美国', '加拿大', '澳大利亚', '日本', '东南亚', '欧洲']),
+    rating: 4.6, reviewCount: 2890, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '天然乳胶床垫 22cm 含弹簧',
+        description: '5cm天然乳胶层+独立袋装弹簧+高密度海绵。软硬适中，抗菌防螨。7区支撑设计。可卷包发货。',
+        priceMin: 580.0, priceMax: 1280.0, currency: 'CNY', moq: 10,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CertiPUR-US', 'OEKO-TEX']),
+        rating: 4.7, reviewCount: 5600,
+      },
+    ],
+  },
+  {
+    nameZh: '佛山宏陶陶瓷有限公司',
+    nameEn: 'Foshan Hongtao Ceramics Co., Ltd.',
+    location: '广东佛山 · 禅城区',
+    yearEstablished: 2004, employeeCount: 480,
+    annualExportRevenue: 2200,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'CE', '3C', 'Green Label']),
+    businessTags: JSON.stringify(['瓷砖', '地砖', '墙砖', '大板', '薄板', '岩板']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '韩国', '澳大利亚']),
+    rating: 4.5, reviewCount: 2600, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '通体大理石瓷砖 800×800mm',
+        description: '一石多面设计，天然大理石纹理。通体坯，表里如一。莫氏硬度7级，耐磨防滑。适合客厅/商业空间。',
+        priceMin: 28.0, priceMax: 55.0, currency: 'CNY', moq: 300,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', '3C']),
+        rating: 4.6, reviewCount: 3200,
+      },
+    ],
+  },
+  {
+    nameZh: '佛山联邦家私集团有限公司',
+    nameEn: 'Foshan Landbond Furniture Group Co., Ltd.',
+    location: '广东佛山 · 南海区',
+    yearEstablished: 2000, employeeCount: 600,
+    annualExportRevenue: 3500,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'CARB P2', 'FSC', 'BIFMA']),
+    businessTags: JSON.stringify(['办公家具', '酒店家具', '定制家具', '板式家具', '软体家具']),
+    exportDestinations: JSON.stringify(['美国', '英国', '德国', '法国', '中东', '新加坡']),
+    rating: 4.7, reviewCount: 4100, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '人体工学办公椅 网布透气',
+        description: '高弹力网布靠背，透气不闷汗。3D可调扶手，腰靠支撑可调。承重150kg，SGS认证气压棒。',
+        priceMin: 180.0, priceMax: 350.0, currency: 'CNY', moq: 20,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['BIFMA', 'SGS']),
+        rating: 4.7, reviewCount: 4500,
+      },
+    ],
+  },
+  {
+    nameZh: '佛山日丰管业科技有限公司',
+    nameEn: 'Foshan Rifeng Pipe Technology Co., Ltd.',
+    location: '广东佛山 · 三水区',
+    yearEstablished: 2006, employeeCount: 350,
+    annualExportRevenue: 1400,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'WRAS', 'NSF', 'SKZ']),
+    businessTags: JSON.stringify(['PPR管', 'PVC管', '管道系统', '卫浴五金', '水暖配件']),
+    exportDestinations: JSON.stringify(['美国', '英国', '德国', '澳大利亚', '中东', '东南亚']),
+    rating: 4.5, reviewCount: 1800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: 'PPR冷热水管 25mm 家装管',
+        description: '北欧化工PPR原料，S2.5压力等级。耐高温95°C，承压25kg。50年质保。配同品牌管件。',
+        priceMin: 3.5, priceMax: 8.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: false,
+        certifications: JSON.stringify(['CE', 'WRAS', 'NSF']),
+        rating: 4.6, reviewCount: 6800,
+      },
+    ],
+  },
+  {
+    nameZh: '佛山艾斐堡智能家居有限公司',
+    nameEn: 'Foshan Afibao Smart Home Co., Ltd.',
+    location: '广东佛山 · 顺德区',
+    yearEstablished: 2015, employeeCount: 140,
+    annualExportRevenue: 400,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FCC', 'RoHS']),
+    businessTags: JSON.stringify(['智能门锁', '指纹锁', '智能家居', '门禁系统']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '澳大利亚']),
+    rating: 4.3, reviewCount: 780, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '3D人脸识别智能门锁 全自动',
+        description: '3D结构光人脸识别，支付级安全。指纹/密码/IC卡/钥匙/远程临时密码。全自动锁体，开门即解锁。',
+        priceMin: 180.0, priceMax: 380.0, currency: 'CNY', moq: 30,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FCC', 'RoHS']),
+        rating: 4.3, reviewCount: 3800,
+      },
+    ],
+  },
+  {
+    nameZh: '佛山美菱冷暖设备有限公司',
+    nameEn: 'Foshan Meiling HVAC Equipment Co., Ltd.',
+    location: '广东佛山 · 高明区',
+    yearEstablished: 2008, employeeCount: 280,
+    annualExportRevenue: 1100,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'UL', 'RoHS', 'ERP']),
+    businessTags: JSON.stringify(['风扇', '取暖器', '空调扇', '移动空调', '除湿机']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '非洲']),
+    rating: 4.4, reviewCount: 1350, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '冷暖两用移动空调 9000BTU',
+        description: '9000BTU制冷量，冷暖两用。免安装插电即用，排热管排出室外。遥控控制，24小时定时。',
+        priceMin: 280.0, priceMax: 480.0, currency: 'CNY', moq: 30,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'UL', 'ERP']),
+        rating: 4.4, reviewCount: 2600,
+      },
+    ],
+  },
+  {
+    nameZh: '佛山美居乐家具配件有限公司',
+    nameEn: 'Foshan Meijule Furniture Accessories Co., Ltd.',
+    location: '广东佛山 · 顺德龙江',
+    yearEstablished: 2010, employeeCount: 120,
+    annualExportRevenue: 350,
+    certifications: JSON.stringify(['ISO 9001', 'SGS']),
+    businessTags: JSON.stringify(['家具配件', '沙发脚', '五金脚', '功能支架', '转盘']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '南美']),
+    rating: 4.3, reviewCount: 620, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '不锈钢沙发脚 金属家具腿 8cm高',
+        description: '201不锈钢拉丝表面，承重200kg。带防滑脚垫，保护地板。规格：8/10/12/15cm多种高度。',
+        priceMin: 2.0, priceMax: 6.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.3, reviewCount: 4800,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  义乌 — 小商品/饰品/文具/玩具 (12家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '义乌宏盛日用百货有限公司',
+    nameEn: 'Yiwu Hongsheng Daily Necessities Co., Ltd.',
+    location: '浙江义乌 · 国际商贸城',
+    yearEstablished: 2009, employeeCount: 160,
+    annualExportRevenue: 900,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'FDA']),
+    businessTags: JSON.stringify(['收纳用品', '厨房用品', '家居日用', '塑料制品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '南美', '中东', '非洲']),
+    rating: 4.7, reviewCount: 4500, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '可折叠硅胶收纳盒 多功能',
+        description: '食品级铂金硅胶材质，可折叠省空间。微波炉/洗碗机/烤箱通用。多规格组合(1.2L/2.5L/4L)。',
+        priceMin: 12.0, priceMax: 28.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'LFGB']),
+        rating: 4.6, reviewCount: 9200,
+      },
+      {
+        name: '不锈钢保温饭盒 三层 1.5L',
+        description: '304不锈钢内胆，真空双层保温6小时。三层分隔设计，饭菜汤分装。配便携布袋。',
+        priceMin: 28.0, priceMax: 45.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'LFGB']),
+        rating: 4.5, reviewCount: 7800,
+      },
+    ],
+  },
+  {
+    nameZh: '义乌鑫艺饰品有限公司',
+    nameEn: 'Yiwu Xinyi Jewelry Co., Ltd.',
+    location: '浙江义乌 · 廿三里',
+    yearEstablished: 2014, employeeCount: 120,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['BSCI', 'REACH', '加州65']),
+    businessTags: JSON.stringify(['饰品', '首饰', '项链', '耳环', '手链', '发饰']),
+    exportDestinations: JSON.stringify(['美国', '英国', '法国', '意大利', '巴西', '中东']),
+    rating: 4.4, reviewCount: 1800, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '韩国风极简锁骨链 钛钢不掉色',
+        description: '316L钛钢材质，真空电镀工艺。防过敏不掉色，可接触水。多款可选（星月/圆牌/字母）。配OPP袋。',
+        priceMin: 3.5, priceMax: 8.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['REACH']),
+        rating: 4.5, reviewCount: 32000,
+      },
+      {
+        name: '醋酸发夹 鲨鱼夹 大号',
+        description: '进口醋酸板材，手工打磨。温润光泽，不伤发质。多色多纹理可选。B2B批发价。',
+        priceMin: 2.8, priceMax: 6.5, currency: 'CNY', moq: 1000,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.3, reviewCount: 15400,
+      },
+    ],
+  },
+  {
+    nameZh: '义乌博文书具有限公司',
+    nameEn: 'Yiwu Bowen Stationery Co., Ltd.',
+    location: '浙江义乌 · 上溪镇',
+    yearEstablished: 2011, employeeCount: 90,
+    annualExportRevenue: 350,
+    certifications: JSON.stringify(['ISO 9001', 'EN71', 'ASTM D4236']),
+    businessTags: JSON.stringify(['文具', '笔记本', '笔类', '办公用品', '手账']),
+    exportDestinations: JSON.stringify(['美国', '日本', '韩国', '欧洲', '东南亚']),
+    rating: 4.5, reviewCount: 1200, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: 'A5 PU软皮笔记本 方格内页 192页',
+        description: '仿皮封面，手感细腻。80g无酸纸，方格内页，不透墨。含书签带+笔插。可定制LOGO烫金。',
+        priceMin: 6.5, priceMax: 14.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.5, reviewCount: 6500,
+      },
+    ],
+  },
+  {
+    nameZh: '义乌多彩文具礼品有限公司',
+    nameEn: 'Yiwu Duocai Stationery & Gifts Co., Ltd.',
+    location: '浙江义乌 · 稠江街道',
+    yearEstablished: 2012, employeeCount: 100,
+    annualExportRevenue: 380,
+    certifications: JSON.stringify(['ISO 9001', 'EN71', 'ASTM D4236', 'CE']),
+    businessTags: JSON.stringify(['文具', '办公用品', '美术用品', '礼品', '派对用品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚', '南美', '中东']),
+    rating: 4.4, reviewCount: 980, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '水彩笔套装 48色 可水洗',
+        description: '食品级颜料，可水洗安全无毒。纤维笔头，出水均匀。48色铁盒装，送礼自用皆宜。',
+        priceMin: 6.0, priceMax: 12.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['EN71', 'ASTM D4236', 'CE']),
+        rating: 4.4, reviewCount: 12000,
+      },
+      {
+        name: '创意礼品包装纸 10张套装',
+        description: '120g高档彩牛纸，双面印花。10张/套，含多种花色。配同色系丝带。适合节日礼品包装。',
+        priceMin: 3.0, priceMax: 7.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.3, reviewCount: 8500,
+      },
+    ],
+  },
+  {
+    nameZh: '义乌盛达玩具进出口有限公司',
+    nameEn: 'Yiwu Shengda Toy Import & Export Co., Ltd.',
+    location: '浙江义乌 · 北苑街道',
+    yearEstablished: 2010, employeeCount: 80,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['EN71', 'ASTM F963', 'CE', 'CCC']),
+    businessTags: JSON.stringify(['玩具', '儿童玩具', '派对玩具', '泡泡机', '水枪']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '南美', '中东', '非洲']),
+    rating: 4.3, reviewCount: 1500, isVerified: false, type: 'distributor',
+    products: [
+      {
+        name: '电动泡泡机 自动出泡 带8瓶泡泡液',
+        description: '电动旋转出泡，120孔转盘。一次加液可连续出泡30分钟。配8瓶补充液+充电电池。',
+        priceMin: 5.0, priceMax: 12.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: false,
+        certifications: JSON.stringify(['EN71', 'ASTM F963', 'CCC']),
+        rating: 4.2, reviewCount: 18500,
+      },
+    ],
+  },
+  {
+    nameZh: '义乌金城饰品有限公司',
+    nameEn: 'Yiwu Jincheng Jewelry Co., Ltd.',
+    location: '浙江义乌 · 佛堂镇',
+    yearEstablished: 2013, employeeCount: 150,
+    annualExportRevenue: 450,
+    certifications: JSON.stringify(['BSCI', 'REACH', 'SGS']),
+    businessTags: JSON.stringify(['饰品', '耳环', '戒指', '手链', '头饰', '婚礼饰品']),
+    exportDestinations: JSON.stringify(['美国', '英国', '法国', '意大利', '西班牙', '巴西']),
+    rating: 4.3, reviewCount: 1300, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '925银针耳环 极简几何多款混批',
+        description: 'S925银针防过敏，锆石微镶工艺。极简几何设计，多款可选。每款独立卡纸包装。支持混批。',
+        priceMin: 2.5, priceMax: 6.0, currency: 'CNY', moq: 1000,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['REACH', 'SGS']),
+        rating: 4.3, reviewCount: 28000,
+      },
+      {
+        name: '韩版发圈 大肠发圈 多色混批',
+        description: '真丝缎面+弹力橡筋，柔软不伤发。大号蓬松款，多色可选。100个/包混批发货。',
+        priceMin: 1.0, priceMax: 3.0, currency: 'CNY', moq: 2000,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.2, reviewCount: 35000,
+      },
+    ],
+  },
+  {
+    nameZh: '义乌祥和日化有限公司',
+    nameEn: 'Yiwu Xianghe Daily Chemical Co., Ltd.',
+    location: '浙江义乌 · 义亭镇',
+    yearEstablished: 2010, employeeCount: 110,
+    annualExportRevenue: 320,
+    certifications: JSON.stringify(['ISO 9001', 'FDA', 'SGS']),
+    businessTags: JSON.stringify(['日化用品', '清洁用品', '洗衣液', '洗洁精', '洗手液']),
+    exportDestinations: JSON.stringify(['美国', '中东', '非洲', '东南亚', '南美']),
+    rating: 4.2, reviewCount: 720, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '浓缩洗衣凝珠 15g*100颗',
+        description: '8倍浓缩配方，一颗洗净一桶衣。四效合一（清洁/柔顺/留香/除菌）。水溶性膜，遇水速溶。',
+        priceMin: 8.0, priceMax: 15.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'SGS']),
+        rating: 4.3, reviewCount: 16000,
+      },
+    ],
+  },
+  {
+    nameZh: '义乌佳和箱包有限公司',
+    nameEn: 'Yiwu Jiahe Luggage Co., Ltd.',
+    location: '浙江义乌 · 江东街道',
+    yearEstablished: 2011, employeeCount: 130,
+    annualExportRevenue: 450,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI']),
+    businessTags: JSON.stringify(['箱包', '旅行箱', '拉杆箱', '化妆箱', '塑料箱']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '非洲']),
+    rating: 4.3, reviewCount: 1100, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: 'PC拉杆箱 20寸 登机箱',
+        description: '100%纯PC材质，轻韧抗摔。双排8轮静音万向轮，TSA海关锁。铝合金拉杆，三档调节。',
+        priceMin: 42.0, priceMax: 78.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.4, reviewCount: 7800,
+      },
+    ],
+  },
+  {
+    nameZh: '义乌创艺工艺品有限公司',
+    nameEn: 'Yiwu Chuangyi Crafts Co., Ltd.',
+    location: '浙江义乌 · 后宅街道',
+    yearEstablished: 2015, employeeCount: 70,
+    annualExportRevenue: 200,
+    certifications: JSON.stringify(['EN71', 'CE']),
+    businessTags: JSON.stringify(['工艺品', '节日装饰', '圣诞用品', '家居摆件', '花艺']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '中东', '南美', '东南亚']),
+    rating: 4.2, reviewCount: 550, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '仿真花束 混搭花艺 家居装饰',
+        description: 'PE+绢布材质，仿真度高。含玫瑰/绣球/尤加利叶等多品种。无需浇水打理，常年如新。',
+        priceMin: 3.5, priceMax: 10.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE']),
+        rating: 4.3, reviewCount: 6200,
+      },
+      {
+        name: 'LED铜线灯串 5米 节日装饰',
+        description: '5米50灯LED铜线灯串，8种闪烁模式。USB供电/电池盒可选。防水设计，室内外通用。',
+        priceMin: 2.5, priceMax: 6.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.2, reviewCount: 11000,
+      },
+    ],
+  },
+  {
+    nameZh: '义乌美家居日用百货商行',
+    nameEn: 'Yiwu Meijiaju Daily Necessities Trading Co.',
+    location: '浙江义乌 · 国际商贸城',
+    yearEstablished: 2017, employeeCount: 25,
+    annualExportRevenue: 180,
+    certifications: JSON.stringify([]),
+    businessTags: JSON.stringify(['家居用品', '厨房用品', '浴室用品', '清洁用品', '家居收纳']),
+    exportDestinations: JSON.stringify(['东南亚', '中东', '非洲', '南美']),
+    rating: 4.0, reviewCount: 350, isVerified: false, type: 'distributor',
+    products: [
+      {
+        name: '多功能厨房剪刀 不锈钢',
+        description: '3CR13不锈钢材质，锋利耐用。磁吸刀套安全收纳。可拆洗设计，开瓶/剪骨/刮鱼鳞多功能。',
+        priceMin: 2.0, priceMax: 5.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: false,
+        rating: 4.1, reviewCount: 7500,
+      },
+    ],
+  },
+  {
+    nameZh: '义乌鸿运玩具礼品有限公司',
+    nameEn: 'Yiwu Hongyun Toy & Gift Co., Ltd.',
+    location: '浙江义乌 · 苏溪镇',
+    yearEstablished: 2016, employeeCount: 60,
+    annualExportRevenue: 280,
+    certifications: JSON.stringify(['EN71', 'ASTM F963', 'CE']),
+    businessTags: JSON.stringify(['毛绒玩具', '公仔', '抱枕', '玩偶', '礼物']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.1, reviewCount: 480, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '可爱毛绒公仔 趴趴狗 40cm',
+        description: '超柔短毛绒面料，PP棉填充。可做抱枕/靠垫/安抚玩具。造型可爱逼真，送礼佳品。40cm大号。',
+        priceMin: 8.0, priceMax: 18.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['EN71', 'CE']),
+        rating: 4.2, reviewCount: 9200,
+      },
+    ],
+  },
+  {
+    nameZh: '义乌天翔体育用品有限公司',
+    nameEn: 'Yiwu Tianxiang Sporting Goods Co., Ltd.',
+    location: '浙江义乌 · 城西街道',
+    yearEstablished: 2014, employeeCount: 85,
+    annualExportRevenue: 300,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'SGS']),
+    businessTags: JSON.stringify(['体育用品', '健身器材', '瑜伽垫', '跳绳', '拉力带']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '南美', '中东']),
+    rating: 4.3, reviewCount: 680, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: 'TPE瑜伽垫 6mm 防滑健身垫',
+        description: '环保TPE材质，双层防滑纹理。6mm厚度减震适中，闭孔结构不吸水。附赠绑带+背包。',
+        priceMin: 8.0, priceMax: 18.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'SGS']),
+        rating: 4.4, reviewCount: 14200,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  泉州/晋江 — 鞋服/卫浴 (8家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '晋江利达鞋业有限公司',
+    nameEn: 'Jinjiang Lida Footwear Co., Ltd.',
+    location: '福建晋江 · 陈埭镇',
+    yearEstablished: 2000, employeeCount: 680,
+    annualExportRevenue: 3200,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'SATRA', 'SGS']),
+    businessTags: JSON.stringify(['运动鞋', '跑鞋', '篮球鞋', '休闲鞋', '硫化鞋']),
+    exportDestinations: JSON.stringify(['美国', '欧盟', '东南亚', '南美', '中东', '非洲']),
+    rating: 4.6, reviewCount: 5200, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '透气飞织运动跑鞋 男款',
+        description: '飞织鞋面，透气轻盈。EVA+橡胶大底，耐磨防滑。记忆鞋垫，缓震回弹。多色多码(39-46)。',
+        priceMin: 28.0, priceMax: 48.0, currency: 'CNY', moq: 300,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.6, reviewCount: 18300,
+      },
+    ],
+  },
+  {
+    nameZh: '晋江舒乐拖鞋厂',
+    nameEn: 'Jinjiang Shule Slippers Factory',
+    location: '福建晋江 · 内坑镇',
+    yearEstablished: 2012, employeeCount: 150,
+    annualExportRevenue: 400,
+    certifications: JSON.stringify(['ISO 9001', 'SGS']),
+    businessTags: JSON.stringify(['拖鞋', '凉拖', '棉拖', '沙滩鞋', 'EVA拖鞋']),
+    exportDestinations: JSON.stringify(['日本', '韩国', '东南亚', '澳大利亚', '欧洲']),
+    rating: 4.3, reviewCount: 1100, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: 'EVA防滑浴室拖鞋 情侣款',
+        description: '环保EVA一体成型，无异味。加厚鞋底4cm，排水防滑设计。轻量化单只仅90g。多色多码。',
+        priceMin: 5.5, priceMax: 10.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.4, reviewCount: 22000,
+      },
+    ],
+  },
+  {
+    nameZh: '泉州华泰陶瓷有限公司',
+    nameEn: 'Quanzhou Huatai Ceramics Co., Ltd.',
+    location: '福建泉州 · 德化县',
+    yearEstablished: 1998, employeeCount: 320,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'FDA', 'LFGB', 'SGS']),
+    businessTags: JSON.stringify(['陶瓷餐具', '茶具', '日用陶瓷', '工艺陶瓷', '酒店用瓷']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '中东']),
+    rating: 4.7, reviewCount: 3800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '高档骨瓷餐具套装 56头',
+        description: '45%骨粉含量，超白透亮。釉面光滑易清洗。含碗碟杯勺等56件，适合6人家庭。礼盒包装。',
+        priceMin: 85.0, priceMax: 168.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'LFGB']),
+        rating: 4.7, reviewCount: 4600,
+      },
+    ],
+  },
+  {
+    nameZh: '泉州九牧卫浴科技有限公司',
+    nameEn: 'Quanzhou Jomoo Sanitary Technology Co., Ltd.',
+    location: '福建泉州 · 南安',
+    yearEstablished: 2005, employeeCount: 500,
+    annualExportRevenue: 2800,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'WaterSense', 'ACS', 'CUPC']),
+    businessTags: JSON.stringify(['卫浴', '马桶', '花洒', '水龙头', '浴室柜', '智能马桶']),
+    exportDestinations: JSON.stringify(['美国', '加拿大', '欧盟', '澳大利亚', '中东', '东南亚']),
+    rating: 4.8, reviewCount: 6100, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '智能一体马桶 带烘干清洗',
+        description: '即热式活水加热，喷嘴自洁。妇洗/臀洗/烘干/座圈加热。脚感翻盖翻圈，IPX4防水。',
+        priceMin: 450.0, priceMax: 880.0, currency: 'CNY', moq: 20,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'WaterSense', 'CUPC']),
+        rating: 4.8, reviewCount: 3200,
+      },
+      {
+        name: '全铜淋浴花洒套装 增压款',
+        description: '全铜主体，十级电镀防锈。三功能出水（雨淋/按摩/混合）。空气能增压节水技术。',
+        priceMin: 85.0, priceMax: 165.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'ACS']),
+        rating: 4.6, reviewCount: 8900,
+      },
+    ],
+  },
+  {
+    nameZh: '晋江劲霸服饰有限公司',
+    nameEn: 'Jinjiang Kingbird Garment Co., Ltd.',
+    location: '福建晋江 · 英林镇',
+    yearEstablished: 2003, employeeCount: 400,
+    annualExportRevenue: 1800,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'Oeko-Tex Standard 100']),
+    businessTags: JSON.stringify(['男装', '夹克', '西服', '休闲裤', '商务男装']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚', '中东']),
+    rating: 4.5, reviewCount: 2200, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '男士商务休闲夹克 春季薄款',
+        description: '高密尼龙面料，防泼水处理。立领设计，多口袋实用。内衬透气网布，春秋季通勤百搭。',
+        priceMin: 35.0, priceMax: 65.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.5, reviewCount: 5800,
+      },
+    ],
+  },
+  {
+    nameZh: '泉州恒通卫浴有限公司',
+    nameEn: 'Quanzhou Hengtong Sanitary Ware Co., Ltd.',
+    location: '福建泉州 · 南安仑苍',
+    yearEstablished: 2008, employeeCount: 280,
+    annualExportRevenue: 1000,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'ACS', 'WaterSense', 'NSF']),
+    businessTags: JSON.stringify(['水龙头', '水槽', '厨房龙头', '面盆龙头', '角阀']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '澳大利亚']),
+    rating: 4.5, reviewCount: 1400, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '不锈钢厨房水槽 单槽 大容量',
+        description: '304不锈钢加厚1.2mm，拉丝表面抗刮花。R10圆角设计易清洁。含抽拉龙头+皂液器套装。',
+        priceMin: 120.0, priceMax: 220.0, currency: 'CNY', moq: 30,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'NSF']),
+        rating: 4.6, reviewCount: 3400,
+      },
+    ],
+  },
+  {
+    nameZh: '晋江安踏体育用品代工厂',
+    nameEn: 'Jinjiang Anta Sportswear OEM Factory',
+    location: '福建晋江 · 池店镇',
+    yearEstablished: 2007, employeeCount: 500,
+    annualExportRevenue: 2500,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'Oeko-Tex', 'SGS']),
+    businessTags: JSON.stringify(['运动鞋', '运动服', '户外装备', '体育用品代工']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.7, reviewCount: 3200, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '专业跑步T恤 速干面料 男款',
+        description: '100%涤纶速干面料，吸湿排汗。激光透气孔设计，无缝工艺减少摩擦。反光印花夜跑安全。',
+        priceMin: 12.0, priceMax: 22.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.6, reviewCount: 13500,
+      },
+      {
+        name: '轻量缓震跑步鞋 女款',
+        description: 'EVA中底缓震回弹，橡胶大底耐磨。飞织鞋面透气包裹好。单只仅180g，轻若无物。多色可选。',
+        priceMin: 32.0, priceMax: 55.0, currency: 'CNY', moq: 300,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.6, reviewCount: 9800,
+      },
+    ],
+  },
+  {
+    nameZh: '泉州市闽南石材有限公司',
+    nameEn: 'Quanzhou Minnan Stone Co., Ltd.',
+    location: '福建泉州 · 惠安县',
+    yearEstablished: 2001, employeeCount: 350,
+    annualExportRevenue: 1600,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'SGS']),
+    businessTags: JSON.stringify(['石材', '花岗岩', '大理石', '墓碑', '建筑石材']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.4, reviewCount: 1800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '芝麻灰花岗岩板材 G654',
+        description: '天然芝麻灰花岗岩，表面火烧/荔枝/抛光处理。规格600×600×30mm。适用于广场/外墙/路沿。',
+        priceMin: 45.0, priceMax: 85.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'SGS']),
+        rating: 4.4, reviewCount: 2800,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  温州 — 眼镜/打火机/小电器 (6家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '温州正大眼镜有限公司',
+    nameEn: 'Wenzhou Zhengda Glasses Co., Ltd.',
+    location: '浙江温州 · 瓯海区',
+    yearEstablished: 2004, employeeCount: 350,
+    annualExportRevenue: 1500,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FDA', 'ANSI Z80.3']),
+    businessTags: JSON.stringify(['太阳镜', '光学眼镜', '老花镜', '眼镜配件']),
+    exportDestinations: JSON.stringify(['美国', '欧盟', '东南亚', '南美', '中东']),
+    rating: 4.5, reviewCount: 2800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '偏光太阳镜 飞行员款 UV400',
+        description: 'TAC偏光镜片，UV400防护。TR90超轻镜框，重量仅22g。多色可选。配眼镜盒+擦镜布。',
+        priceMin: 12.0, priceMax: 25.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FDA', 'ANSI Z80.3']),
+        rating: 4.5, reviewCount: 12500,
+      },
+    ],
+  },
+  {
+    nameZh: '温州天骄打火机有限公司',
+    nameEn: 'Wenzhou Tianjiao Lighter Co., Ltd.',
+    location: '浙江温州 · 鹿城区',
+    yearEstablished: 2008, employeeCount: 200,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'ASTM', 'SGS']),
+    businessTags: JSON.stringify(['打火机', '烟具', '打火机配件', '礼品打火机']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '中东', '东南亚', '非洲']),
+    rating: 4.4, reviewCount: 1500, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '直冲防风中高档打火机 金属壳',
+        description: '锌合金外壳，表面拉丝/镜面工艺。直冲式火焰，防风设计。气体透明可视。可定制LOGO。',
+        priceMin: 2.5, priceMax: 6.0, currency: 'CNY', moq: 1000,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'ASTM']),
+        rating: 4.3, reviewCount: 22000,
+      },
+      {
+        name: 'USB充电电子打火机 电弧',
+        description: '双电弧点火，USB-C充电。无明火无气体，安全环保。全金属机身，续航1个月。',
+        priceMin: 5.0, priceMax: 12.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'RoHS']),
+        rating: 4.4, reviewCount: 15000,
+      },
+    ],
+  },
+  {
+    nameZh: '温州凯达电器有限公司',
+    nameEn: 'Wenzhou Kaida Electric Appliance Co., Ltd.',
+    location: '浙江温州 · 乐清市',
+    yearEstablished: 2006, employeeCount: 260,
+    annualExportRevenue: 900,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'CB', 'UL', 'RoHS']),
+    businessTags: JSON.stringify(['墙壁开关', '插座', '排插', '转换器', '电工配件']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '中东', '东南亚', '南美']),
+    rating: 4.4, reviewCount: 1300, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: 'USB-C墙壁插座 快充面板',
+        description: '带双USB-C 65W快充面板，兼容PD/PPS协议。阻燃PC面板，750°C灼热丝测试。标准86暗盒安装。',
+        priceMin: 15.0, priceMax: 28.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'UL', 'RoHS']),
+        rating: 4.5, reviewCount: 6800,
+      },
+    ],
+  },
+  {
+    nameZh: '温州宏丰五金制品有限公司',
+    nameEn: 'Wenzhou Hongfeng Hardware Products Co., Ltd.',
+    location: '浙江温州 · 永嘉县',
+    yearEstablished: 2009, employeeCount: 180,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['ISO 9001', 'SGS']),
+    businessTags: JSON.stringify(['五金配件', '合页', '拉手', '锁具', '门窗五金']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东']),
+    rating: 4.3, reviewCount: 850, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '不锈钢合页 4寸*3*2.5mm',
+        description: '304不锈钢材质，加厚2.5mm。承重50kg。配不锈钢螺丝。适用于室内木门/柜门。',
+        priceMin: 1.5, priceMax: 4.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.3, reviewCount: 9600,
+      },
+    ],
+  },
+  {
+    nameZh: '温州永嘉泵阀制造有限公司',
+    nameEn: 'Wenzhou Yongjia Pump & Valve Manufacturing Co., Ltd.',
+    location: '浙江温州 · 永嘉瓯北',
+    yearEstablished: 2003, employeeCount: 320,
+    annualExportRevenue: 1500,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'API', 'TS']),
+    businessTags: JSON.stringify(['阀门', '水泵', '球阀', '闸阀', '止回阀']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '中东', '俄罗斯', '东南亚']),
+    rating: 4.5, reviewCount: 2000, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '法兰球阀 Q41F-16C DN50',
+        description: '碳钢WCB阀体，PTFE密封。DN50法兰连接，PN16压力等级。适用于水/油/气管道。',
+        priceMin: 35.0, priceMax: 85.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'API', 'TS']),
+        rating: 4.5, reviewCount: 3800,
+      },
+    ],
+  },
+  {
+    nameZh: '温州俊朗服饰辅料有限公司',
+    nameEn: 'Wenzhou Junlang Garment Accessories Co., Ltd.',
+    location: '浙江温州 · 瓯海区',
+    yearEstablished: 2012, employeeCount: 100,
+    annualExportRevenue: 250,
+    certifications: JSON.stringify(['ISO 9001', 'REACH', 'Oeko-Tex']),
+    businessTags: JSON.stringify(['服装辅料', '纽扣', '拉链', '织带', '吊牌', '五金扣']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '南美']),
+    rating: 4.2, reviewCount: 580, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '金属牛仔扣 全套 复古做旧',
+        description: '黄铜材质，复古做旧工艺。含面扣+撞钉+空心钉。多种尺寸和颜色。适合牛仔裤/工装裤。',
+        priceMin: 0.3, priceMax: 0.8, currency: 'CNY', moq: 5000,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['REACH', 'Oeko-Tex']),
+        rating: 4.2, reviewCount: 5800,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  中山 — 灯具/五金 (6家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '中山古镇亮尔雅灯饰有限公司',
+    nameEn: "Zhongshan Guzhen Liang'erya Lighting Co., Ltd.",
+    location: '广东中山 · 古镇镇',
+    yearEstablished: 2006, employeeCount: 280,
+    annualExportRevenue: 1300,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'UL', 'RoHS', 'ERP']),
+    businessTags: JSON.stringify(['LED灯具', '吊灯', '吸顶灯', 'LED面板灯', '户外照明']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '中东', '东南亚', '南美', '非洲']),
+    rating: 4.6, reviewCount: 2200, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: 'LED全光谱护眼吸顶灯 48W',
+        description: 'Ra>95高显色，全光谱接近自然光。三档色温调节(3000K-5000K-6500K)。智能遥控调光。直径50cm。',
+        priceMin: 55.0, priceMax: 98.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'UL', 'RoHS']),
+        rating: 4.7, reviewCount: 7400,
+      },
+    ],
+  },
+  {
+    nameZh: '中山现代光电科技有限公司',
+    nameEn: 'Zhongshan Xiandai Optoelectronics Technology Co., Ltd.',
+    location: '广东中山 · 横栏镇',
+    yearEstablished: 2017, employeeCount: 120,
+    annualExportRevenue: 400,
+    certifications: JSON.stringify(['CE', 'RoHS', 'UL', 'DLC']),
+    businessTags: JSON.stringify(['LED灯带', '线条灯', '商业照明', '灯条灯带']),
+    exportDestinations: JSON.stringify(['美国', '加拿大', '欧洲', '澳大利亚', '东南亚']),
+    rating: 4.3, reviewCount: 860, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: 'RGB智能LED灯带 5米 手机控制',
+        description: '5050 RGB灯珠，160颗/米。手机App+语音控制，1600万色。支持音乐律动。5米一卷含电源。',
+        priceMin: 15.0, priceMax: 28.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'RoHS', 'UL']),
+        rating: 4.4, reviewCount: 15800,
+      },
+    ],
+  },
+  {
+    nameZh: '中山欧普照明股份有限公司',
+    nameEn: 'Zhongshan Opple Lighting Co., Ltd.',
+    location: '广东中山 · 古镇镇',
+    yearEstablished: 2004, employeeCount: 500,
+    annualExportRevenue: 3000,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'UL', 'RoHS', 'ERP', 'DLC']),
+    businessTags: JSON.stringify(['LED照明', '筒灯', '射灯', '面板灯', '工矿灯', '户外照明']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '南美', '非洲']),
+    rating: 4.7, reviewCount: 4500, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: 'LED筒灯 4寸 12W 开孔120mm',
+        description: '12W高亮，光通量960lm。Ra>90高显色，无可视频闪。铝材散热，寿命30000h。开孔120mm。',
+        priceMin: 8.0, priceMax: 15.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: false,
+        certifications: JSON.stringify(['CE', 'UL', 'RoHS', 'DLC']),
+        rating: 4.6, reviewCount: 12500,
+      },
+      {
+        name: '太阳能户外庭院灯 100W',
+        description: '多晶硅太阳能板，100W LED灯头。光控+雷达感应，节能模式亮整夜。IP65防水。含安装支架。',
+        priceMin: 45.0, priceMax: 85.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: false,
+        certifications: JSON.stringify(['CE', 'UL', 'RoHS']),
+        rating: 4.6, reviewCount: 5200,
+      },
+    ],
+  },
+  {
+    nameZh: '中山华艺灯饰集团有限公司',
+    nameEn: 'Zhongshan Huayi Lighting Group Co., Ltd.',
+    location: '广东中山 · 古镇镇',
+    yearEstablished: 2002, employeeCount: 600,
+    annualExportRevenue: 3500,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'UL', 'RoHS', 'SAA']),
+    businessTags: JSON.stringify(['水晶灯', '吊灯', '工程灯', '酒店照明', '定制灯饰']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '中东', '东南亚', '澳大利亚']),
+    rating: 4.6, reviewCount: 3800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '现代水晶吊灯 客厅灯 80cm',
+        description: 'K9水晶材质，透光率高。铜镀铬灯臂，防锈抗氧化。LED光源，三色变光。直径80cm，适合20-30m²客厅。',
+        priceMin: 280.0, priceMax: 580.0, currency: 'CNY', moq: 10,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'UL', 'RoHS']),
+        rating: 4.6, reviewCount: 2800,
+      },
+    ],
+  },
+  {
+    nameZh: '中山坚朗五金制品有限公司',
+    nameEn: 'Zhongshan Jianlang Hardware Products Co., Ltd.',
+    location: '广东中山 · 小榄镇',
+    yearEstablished: 2007, employeeCount: 350,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'UL', 'SGS']),
+    businessTags: JSON.stringify(['门窗五金', '幕墙五金', '点支式玻璃', '拉手', '铰链']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '中东', '东南亚', '澳大利亚']),
+    rating: 4.5, reviewCount: 1600, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '玻璃门夹 不锈钢 无框玻璃门',
+        description: '304不锈钢精铸，承重80kg/扇。适用于8-12mm钢化玻璃。含紧固件。表面拉丝处理。',
+        priceMin: 15.0, priceMax: 35.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'SGS']),
+        rating: 4.5, reviewCount: 4200,
+      },
+    ],
+  },
+  {
+    nameZh: '中山市古镇万佳照明厂',
+    nameEn: 'Zhongshan Guzhen Wanjia Lighting Factory',
+    location: '广东中山 · 古镇镇',
+    yearEstablished: 2015, employeeCount: 80,
+    annualExportRevenue: 250,
+    certifications: JSON.stringify(['CE', 'RoHS']),
+    businessTags: JSON.stringify(['LED灯泡', '节能灯', '球泡灯', '玉米灯', '照明']),
+    exportDestinations: JSON.stringify(['美国', '东南亚', '中东', '非洲', '南美']),
+    rating: 4.1, reviewCount: 420, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: 'LED球泡灯 9W E27螺口',
+        description: '9W LED球泡，800lm光通量。Ra>80，色温3000K-6500K可选。全塑散热外壳，绝缘防触电。',
+        priceMin: 1.5, priceMax: 3.5, currency: 'CNY', moq: 1000,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'RoHS']),
+        rating: 4.1, reviewCount: 18500,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  宁波 — 小家电/文具 (6家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '宁波凯瑞电器有限公司',
+    nameEn: 'Ningbo Kairui Electric Appliances Co., Ltd.',
+    location: '浙江宁波 · 慈溪市',
+    yearEstablished: 2009, employeeCount: 320,
+    annualExportRevenue: 1600,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'CE', 'CB', 'GS', 'RoHS']),
+    businessTags: JSON.stringify(['小家电', '电风扇', '取暖器', '加湿器', '厨房小电']),
+    exportDestinations: JSON.stringify(['欧洲', '美国', '东南亚', '南美', '中东']),
+    rating: 4.5, reviewCount: 1900, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '直流变频落地扇 14寸 静音',
+        description: 'DC直流无刷电机，12档风速。超静音最低18dB。8小时定时，遥控+触摸控制。台地两用。',
+        priceMin: 65.0, priceMax: 110.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'CB', 'GS', 'RoHS']),
+        rating: 4.6, reviewCount: 5400,
+      },
+      {
+        name: '超声波加湿器 4L 静音',
+        description: '4L大容量，持续加湿12小时。陶瓷雾化片，纳米级细雾。缺水自动断电。静音≤28dB。',
+        priceMin: 25.0, priceMax: 45.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'RoHS']),
+        rating: 4.4, reviewCount: 11200,
+      },
+    ],
+  },
+  {
+    nameZh: '宁波得力文具集团有限公司',
+    nameEn: 'Ningbo Deli Stationery Group Co., Ltd.',
+    location: '浙江宁波 · 宁海县',
+    yearEstablished: 2001, employeeCount: 800,
+    annualExportRevenue: 5000,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'EN71', 'ASTM D4236']),
+    businessTags: JSON.stringify(['文具', '办公用品', '学生文具', '打印耗材', '办公设备']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '中东']),
+    rating: 4.8, reviewCount: 6500, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '中性笔芯 0.5mm 黑 100支装',
+        description: '精工不锈钢笔头，碳化钨球珠。进口油墨，书写顺滑不断墨。0.5mm全针管，适配通用笔杆。',
+        priceMin: 5.0, priceMax: 10.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['EN71']),
+        rating: 4.7, reviewCount: 35000,
+      },
+    ],
+  },
+  {
+    nameZh: '宁波方太生活电器有限公司',
+    nameEn: 'Ningbo Fotile Lifestyle Electric Co., Ltd.',
+    location: '浙江宁波 · 杭州湾新区',
+    yearEstablished: 2006, employeeCount: 450,
+    annualExportRevenue: 2800,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'CB', 'GS', 'RoHS', 'LFGB']),
+    businessTags: JSON.stringify(['厨房电器', '吸油烟机', '燃气灶', '蒸烤一体', '洗碗机']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '澳大利亚', '日本', '东南亚']),
+    rating: 4.7, reviewCount: 3800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '嵌入式蒸烤一体机 36L',
+        description: '36L大容量，上下独立控温。蒸汽辅助嫩烤，10种烹饪模式。搪瓷内胆易清洁。触控+旋钮操作。',
+        priceMin: 350.0, priceMax: 680.0, currency: 'CNY', moq: 20,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'CB', 'GS', 'RoHS', 'LFGB']),
+        rating: 4.7, reviewCount: 3800,
+      },
+    ],
+  },
+  {
+    nameZh: '宁波奥克斯生活电器有限公司',
+    nameEn: 'Ningbo Aux Life Electric Co., Ltd.',
+    location: '浙江宁波 · 鄞州区',
+    yearEstablished: 2005, employeeCount: 500,
+    annualExportRevenue: 3000,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'CB', 'UL', 'RoHS', 'ERP']),
+    businessTags: JSON.stringify(['空调', '除湿机', '空气净化器', '取暖器', '移动空调']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '南美']),
+    rating: 4.5, reviewCount: 4200, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '家用除湿机 25L/天 正品压缩机',
+        description: '品牌压缩机，日除湿量25L(30°C/80%RH)。适用面积30-50m²。干衣模式，24小时定时。水满自动停机。',
+        priceMin: 180.0, priceMax: 320.0, currency: 'CNY', moq: 30,
+        supportsDropShipping: false, supportsOEM: false,
+        certifications: JSON.stringify(['CE', 'CB', 'UL', 'ERP']),
+        rating: 4.5, reviewCount: 4500,
+      },
+    ],
+  },
+  {
+    nameZh: '宁波彬彬文具礼品有限公司',
+    nameEn: 'Ningbo Binbin Stationery & Gifts Co., Ltd.',
+    location: '浙江宁波 · 北仑区',
+    yearEstablished: 2010, employeeCount: 150,
+    annualExportRevenue: 450,
+    certifications: JSON.stringify(['ISO 9001', 'EN71', 'ASTM D4236']),
+    businessTags: JSON.stringify(['笔类', '钢笔', '礼品笔', '文具套装', '商务礼品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '中东']),
+    rating: 4.3, reviewCount: 780, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '商务钢笔套装 礼盒装',
+        description: '铱金笔尖，书写顺滑。金属烤漆笔杆，质感出色。含钢笔+墨水+礼盒包装。适合企业礼品/定制。',
+        priceMin: 12.0, priceMax: 28.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['EN71']),
+        rating: 4.4, reviewCount: 5200,
+      },
+    ],
+  },
+  {
+    nameZh: '宁波惠康电器有限公司',
+    nameEn: 'Ningbo Huikang Electric Co., Ltd.',
+    location: '浙江宁波 · 余姚市',
+    yearEstablished: 2008, employeeCount: 280,
+    annualExportRevenue: 1100,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'CE', 'CB', 'RoHS']),
+    businessTags: JSON.stringify(['冰箱', '冷柜', '迷你冰箱', '红酒柜', '制冷设备']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '非洲']),
+    rating: 4.4, reviewCount: 1500, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '迷你冰箱 20L 车载家用两用',
+        description: '20L小容量，制冷至低于环境温度18°C。AC/DC双用，家用车载均可。静音≤25dB。可放6瓶350ml饮料。',
+        priceMin: 65.0, priceMax: 120.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'CB', 'RoHS']),
+        rating: 4.4, reviewCount: 6500,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  青岛 — 食品/家居 (6家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '青岛海润食品进出口有限公司',
+    nameEn: 'Qingdao Hairun Food Import & Export Co., Ltd.',
+    location: '山东青岛 · 城阳区',
+    yearEstablished: 2001, employeeCount: 380,
+    annualExportRevenue: 3500,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'BRC', 'FDA', 'MSC', 'ASC']),
+    businessTags: JSON.stringify(['冷冻海鲜', '水产品加工', '鱼类', '虾类', '贝类']),
+    exportDestinations: JSON.stringify(['日本', '韩国', '美国', '欧盟', '澳大利亚']),
+    rating: 4.7, reviewCount: 2900, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '冷冻去头虾仁 31/40 1kg',
+        description: '南美白对虾，去头去壳留尾。单冻IQF工艺。规格31-40只/磅。1kg真空袋装。适合餐饮/出口。',
+        priceMin: 32.0, priceMax: 55.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['HACCP', 'FDA', 'MSC']),
+        rating: 4.6, reviewCount: 4100,
+      },
+    ],
+  },
+  {
+    nameZh: '青岛味之素食品科技有限公司',
+    nameEn: 'Qingdao Ajinomoto Food Technology Co., Ltd.',
+    location: '山东青岛 · 即墨区',
+    yearEstablished: 2015, employeeCount: 150,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'KOSHER', 'HALAL', 'FDA']),
+    businessTags: JSON.stringify(['调味料', '酱料', '预制菜调料', '复合调味品']),
+    exportDestinations: JSON.stringify(['日本', '韩国', '美国', '中东', '东南亚']),
+    rating: 4.5, reviewCount: 980, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '韩式辣酱 方便速食酱料 500g',
+        description: '传统发酵工艺，辣中带甜。无添加防腐剂，纯天然原料。500g/袋。适合韩式料理/拌饭/蘸料。',
+        priceMin: 6.0, priceMax: 12.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['HACCP', 'HALAL']),
+        rating: 4.4, reviewCount: 5600,
+      },
+    ],
+  },
+  {
+    nameZh: '青岛啤酒国际有限公司',
+    nameEn: 'Qingdao Brewery International Co., Ltd.',
+    location: '山东青岛 · 市北区',
+    yearEstablished: 1995, employeeCount: 1200,
+    annualExportRevenue: 8000,
+    certifications: JSON.stringify(['ISO 22000', 'BRC', 'HALAL', 'KOSHER', 'IFS']),
+    businessTags: JSON.stringify(['啤酒', '精酿啤酒', '饮品', '酒水出口']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '韩国', '日本', '东南亚', '澳大利亚']),
+    rating: 4.9, reviewCount: 12000, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '青岛啤酒 经典1903 500ml*24罐',
+        description: '百年经典配方，精选进口麦芽+啤酒花。酒精度4.0%vol，原麦汁浓度10°P。500ml*24罐装出口版。',
+        priceMin: 5.0, priceMax: 8.5, currency: 'CNY', moq: 500,
+        supportsDropShipping: false, supportsOEM: false,
+        certifications: JSON.stringify(['BRC', 'HALAL']),
+        rating: 4.8, reviewCount: 68000,
+      },
+    ],
+  },
+  {
+    nameZh: '青岛海尔智能电器有限公司',
+    nameEn: 'Qingdao Haier Smart Electric Co., Ltd.',
+    location: '山东青岛 · 崂山区',
+    yearEstablished: 2000, employeeCount: 2000,
+    annualExportRevenue: 15000,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'CE', 'UL', 'RoHS', 'Energy Star']),
+    businessTags: JSON.stringify(['家电', '冷柜', '洗衣机', '热水器', '净水器', '智能家电']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '澳大利亚', '东南亚', '南美']),
+    rating: 4.8, reviewCount: 15000, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '全自动滚筒洗衣机 8kg 变频',
+        description: '8kg容量，变频电机静音节能。多种洗涤程序，支持羽绒服/羊毛洗。15分钟快速洗。一级能效。',
+        priceMin: 480.0, priceMax: 880.0, currency: 'CNY', moq: 10,
+        supportsDropShipping: false, supportsOEM: false,
+        certifications: JSON.stringify(['CE', 'UL', 'Energy Star']),
+        rating: 4.8, reviewCount: 12500,
+      },
+    ],
+  },
+  {
+    nameZh: '青岛即墨服装批发基地',
+    nameEn: 'Qingdao Jimo Apparel Wholesale Base',
+    location: '山东青岛 · 即墨区',
+    yearEstablished: 2013, employeeCount: 50,
+    annualExportRevenue: 300,
+    certifications: JSON.stringify([]),
+    businessTags: JSON.stringify(['服装批发', '女装', '韩版服装', '外贸尾货', '快时尚']),
+    exportDestinations: JSON.stringify(['韩国', '日本', '美国', '东南亚']),
+    rating: 4.1, reviewCount: 350, isVerified: false, type: 'distributor',
+    products: [
+      {
+        name: '韩版宽松卫衣 连帽 女款',
+        description: '320g加厚抓绒面料，宽松落肩版型。韩版设计，ins风印花。多色可选。适合秋冬穿着。',
+        priceMin: 18.0, priceMax: 32.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: false,
+        rating: 4.2, reviewCount: 6800,
+      },
+    ],
+  },
+  {
+    nameZh: '青岛海藻生物科技有限公司',
+    nameEn: 'Qingdao Seaweed Biotechnology Co., Ltd.',
+    location: '山东青岛 · 黄岛区',
+    yearEstablished: 2011, employeeCount: 180,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA', 'KOSHER', 'HALAL']),
+    businessTags: JSON.stringify(['海藻食品', '海苔', '紫菜', '海藻饮品', '海洋食品']),
+    exportDestinations: JSON.stringify(['美国', '日本', '韩国', '欧洲', '东南亚']),
+    rating: 4.4, reviewCount: 820, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '海苔脆片 原味 30g*20包',
+        description: '优选条斑紫菜，低温烘焙非油炸。香脆可口，富含膳食纤维。独立小包，方便携带。30g*20包/箱。',
+        priceMin: 1.5, priceMax: 3.0, currency: 'CNY', moq: 1000,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['HACCP', 'FDA', 'HALAL']),
+        rating: 4.5, reviewCount: 12500,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  汕头 — 玩具/内衣 (6家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '汕头华达玩具实业有限公司',
+    nameEn: 'Shantou Huada Toy Industrial Co., Ltd.',
+    location: '广东汕头 · 澄海区',
+    yearEstablished: 2002, employeeCount: 500,
+    annualExportRevenue: 2200,
+    certifications: JSON.stringify(['ISO 9001', 'EN71', 'ASTM F963', 'CCC', 'CE']),
+    businessTags: JSON.stringify(['玩具', '益智玩具', '遥控玩具', '积木', '潮玩']),
+    exportDestinations: JSON.stringify(['美国', '欧盟', '日本', '东南亚', '南美', '中东']),
+    rating: 4.8, reviewCount: 5800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: 'STEM益智积木套装 400粒',
+        description: 'ABS环保塑料，兼容大颗粒积木。含齿轮/轮子/连接件，可拼搭12种造型。送收纳箱。适合3岁+。',
+        priceMin: 18.0, priceMax: 35.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['EN71', 'ASTM F963', 'CCC']),
+        rating: 4.7, reviewCount: 14500,
+      },
+    ],
+  },
+  {
+    nameZh: '汕头艺趣潮玩有限公司',
+    nameEn: 'Shantou Yiqu Trendy Toys Co., Ltd.',
+    location: '广东汕头 · 金平区',
+    yearEstablished: 2018, employeeCount: 80,
+    annualExportRevenue: 250,
+    certifications: JSON.stringify(['EN71', 'ASTM F963', 'CE']),
+    businessTags: JSON.stringify(['潮玩', '盲盒', '手办', '搪胶公仔', 'IP衍生品']),
+    exportDestinations: JSON.stringify(['美国', '日本', '韩国', '欧洲', '东南亚']),
+    rating: 4.2, reviewCount: 650, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '国潮系列盲盒 12款常规+1款隐藏',
+        description: 'PVC搪胶工艺，高约8cm。12款常规+1款隐藏。独立盲盒包装，配展示卡。支持IP授权定制。',
+        priceMin: 8.0, priceMax: 18.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['EN71', 'ASTM F963']),
+        rating: 4.3, reviewCount: 9200,
+      },
+    ],
+  },
+  {
+    nameZh: '汕头澄海宏达塑胶玩具厂',
+    nameEn: 'Shantou Chenghai Hongda Plastic Toy Factory',
+    location: '广东汕头 · 澄海区',
+    yearEstablished: 2005, employeeCount: 350,
+    annualExportRevenue: 1500,
+    certifications: JSON.stringify(['ISO 9001', 'EN71', 'ASTM F963', 'CCC', 'CE']),
+    businessTags: JSON.stringify(['塑料玩具', '遥控车', '模型车', '回力车', '玩具车']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '南美', '中东', '非洲']),
+    rating: 4.5, reviewCount: 3200, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '遥控赛车 高速版 充电式',
+        description: '2.4G遥控，30米远距离。时速25km/h，四驱驱动。锂电池充电，续航30分钟。彩盒包装。',
+        priceMin: 15.0, priceMax: 32.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['EN71', 'ASTM F963', 'CCC']),
+        rating: 4.5, reviewCount: 9800,
+      },
+      {
+        name: '回力惯性工程车 4辆套装',
+        description: '安全环保ABS塑料，回力+惯性双驱动。推土机/挖掘机/翻斗车/压路机四件套。耐摔抗撞。',
+        priceMin: 6.0, priceMax: 12.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['EN71', 'CCC']),
+        rating: 4.5, reviewCount: 16500,
+      },
+    ],
+  },
+  {
+    nameZh: '汕头潮阳雅丽内衣厂',
+    nameEn: 'Shantou Chaoyang Yali Underwear Factory',
+    location: '广东汕头 · 潮阳区',
+    yearEstablished: 2008, employeeCount: 250,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex', 'BSCI']),
+    businessTags: JSON.stringify(['内衣', '文胸', '内裤', '塑身衣', '睡衣']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚', '中东']),
+    rating: 4.4, reviewCount: 1200, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '蕾丝聚拢文胸 女士调整型',
+        description: '法国蕾丝面料，性感优雅。钢圈聚拢设计，上托效果好。加宽侧比收副乳。多色多码。',
+        priceMin: 10.0, priceMax: 20.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.4, reviewCount: 12000,
+      },
+    ],
+  },
+  {
+    nameZh: '汕头金平华文文具厂',
+    nameEn: 'Shantou Jinping Huawen Stationery Factory',
+    location: '广东汕头 · 金平区',
+    yearEstablished: 2012, employeeCount: 80,
+    annualExportRevenue: 200,
+    certifications: JSON.stringify(['ISO 9001', 'EN71', 'CE']),
+    businessTags: JSON.stringify(['文具', '铅笔', '蜡笔', '画本', '学生文具']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '非洲']),
+    rating: 4.2, reviewCount: 480, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '12色可水洗水彩笔 儿童绘画',
+        description: '食品级颜料安全无毒，水洗配方易清洗。粗杆适合幼儿抓握，可画粗线/细线双头。',
+        priceMin: 3.0, priceMax: 6.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['EN71', 'CE']),
+        rating: 4.3, reviewCount: 8600,
+      },
+    ],
+  },
+  {
+    nameZh: '汕头澄海宝乐玩具厂',
+    nameEn: 'Shantou Chenghai Baole Toy Factory',
+    location: '广东汕头 · 澄海区',
+    yearEstablished: 2010, employeeCount: 180,
+    annualExportRevenue: 700,
+    certifications: JSON.stringify(['EN71', 'ASTM F963', 'CCC', 'CE']),
+    businessTags: JSON.stringify(['婴儿玩具', '早教玩具', '摇铃', '牙胶', '布书']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.4, reviewCount: 1500, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '婴儿早教布书 6件套装',
+        description: '环保布料，撕不烂可啃咬。内置响纸/BB器/镜子等趣味元素。6本不同主题。0-3岁适用。',
+        priceMin: 8.0, priceMax: 16.0, currency: 'CNY', moq: 300,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['EN71', 'ASTM F963', 'CCC']),
+        rating: 4.6, reviewCount: 11000,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  南通 — 家纺 (4家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '南通梦之洁家纺有限公司',
+    nameEn: 'Nantong Mengzhijie Home Textile Co., Ltd.',
+    location: '江苏南通 · 通州区',
+    yearEstablished: 2008, employeeCount: 280,
+    annualExportRevenue: 1100,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex Standard 100', 'GOTS']),
+    businessTags: JSON.stringify(['床上用品', '四件套', '被子', '枕头', '毛巾']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '澳大利亚', '中东']),
+    rating: 4.6, reviewCount: 2200, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '长绒棉四件套 60支 贡缎工艺',
+        description: '100%新疆长绒棉，60支300根。贡缎织造工艺，丝滑亲肤。含被套+床单+枕套×2。多色可选。',
+        priceMin: 68.0, priceMax: 128.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.7, reviewCount: 8700,
+      },
+    ],
+  },
+  {
+    nameZh: '南通大岛家纺有限公司',
+    nameEn: 'Nantong Dadao Home Textile Co., Ltd.',
+    location: '江苏南通 · 海门区',
+    yearEstablished: 2011, employeeCount: 200,
+    annualExportRevenue: 650,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex Standard 100']),
+    businessTags: JSON.stringify(['被子', '蚕丝被', '羽绒被', '夏被', '枕芯']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '澳大利亚']),
+    rating: 4.5, reviewCount: 1300, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '桑蚕丝被 100%双宫茧 1kg',
+        description: '100%双宫桑蚕丝长丝绵，手工拉制。透气保暖，亲肤防螨。1kg标准款，四季通用。配纯棉被套。',
+        priceMin: 180.0, priceMax: 320.0, currency: 'CNY', moq: 20,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex', 'GOTS']),
+        rating: 4.7, reviewCount: 4200,
+      },
+    ],
+  },
+  {
+    nameZh: '南通紫罗兰家纺科技股份有限公司',
+    nameEn: 'Nantong Violet Home Textile Technology Co., Ltd.',
+    location: '江苏南通 · 通州区',
+    yearEstablished: 2006, employeeCount: 350,
+    annualExportRevenue: 1500,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'Oeko-Tex Standard 100']),
+    businessTags: JSON.stringify(['床上用品', '婚庆家纺', '毛巾', '浴巾', '家居服']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 2800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '全棉毛巾 6条装 五星级酒店标准',
+        description: '100%新疆长绒棉，16支螺旋工艺。吸水性强，柔软亲肤。灰色/白色/米色可选。35×75cm标准尺寸。',
+        priceMin: 8.0, priceMax: 18.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.5, reviewCount: 12000,
+      },
+    ],
+  },
+  {
+    nameZh: '南通雅兰家纺有限公司',
+    nameEn: "Nantong Yalan Home Textile Co., Ltd.",
+    location: '江苏南通 · 如东县',
+    yearEstablished: 2013, employeeCount: 120,
+    annualExportRevenue: 350,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex']),
+    businessTags: JSON.stringify(['枕芯', '抱枕', '靠垫', '坐垫', '布艺']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚']),
+    rating: 4.3, reviewCount: 650, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '记忆棉护颈枕 人体工学',
+        description: '慢回弹记忆棉内芯，波浪形人体工学设计。透气天丝面料，可拆洗外套。适合颈椎不适人群。',
+        priceMin: 15.0, priceMax: 32.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.4, reviewCount: 7800,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  杭州 — 电商/服装/食品 (6家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '杭州伊芙丽服装有限公司',
+    nameEn: 'Hangzhou Eifini Garment Co., Ltd.',
+    location: '浙江杭州 · 余杭区',
+    yearEstablished: 2009, employeeCount: 300,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'Oeko-Tex']),
+    businessTags: JSON.stringify(['女装', '连衣裙', '针织衫', '大衣', '快时尚']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 1900, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '法式羊毛混纺大衣 中长款',
+        description: '70%羊毛+30%聚酯纤维混纺，挺括有型。双面尼工艺，简约H版型。单排扣设计，经典百搭。',
+        priceMin: 85.0, priceMax: 168.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.5, reviewCount: 5200,
+      },
+      {
+        name: '雪纺碎花衬衫 女款 春夏',
+        description: '100%涤纶雪纺面料，飘逸垂顺。碎花印花，V领系带设计。宽松版型，适合春夏。多花色可选。',
+        priceMin: 18.0, priceMax: 32.0, currency: 'CNY', moq: 300,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.4, reviewCount: 8200,
+      },
+    ],
+  },
+  {
+    nameZh: '杭州素萃美妆有限公司',
+    nameEn: 'Hangzhou Sucui Cosmetics Co., Ltd.',
+    location: '浙江杭州 · 萧山区',
+    yearEstablished: 2016, employeeCount: 120,
+    annualExportRevenue: 350,
+    certifications: JSON.stringify(['ISO 22716', 'GMPC', 'FDA', 'SGS']),
+    businessTags: JSON.stringify(['护肤品', '精华液', '面霜', '眼霜', '纯天然护肤']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.4, reviewCount: 720, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '玻尿酸精华液 30ml 三重补水',
+        description: '三重玻尿酸（大分子+中分子+小分子），深层补水锁水。清爽不黏腻，适合所有肤质。滴管瓶装。',
+        priceMin: 8.0, priceMax: 18.0, currency: 'CNY', moq: 500,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'SGS']),
+        rating: 4.5, reviewCount: 14200,
+      },
+    ],
+  },
+  {
+    nameZh: '杭州百草味食品有限公司',
+    nameEn: 'Hangzhou Baicaowei Food Co., Ltd.',
+    location: '浙江杭州 · 临平区',
+    yearEstablished: 2007, employeeCount: 500,
+    annualExportRevenue: 2500,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA', 'BRC']),
+    businessTags: JSON.stringify(['零食', '坚果', '果干', '糕点', '休闲食品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '澳大利亚']),
+    rating: 4.6, reviewCount: 4500, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '每日坚果混合装 30包 750g',
+        description: '6种坚果果干混合：腰果/巴旦木/核桃/榛子/蔓越莓/蓝莓。独立小包，每日一包。充氮保鲜。',
+        priceMin: 18.0, priceMax: 32.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['HACCP', 'FDA']),
+        rating: 4.7, reviewCount: 28000,
+      },
+    ],
+  },
+  {
+    nameZh: '杭州万事利丝绸文化股份有限公司',
+    nameEn: 'Hangzhou Wanshili Silk Culture Co., Ltd.',
+    location: '浙江杭州 · 江干区',
+    yearEstablished: 2000, employeeCount: 280,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex Standard 100', 'GOTS', 'SGS']),
+    businessTags: JSON.stringify(['丝绸', '丝巾', '真丝睡衣', '丝绸面料', '工艺品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '中东']),
+    rating: 4.6, reviewCount: 2600, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '100%桑蚕丝丝巾 90×90cm',
+        description: '100%桑蚕丝，16姆米真丝面料。数码印花工艺，色彩鲜艳持久。手工卷边，精致礼盒包装。',
+        priceMin: 28.0, priceMax: 65.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex', 'GOTS']),
+        rating: 4.6, reviewCount: 5200,
+      },
+    ],
+  },
+  {
+    nameZh: '杭州电子商务供应链有限公司',
+    nameEn: 'Hangzhou E-commerce Supply Chain Co., Ltd.',
+    location: '浙江杭州 · 滨江区',
+    yearEstablished: 2018, employeeCount: 60,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['ISO 9001']),
+    businessTags: JSON.stringify(['电商供应链', '直播选品', '一件代发', '仓储配送', '品牌孵化']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚']),
+    rating: 4.1, reviewCount: 380, isVerified: false, type: 'distributor',
+    products: [
+      {
+        name: '直播选品样品包 美妆个护 20件套',
+        description: '精选20款美妆个护样品，含面膜/精华/口红/洗面奶等。含产品详情+素材包。支持主播一件代发。',
+        priceMin: 88.0, priceMax: 168.0, currency: 'CNY', moq: 1,
+        supportsDropShipping: true, supportsOEM: false,
+        rating: 4.0, reviewCount: 1200,
+      },
+    ],
+  },
+  {
+    nameZh: '杭州瑞德宠物用品有限公司',
+    nameEn: 'Hangzhou Ruide Pet Products Co., Ltd.',
+    location: '浙江杭州 · 西湖区',
+    yearEstablished: 2014, employeeCount: 90,
+    annualExportRevenue: 280,
+    certifications: JSON.stringify(['ISO 9001', 'FDA', 'SGS']),
+    businessTags: JSON.stringify(['宠物用品', '宠物衣服', '宠物窝', '宠物玩具', '宠物配饰']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.3, reviewCount: 560, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '宠物狗衣服 秋冬保暖 加绒款',
+        description: '摇粒绒内里，保暖舒适。弹性面料，穿脱方便。后背开口可穿牵引绳。多尺码S-XL。多色可选。',
+        priceMin: 8.0, priceMax: 18.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.3, reviewCount: 6500,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  其他产业带补充 (18家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '浙江宠爱无限宠物用品有限公司',
+    nameEn: 'Zhejiang Petlove Unlimited Co., Ltd.',
+    location: '浙江温州 · 平阳县',
+    yearEstablished: 2016, employeeCount: 180,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'FDA', 'REACH']),
+    businessTags: JSON.stringify(['宠物玩具', '宠物窝具', '宠物服饰', '宠物牵引']),
+    exportDestinations: JSON.stringify(['美国', '德国', '英国', '日本', '澳大利亚', '东南亚']),
+    rating: 4.6, reviewCount: 1650, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '耐咬宠物发声玩具 6件套',
+        description: '天然橡胶+绒布材质，内置发声器。造型多样（骨头/球/刺猬等）。适合中大型犬。',
+        priceMin: 8.0, priceMax: 18.0, currency: 'CNY', moq: 300,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'REACH']),
+        rating: 4.5, reviewCount: 12500,
+      },
+      {
+        name: '可拆洗猫窝 四季通用',
+        description: '加厚毛绒内衬+可拆洗外套。防潮底部，椭圆形设计。直径40/50/60cm三规格。',
+        priceMin: 18.0, priceMax: 35.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        rating: 4.4, reviewCount: 6800,
+      },
+    ],
+  },
+  {
+    nameZh: '浙江天元宠物食品有限公司',
+    nameEn: 'Zhejiang Tianyuan Pet Food Co., Ltd.',
+    location: '浙江湖州 · 吴兴区',
+    yearEstablished: 2014, employeeCount: 250,
+    annualExportRevenue: 900,
+    certifications: JSON.stringify(['ISO 22000', 'BRC', 'FDA', 'HACCP', 'GFSI']),
+    businessTags: JSON.stringify(['宠物食品', '猫粮', '狗粮', '冻干零食', '宠物罐头']),
+    exportDestinations: JSON.stringify(['美国', '欧盟', '日本', '韩国', '澳大利亚']),
+    rating: 4.7, reviewCount: 2300, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '全价冻干猫粮 鸡肉配方 1.5kg',
+        description: '50%粗蛋白，16%粗脂肪。冻干生骨肉涂层，0谷物配方。添加益生菌+牛磺酸。1.5kg/袋。',
+        priceMin: 28.0, priceMax: 48.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'HACCP']),
+        rating: 4.7, reviewCount: 9200,
+      },
+    ],
+  },
+  {
+    nameZh: '湖州山水户外用品有限公司',
+    nameEn: 'Huzhou Shanshui Outdoor Products Co., Ltd.',
+    location: '浙江湖州 · 安吉县',
+    yearEstablished: 2013, employeeCount: 160,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'SGS']),
+    businessTags: JSON.stringify(['户外用品', '帐篷', '折叠桌椅', '野营装备', '户外家具']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '澳大利亚', '日本', '东南亚']),
+    rating: 4.4, reviewCount: 1100, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '自动速开帐篷 3-4人 防雨',
+        description: '液压自动速开，3秒搭建。210T涤纶面料，PU2000mm防水。含地钉+风绳。收纳直径70cm。',
+        priceMin: 48.0, priceMax: 88.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE']),
+        rating: 4.4, reviewCount: 4300,
+      },
+    ],
+  },
+  {
+    nameZh: '河北沧州恒达体育用品有限公司',
+    nameEn: 'Cangzhou Hengda Sporting Goods Co., Ltd.',
+    location: '河北沧州 · 盐山县',
+    yearEstablished: 2007, employeeCount: 300,
+    annualExportRevenue: 800,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'SGS', 'TUV']),
+    businessTags: JSON.stringify(['体育器材', '健身器材', '哑铃', '杠铃', '运动护具']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '南美', '中东']),
+    rating: 4.5, reviewCount: 1400, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '可调节哑铃套装 2-20kg',
+        description: '包胶铸铁哑铃，静音防摔。可调节重量设计(2/4/6/8...20kg)。含连接杆可当杠铃用。',
+        priceMin: 85.0, priceMax: 180.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'TUV']),
+        rating: 4.5, reviewCount: 6300,
+      },
+    ],
+  },
+  {
+    nameZh: '天津飞鸽自行车制造有限公司',
+    nameEn: 'Tianjin Feige Bicycle Manufacturing Co., Ltd.',
+    location: '天津 · 武清区',
+    yearEstablished: 2003, employeeCount: 450,
+    annualExportRevenue: 2000,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'EN 15194', 'ROHS']),
+    businessTags: JSON.stringify(['自行车', '电动自行车', '山地车', '城市通勤车', 'E-bike']),
+    exportDestinations: JSON.stringify(['欧洲', '美国', '日本', '东南亚', '南美']),
+    rating: 4.6, reviewCount: 3500, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '电动助力自行车 36V 250W',
+        description: '36V 10.4Ah锂电池，续航80km。250W后置电机，5档助力。Shimano 7速变速。LCD液晶仪表。',
+        priceMin: 680.0, priceMax: 1280.0, currency: 'CNY', moq: 20,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'EN 15194']),
+        rating: 4.6, reviewCount: 2800,
+      },
+    ],
+  },
+  {
+    nameZh: '安化县万隆茶业有限公司',
+    nameEn: 'Anhua Wanlong Tea Industry Co., Ltd.',
+    location: '湖南益阳 · 安化县',
+    yearEstablished: 2006, employeeCount: 120,
+    annualExportRevenue: 300,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'HALAL', '有机认证']),
+    businessTags: JSON.stringify(['黑茶', '安化黑茶', '茯砖茶', '千两茶', '茶叶出口']),
+    exportDestinations: JSON.stringify(['日本', '韩国', '马来西亚', '新加坡', '中东', '欧盟']),
+    rating: 4.6, reviewCount: 1800, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '安化茯砖茶 金花明显 1kg',
+        description: '2019年陈料压制，金花茂盛(冠突散囊菌)。茶汤红浓明亮，菌花香浓郁。1kg/砖。适合收藏/品饮。',
+        priceMin: 36.0, priceMax: 68.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['有机认证', 'HACCP']),
+        rating: 4.7, reviewCount: 3200,
+      },
+    ],
+  },
+  {
+    nameZh: '河南许昌瑞美发制品有限公司',
+    nameEn: 'Henan Xuchang Ruimei Hair Products Co., Ltd.',
+    location: '河南许昌 · 建安区',
+    yearEstablished: 2005, employeeCount: 400,
+    annualExportRevenue: 1800,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'SGS']),
+    businessTags: JSON.stringify(['假发', '发帘', '发块', '接发', '人发制品']),
+    exportDestinations: JSON.stringify(['美国', '英国', '欧洲', '非洲', '南美']),
+    rating: 4.5, reviewCount: 3200, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '真人发蕾丝假发 全蕾丝 16寸',
+        description: '100%真人头发，可染可烫。瑞士蕾丝底网，透气逼真。16寸长度，自然波浪。含胶带+护理液。',
+        priceMin: 120.0, priceMax: 350.0, currency: 'CNY', moq: 20,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['SGS']),
+        rating: 4.5, reviewCount: 5800,
+      },
+    ],
+  },
+  {
+    nameZh: '河北保定三利毛巾有限公司',
+    nameEn: 'Hebei Baoding Sanli Towel Co., Ltd.',
+    location: '河北保定 · 高阳县',
+    yearEstablished: 2004, employeeCount: 320,
+    annualExportRevenue: 900,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex Standard 100', 'SGS']),
+    businessTags: JSON.stringify(['毛巾', '浴巾', '方巾', '毛巾被', '酒店毛巾']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.4, reviewCount: 1800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '五星级酒店毛巾 3件套',
+        description: '100%新疆长绒棉，600g/m²高克重。螺旋缎档工艺，吸水快柔软亲肤。含面巾+浴巾+地巾。',
+        priceMin: 15.0, priceMax: 32.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.5, reviewCount: 9800,
+      },
+    ],
+  },
+  {
+    nameZh: '江苏丹阳华光眼镜有限公司',
+    nameEn: 'Jiangsu Danyang Huaguang Glasses Co., Ltd.',
+    location: '江苏丹阳 · 开发区',
+    yearEstablished: 2002, employeeCount: 280,
+    annualExportRevenue: 1100,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FDA', 'ANSI Z80.1']),
+    businessTags: JSON.stringify(['光学眼镜', '镜片', '眼镜架', '老花镜', '渐进镜']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚', '南美']),
+    rating: 4.5, reviewCount: 2200, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '1.67非球面超薄镜片 防蓝光',
+        description: '1.67高折射率，超薄边缘。非球面设计视野清晰。防蓝光+防紫外线双效。可配任何镜架。',
+        priceMin: 15.0, priceMax: 35.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'FDA', 'ANSI Z80.1']),
+        rating: 4.5, reviewCount: 7500,
+      },
+    ],
+  },
+  {
+    nameZh: '浙江永康飞鹰五金制品有限公司',
+    nameEn: 'Zhejiang Yongkang Feiying Hardware Products Co., Ltd.',
+    location: '浙江永康 · 经济开发区',
+    yearEstablished: 2006, employeeCount: 350,
+    annualExportRevenue: 1400,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'GS', 'RoHS']),
+    businessTags: JSON.stringify(['五金工具', '手动工具', '电动工具', '园林工具', '工具套装']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '南美']),
+    rating: 4.5, reviewCount: 2500, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '家用工具套装 12件 五金组合',
+        description: '含羊角锤/螺丝刀/扳手/卷尺/美工刀等12件常用工具。碳钢锻造，PVC包胶手柄。工具箱收纳。',
+        priceMin: 18.0, priceMax: 35.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'GS']),
+        rating: 4.5, reviewCount: 8500,
+      },
+    ],
+  },
+  {
+    nameZh: '浙江安吉永艺椅业有限公司',
+    nameEn: 'Zhejiang Anji Yongyi Chair Industry Co., Ltd.',
+    location: '浙江安吉 · 递铺镇',
+    yearEstablished: 2005, employeeCount: 380,
+    annualExportRevenue: 1600,
+    certifications: JSON.stringify(['ISO 9001', 'BIFMA', 'SGS', 'CE']),
+    businessTags: JSON.stringify(['办公椅', '电竞椅', '转椅', '会议椅', '人体工学椅']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.6, reviewCount: 2800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '多功能电竞椅 人体工学 带头枕',
+        description: '高弹海绵坐垫，PU皮革面料。4D扶手，155°后仰可躺。承重150kg，SGS四级气压棒。含腰枕头枕。',
+        priceMin: 180.0, priceMax: 380.0, currency: 'CNY', moq: 20,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['BIFMA', 'SGS', 'CE']),
+        rating: 4.6, reviewCount: 4200,
+      },
+    ],
+  },
+  {
+    nameZh: '广东潮州枫溪陶瓷有限公司',
+    nameEn: 'Guangdong Chaozhou Fengxi Porcelain Co., Ltd.',
+    location: '广东潮州 · 枫溪区',
+    yearEstablished: 1999, employeeCount: 450,
+    annualExportRevenue: 2000,
+    certifications: JSON.stringify(['ISO 9001', 'FDA', 'LFGB', 'SGS']),
+    businessTags: JSON.stringify(['陶瓷', '日用瓷', '工艺瓷', '茶具', '卫浴瓷']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '中东']),
+    rating: 4.6, reviewCount: 3500, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '手工浮雕茶具套装 一壶四杯',
+        description: '高温白瓷，手工浮雕工艺。一壶(280ml)+四杯(50ml)+干泡台。配锦盒包装，送礼佳品。',
+        priceMin: 28.0, priceMax: 58.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'LFGB']),
+        rating: 4.6, reviewCount: 6800,
+      },
+    ],
+  },
+  {
+    nameZh: '湖南浏阳中洲烟花有限公司',
+    nameEn: 'Hunan Liuyang Zhongzhou Fireworks Co., Ltd.',
+    location: '湖南浏阳 · 大瑶镇',
+    yearEstablished: 2000, employeeCount: 600,
+    annualExportRevenue: 3000,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'SGS', 'MSDS', 'UN']),
+    businessTags: JSON.stringify(['烟花', '鞭炮', '焰火', '舞台特效', '节日烟花']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '南美', '澳大利亚']),
+    rating: 4.6, reviewCount: 2800, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '组合盆花 25发 烟花礼盒',
+        description: '25发组合盆花，多种花色效果。含红/金/绿/蓝/紫多色礼花。燃放高度30m。CE认证出口级。',
+        priceMin: 15.0, priceMax: 35.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: false, supportsOEM: true,
+        certifications: JSON.stringify(['CE', 'MSDS', 'UN']),
+        rating: 4.6, reviewCount: 5200,
+      },
+    ],
+  },
+  {
+    nameZh: '浙江台州双马塑业有限公司',
+    nameEn: 'Zhejiang Taizhou Shuangma Plastic Co., Ltd.',
+    location: '浙江台州 · 黄岩区',
+    yearEstablished: 2008, employeeCount: 250,
+    annualExportRevenue: 800,
+    certifications: JSON.stringify(['ISO 9001', 'FDA', 'LFGB', 'BSCI']),
+    businessTags: JSON.stringify(['塑料制品', '收纳箱', '塑料凳', '家居塑料', '注塑加工']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚', '中东']),
+    rating: 4.4, reviewCount: 1300, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '加厚塑料收纳箱 带盖 60L',
+        description: 'PP新料，食品级安全。加厚箱体，承重50kg。半透明箱体，内容物可见。带扣盖防尘防潮。60L大容量。',
+        priceMin: 8.0, priceMax: 18.0, currency: 'CNY', moq: 200,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'LFGB']),
+        rating: 4.4, reviewCount: 12500,
+      },
+    ],
+  },
+  {
+    nameZh: '广东揭阳顺兴不锈钢制品厂',
+    nameEn: 'Guangdong Jieyang Shunxing Stainless Steel Factory',
+    location: '广东揭阳 · 榕城区',
+    yearEstablished: 2007, employeeCount: 200,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['ISO 9001', 'FDA', 'LFGB', 'SGS']),
+    businessTags: JSON.stringify(['不锈钢餐具', '厨具', '刀叉勺', '锅具', '厨房用品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '南美']),
+    rating: 4.4, reviewCount: 1100, isVerified: false, type: 'factory',
+    products: [
+      {
+        name: '不锈钢餐具套装 24头 6人份',
+        description: '304不锈钢材质，镜面抛光。含餐刀/餐叉/汤勺/甜品勺各6把。礼盒包装，适合家用/酒店/礼品。',
+        priceMin: 15.0, priceMax: 32.0, currency: 'CNY', moq: 100,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['FDA', 'LFGB']),
+        rating: 4.4, reviewCount: 6500,
+      },
+    ],
+  },
+  {
+    nameZh: '安徽合肥荣事达家电有限公司',
+    nameEn: 'Anhui Hefei Royalstar Electric Appliance Co., Ltd.',
+    location: '安徽合肥 · 双凤开发区',
+    yearEstablished: 2004, employeeCount: 500,
+    annualExportRevenue: 2500,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'CB', 'CCC', 'RoHS']),
+    businessTags: JSON.stringify(['小家电', '电饭煲', '电水壶', '电磁炉', '电压力锅']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '非洲']),
+    rating: 4.5, reviewCount: 3000, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '智能电饭煲 4L 多功能 IH加热',
+        description: 'IH电磁加热，大火力均匀受热。4L容量适合3-6人。24小时智能预约，多种烹饪模式。不粘内胆。',
+        priceMin: 65.0, priceMax: 120.0, currency: 'CNY', moq: 50,
+        supportsDropShipping: true, supportsOEM: false,
+        certifications: JSON.stringify(['CE', 'CB', 'CCC', 'RoHS']),
+        rating: 4.5, reviewCount: 7800,
+      },
+    ],
+  },
+  {
+    nameZh: '湖北武汉爱帝服装有限公司',
+    nameEn: 'Hubei Wuhan Aidi Garment Co., Ltd.',
+    location: '湖北武汉 · 江汉区',
+    yearEstablished: 2005, employeeCount: 350,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'Oeko-Tex']),
+    businessTags: JSON.stringify(['内衣', '保暖内衣', '家居服', '袜子', '针织品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 2000, isVerified: true, type: 'factory',
+    products: [
+      {
+        name: '男士保暖内衣套装 加绒发热',
+        description: '德绒发热纤维+蚕丝蛋白混纺，蓄热保暖。无缝编织工艺，贴身不紧绷。圆领+中腰平角裤套装。',
+        priceMin: 18.0, priceMax: 35.0, currency: 'CNY', moq: 300,
+        supportsDropShipping: true, supportsOEM: true,
+        certifications: JSON.stringify(['Oeko-Tex']),
+        rating: 4.5, reviewCount: 9200,
+      },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  补充供应商 — 提升到 200+ 商品 (30家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '福建泉州顺兴食品有限公司',
+    nameEn: 'Fujian Quanzhou Shunxing Food Co., Ltd.',
+    location: '福建泉州 · 晋江',
+    yearEstablished: 2010, employeeCount: 150,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA', 'HALAL']),
+    businessTags: JSON.stringify(['食品', '糖果', '糕点', '饼干', '休闲食品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东']),
+    rating: 4.3, reviewCount: 850, isVerified: false, type: 'factory',
+    products: [
+      { name: '闽南手工酥糖 礼盒装 500g', description: '传统手工工艺，花生/芝麻/腰果三种口味。酥脆香甜，独立包装。适合节日送礼。', priceMin: 8.0, priceMax: 16.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'HALAL']), rating: 4.4, reviewCount: 6200 },
+      { name: '牛奶巧克力夹心饼干 200g*24包', description: '小麦粉+可可脂，巧克力夹心。独立小包，方便携带。适合便利店/超市渠道。', priceMin: 2.5, priceMax: 5.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'FDA']), rating: 4.3, reviewCount: 9500 },
+    ],
+  },
+  {
+    nameZh: '浙江绍兴凯达纺织品有限公司',
+    nameEn: 'Zhejiang Shaoxing Kaida Textile Co., Ltd.',
+    location: '浙江绍兴 · 柯桥区',
+    yearEstablished: 2008, employeeCount: 280,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex Standard 100']),
+    businessTags: JSON.stringify(['面料', '纺织品', '涤纶布', '印花布', '服装面料']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '南美']),
+    rating: 4.4, reviewCount: 1500, isVerified: true, type: 'factory',
+    products: [
+      { name: '涤纶印花面料 宽幅150cm 40D', description: '40D涤纶丝，平纹/斜纹组织。数码印花，色彩鲜艳。幅宽150cm，适合服装/箱包/家纺。', priceMin: 8.0, priceMax: 18.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['Oeko-Tex']), rating: 4.4, reviewCount: 4800 },
+      { name: '全棉针织汗布 180g/m²', description: '100%棉，180g/m²标准克重。柔软亲肤，透气吸汗。适用于T恤/内衣/婴幼儿服装。', priceMin: 15.0, priceMax: 28.0, currency: 'CNY', moq: 300, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['Oeko-Tex', 'GOTS']), rating: 4.5, reviewCount: 5600 },
+    ],
+  },
+  {
+    nameZh: '江西景德镇华艺陶瓷有限公司',
+    nameEn: 'Jiangxi Jingdezhen Huayi Ceramics Co., Ltd.',
+    location: '江西景德镇 · 昌江区',
+    yearEstablished: 2003, employeeCount: 200,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['ISO 9001', 'FDA', 'LFGB']),
+    businessTags: JSON.stringify(['陶瓷', '瓷器', '茶具', '花瓶', '艺术瓷', '日用瓷']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 2100, isVerified: true, type: 'factory',
+    products: [
+      { name: '景德镇青花瓷茶具 一壶四杯', description: '传统青花手绘工艺，高温1300°C烧制。白瓷青花，典雅大方。一壶(200ml)+四杯(40ml)。', priceMin: 35.0, priceMax: 68.0, currency: 'CNY', moq: 50, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['FDA', 'LFGB']), rating: 4.6, reviewCount: 4200 },
+      { name: '陶瓷花瓶 客厅装饰 30cm', description: '高温色釉工艺，渐变色彩。简约现代造型，适合客厅/玄关/酒店装饰。30cm/40cm两种高度。', priceMin: 18.0, priceMax: 42.0, currency: 'CNY', moq: 50, supportsDropShipping: true, supportsOEM: true, rating: 4.5, reviewCount: 3800 },
+    ],
+  },
+  {
+    nameZh: '山东菏泽曹县汉服产业基地',
+    nameEn: 'Shandong Heze Caoxian Hanfu Industry Base',
+    location: '山东菏泽 · 曹县',
+    yearEstablished: 2016, employeeCount: 300,
+    annualExportRevenue: 800,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'Oeko-Tex']),
+    businessTags: JSON.stringify(['汉服', '古装', '演出服', '民族服饰', 'Cosplay服装']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.4, reviewCount: 1200, isVerified: false, type: 'factory',
+    products: [
+      { name: '唐制齐胸襦裙 汉服 女款', description: '仿真丝面料，印花+绣花工艺。含上衣+下裙+披帛三件套。多色多码S-2XL。适合日常/演出/拍照。', priceMin: 38.0, priceMax: 72.0, currency: 'CNY', moq: 100, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['Oeko-Tex']), rating: 4.4, reviewCount: 5200 },
+    ],
+  },
+  {
+    nameZh: '广西柳州螺蛳粉产业有限公司',
+    nameEn: 'Guangxi Liuzhou Luosifen Industry Co., Ltd.',
+    location: '广西柳州 · 鱼峰区',
+    yearEstablished: 2012, employeeCount: 220,
+    annualExportRevenue: 900,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA', 'HALAL']),
+    businessTags: JSON.stringify(['螺蛳粉', '方便食品', '米粉', '速食', '柳州特产']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '澳大利亚']),
+    rating: 4.5, reviewCount: 2800, isVerified: true, type: 'factory',
+    products: [
+      { name: '柳州螺蛳粉 经典原味 300g*10包', description: '传统工艺米粉+酸笋+花生+腐竹+螺蛳汤。地道柳州味。300g大份量，10包/箱。出口版含英文标签。', priceMin: 5.0, priceMax: 9.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'FDA', 'HALAL']), rating: 4.6, reviewCount: 22000 },
+    ],
+  },
+  {
+    nameZh: '四川成都郫县豆瓣股份有限公司',
+    nameEn: 'Sichuan Chengdu Pixian Bean Paste Co., Ltd.',
+    location: '四川成都 · 郫都区',
+    yearEstablished: 2001, employeeCount: 350,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'BRC', 'KOSHER', 'HALAL']),
+    businessTags: JSON.stringify(['调味品', '豆瓣酱', '火锅底料', '川菜调料', '复合调味料']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '澳大利亚']),
+    rating: 4.6, reviewCount: 3500, isVerified: true, type: 'factory',
+    products: [
+      { name: '郫县豆瓣酱 红油 1kg', description: '传统日晒夜露发酵工艺，2年陈酿。色泽红亮，酱香浓郁。1kg/袋，适合餐饮/食品加工/出口。', priceMin: 6.0, priceMax: 12.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'BRC', 'HALAL']), rating: 4.6, reviewCount: 8500 },
+      { name: '四川火锅底料 牛油 300g', description: '纯牛油+四川花椒/干辣椒/豆瓣。麻辣鲜香，正宗川味。300g/袋，适合2-4人份。出口版。', priceMin: 4.5, priceMax: 8.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'HALAL']), rating: 4.5, reviewCount: 16000 },
+    ],
+  },
+  {
+    nameZh: '云南昆明七彩云南茶叶有限公司',
+    nameEn: 'Yunnan Kunming Colorful Yunnan Tea Co., Ltd.',
+    location: '云南昆明 · 官渡区',
+    yearEstablished: 2006, employeeCount: 180,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', '有机认证', 'HALAL']),
+    businessTags: JSON.stringify(['普洱茶', '红茶', '绿茶', '花草茶', '茶叶加工']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 1600, isVerified: true, type: 'factory',
+    products: [
+      { name: '云南普洱熟茶 357g 饼茶', description: '布朗山原料，2018年陈料。传统石磨压制，茶汤红浓透亮。陈香浓郁，回甘持久。357g/饼。', priceMin: 28.0, priceMax: 68.0, currency: 'CNY', moq: 50, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['有机认证', 'HACCP']), rating: 4.6, reviewCount: 5800 },
+    ],
+  },
+  {
+    nameZh: '浙江海宁森马皮业有限公司',
+    nameEn: 'Zhejiang Haining Senma Leather Co., Ltd.',
+    location: '浙江海宁 · 皮革城',
+    yearEstablished: 2007, employeeCount: 280,
+    annualExportRevenue: 1500,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'REACH', 'SGS']),
+    businessTags: JSON.stringify(['皮革', '皮衣', '皮草', '皮革服装', '皮包']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '俄罗斯']),
+    rating: 4.4, reviewCount: 1800, isVerified: true, type: 'factory',
+    products: [
+      { name: '绵羊皮皮衣 女款 短款', description: '进口绵羊皮，柔软细腻。修身短款设计，拉链+按扣双重闭合。多色可选。春秋季百搭单品。', priceMin: 88.0, priceMax: 180.0, currency: 'CNY', moq: 50, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['REACH', 'SGS']), rating: 4.5, reviewCount: 4200 },
+      { name: '牛皮女士手提包 通勤大容量', description: '头层牛皮，经典托特包型。大容量设计，可放14寸电脑。金属五金配件，拉链开合。多色可选。', priceMin: 65.0, priceMax: 128.0, currency: 'CNY', moq: 50, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['REACH', 'SGS']), rating: 4.4, reviewCount: 5800 },
+    ],
+  },
+  {
+    nameZh: '吉林长春皓月清真肉业有限公司',
+    nameEn: 'Jilin Changchun Haoyue Halal Meat Co., Ltd.',
+    location: '吉林长春 · 绿园区',
+    yearEstablished: 2003, employeeCount: 500,
+    annualExportRevenue: 2500,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'HALAL', 'FDA', 'BRC']),
+    businessTags: JSON.stringify(['牛肉', '肉制品', '冷冻牛肉', '牛排', '牛肉加工']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '中东']),
+    rating: 4.6, reviewCount: 3200, isVerified: true, type: 'factory',
+    products: [
+      { name: '谷饲牛肉眼牛排 200g*10片', description: '澳洲谷饲牛种，眼肉部位。雪花分布均匀，肉质鲜嫩多汁。200g/片，真空独立包装。适合餐饮/零售。', priceMin: 18.0, priceMax: 32.0, currency: 'CNY', moq: 200, supportsDropShipping: false, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'HALAL', 'FDA']), rating: 4.6, reviewCount: 6800 },
+    ],
+  },
+  {
+    nameZh: '重庆德庄火锅食材有限公司',
+    nameEn: 'Chongqing Dezhuang Hotpot Ingredients Co., Ltd.',
+    location: '重庆 · 南岸区',
+    yearEstablished: 2010, employeeCount: 280,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA', 'HALAL']),
+    businessTags: JSON.stringify(['火锅食材', '火锅底料', '毛肚', '火锅丸滑', '蘸料']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '澳大利亚', '日本']),
+    rating: 4.5, reviewCount: 2200, isVerified: true, type: 'factory',
+    products: [
+      { name: '重庆毛肚 水发货 500g', description: '新鲜牛瓣胃，酶解发制工艺。大片脆嫩，口感爽脆。500g/袋，冷链配送。适合火锅店/餐饮。', priceMin: 12.0, priceMax: 22.0, currency: 'CNY', moq: 200, supportsDropShipping: false, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'FDA']), rating: 4.5, reviewCount: 4800 },
+      { name: '重庆牛油火锅底料 1kg 餐饮装', description: '纯牛油+茂汶花椒+石柱红辣椒。麻辣浓郁，久煮不苦。1kg/袋，适合火锅店/麻辣烫。', priceMin: 12.0, priceMax: 22.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'HALAL']), rating: 4.5, reviewCount: 7200 },
+    ],
+  },
+  {
+    nameZh: '广东珠海格力小家电有限公司',
+    nameEn: 'Guangdong Zhuhai Gree Small Appliances Co., Ltd.',
+    location: '广东珠海 · 香洲区',
+    yearEstablished: 2008, employeeCount: 450,
+    annualExportRevenue: 2800,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'UL', 'CB', 'RoHS', 'ERP']),
+    businessTags: JSON.stringify(['小家电', '电风扇', '空气净化器', '除湿机', '取暖器']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚', '中东']),
+    rating: 4.6, reviewCount: 3500, isVerified: true, type: 'factory',
+    products: [
+      { name: '塔扇 无叶风扇 遥控定时', description: '无叶设计，安全送风。60°广角送风，3档风速+自然风模式。遥控+触控操作，8小时定时。', priceMin: 85.0, priceMax: 155.0, currency: 'CNY', moq: 50, supportsDropShipping: true, supportsOEM: false, certifications: JSON.stringify(['CE', 'UL', 'RoHS']), rating: 4.5, reviewCount: 4800 },
+    ],
+  },
+  {
+    nameZh: '江苏张家港金陵纺织有限公司',
+    nameEn: 'Jiangsu Zhangjiagang Jinling Textile Co., Ltd.',
+    location: '江苏苏州 · 张家港',
+    yearEstablished: 2004, employeeCount: 350,
+    annualExportRevenue: 1800,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex Standard 100', 'GOTS']),
+    businessTags: JSON.stringify(['色织布', '衬衫面料', '棉布', '混纺面料', '工装面料']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 2000, isVerified: true, type: 'factory',
+    products: [
+      { name: '高支高密全棉色织衬衫面料', description: '100%长绒棉，80支双股。色织条纹/格纹，免烫整理。幅宽145cm，适用于高档衬衫定制。', priceMin: 18.0, priceMax: 35.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['Oeko-Tex']), rating: 4.5, reviewCount: 3800 },
+    ],
+  },
+  {
+    nameZh: '广东惠州TCL智能电器有限公司',
+    nameEn: 'Guangdong Huizhou TCL Smart Electric Co., Ltd.',
+    location: '广东惠州 · 仲恺高新区',
+    yearEstablished: 2006, employeeCount: 600,
+    annualExportRevenue: 4000,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'UL', 'RoHS', 'Energy Star']),
+    businessTags: JSON.stringify(['电视', '显示器', '智能家电', '音响', '消费电子']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚', '南美']),
+    rating: 4.6, reviewCount: 5000, isVerified: true, type: 'factory',
+    products: [
+      { name: '4K智能电视 55寸 QLED量子点', description: '55寸QLED量子点屏幕，4K HDR10+。Android TV系统，内置Netflix/YouTube。2GB+16GB，含遥控器。', priceMin: 580.0, priceMax: 980.0, currency: 'CNY', moq: 10, supportsDropShipping: false, supportsOEM: false, certifications: JSON.stringify(['CE', 'UL', 'Energy Star', 'RoHS']), rating: 4.6, reviewCount: 8500 },
+    ],
+  },
+  {
+    nameZh: '宁夏银川沃福百瑞枸杞产业公司',
+    nameEn: 'Ningxia Yinchuan Wolfberry Industry Co., Ltd.',
+    location: '宁夏银川 · 西夏区',
+    yearEstablished: 2008, employeeCount: 160,
+    annualExportRevenue: 400,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA', '有机认证', 'HALAL']),
+    businessTags: JSON.stringify(['枸杞', '枸杞干果', '枸杞汁', '枸杞粉', '宁夏特产']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '澳大利亚']),
+    rating: 4.5, reviewCount: 1300, isVerified: true, type: 'factory',
+    products: [
+      { name: '宁夏中宁枸杞 特优级 500g', description: '中宁产地，粒大肉厚。传统自然晾晒，无硫熏。特优级280粒/50g标准。500g/袋真空包装。', priceMin: 15.0, priceMax: 30.0, currency: 'CNY', moq: 100, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['有机认证', 'HACCP', 'FDA']), rating: 4.6, reviewCount: 9200 },
+    ],
+  },
+  {
+    nameZh: '甘肃兰州正林瓜子有限公司',
+    nameEn: 'Gansu Lanzhou Zhenglin Melon Seeds Co., Ltd.',
+    location: '甘肃兰州 · 安宁区',
+    yearEstablished: 2005, employeeCount: 200,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA']),
+    businessTags: JSON.stringify(['瓜子', '坚果', '炒货', '休闲食品', '农产品加工']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '澳大利亚']),
+    rating: 4.4, reviewCount: 1500, isVerified: false, type: 'factory',
+    products: [
+      { name: '葵花籽 原味 500g*20袋', description: '内蒙古河套产区葵花籽，粒大饱满。传统炒制工艺，原味清香。500g/袋，20袋/箱。', priceMin: 3.0, priceMax: 6.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'FDA']), rating: 4.4, reviewCount: 7800 },
+      { name: '南瓜子仁 去壳 即食 250g', description: '优质南瓜子去壳，仁大饱满。低温烘焙，保留原味营养。250g/罐，密封罐装。适合烘焙/零食。', priceMin: 8.0, priceMax: 15.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'FDA']), rating: 4.4, reviewCount: 5200 },
+    ],
+  },
+  {
+    nameZh: '新疆乌鲁木齐天山果业有限公司',
+    nameEn: 'Xinjiang Urumqi Tianshan Fruit Co., Ltd.',
+    location: '新疆乌鲁木齐 · 头屯河区',
+    yearEstablished: 2009, employeeCount: 180,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA', '有机认证', 'HALAL']),
+    businessTags: JSON.stringify(['干果', '葡萄干', '红枣', '核桃', '新疆特产']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '中东']),
+    rating: 4.5, reviewCount: 1600, isVerified: true, type: 'factory',
+    products: [
+      { name: '新疆吐鲁番无核白葡萄干 500g', description: '吐鲁番无核白葡萄，自然晾晒风干。颗粒均匀，色泽碧绿。口感软糯，甜而不腻。500g/袋。', priceMin: 8.0, priceMax: 15.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['有机认证', 'HACCP']), rating: 4.5, reviewCount: 11000 },
+      { name: '新疆若羌灰枣 特级 1kg', description: '若羌灰枣，皮薄肉厚核小。自然吊干，甜度高。特级果，1kg/袋。适合即食/煲汤/糕点。', priceMin: 10.0, priceMax: 20.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['有机认证', 'HACCP']), rating: 4.6, reviewCount: 8500 },
+    ],
+  },
+  {
+    nameZh: '山东潍坊得利斯食品有限公司',
+    nameEn: 'Shandong Weifang Delisi Food Co., Ltd.',
+    location: '山东潍坊 · 诸城市',
+    yearEstablished: 2005, employeeCount: 350,
+    annualExportRevenue: 1500,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'BRC', 'FDA']),
+    businessTags: JSON.stringify(['肉制品', '火腿肠', '培根', '香肠', '低温肉制品']),
+    exportDestinations: JSON.stringify(['美国', '日本', '韩国', '欧洲', '东南亚']),
+    rating: 4.4, reviewCount: 2000, isVerified: true, type: 'factory',
+    products: [
+      { name: '烟熏培根 原切 500g', description: '精选猪五花肉，果木烟熏工艺。原切厚片，肥瘦相间。500g/袋，真空包装。适合早餐/西餐/烧烤。', priceMin: 8.0, priceMax: 15.0, currency: 'CNY', moq: 200, supportsDropShipping: false, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'BRC', 'FDA']), rating: 4.5, reviewCount: 6200 },
+    ],
+  },
+  {
+    nameZh: '湖南长沙远大空调有限公司',
+    nameEn: 'Hunan Changsha Broad Air Conditioning Co., Ltd.',
+    location: '湖南长沙 · 星沙开发区',
+    yearEstablished: 2002, employeeCount: 500,
+    annualExportRevenue: 3000,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'CE', 'UL', 'RoHS']),
+    businessTags: JSON.stringify(['中央空调', '新风系统', '空气净化', '暖通设备']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '中东', '东南亚', '澳大利亚']),
+    rating: 4.6, reviewCount: 2800, isVerified: true, type: 'factory',
+    products: [
+      { name: '家用中央空调 一拖四 5匹', description: '直流变频技术，IPLV(C) 7.0超一级能效。一拖四配置，适用100-120m²户型。含安装调试。', priceMin: 2800.0, priceMax: 5200.0, currency: 'CNY', moq: 5, supportsDropShipping: false, supportsOEM: false, certifications: JSON.stringify(['CE', 'UL', 'RoHS']), rating: 4.6, reviewCount: 2400 },
+    ],
+  },
+  {
+    nameZh: '江苏无锡红豆居家服饰有限公司',
+    nameEn: 'Jiangsu Wuxi Hongdou Home Wear Co., Ltd.',
+    location: '江苏无锡 · 锡山区',
+    yearEstablished: 2005, employeeCount: 400,
+    annualExportRevenue: 1800,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'Oeko-Tex']),
+    businessTags: JSON.stringify(['居家服', '内衣', '袜子', '家居服', '针织品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 2500, isVerified: true, type: 'factory',
+    products: [
+      { name: '纯棉家居服套装 女款 春夏', description: '100%精梳棉，柔软透气。宽松版型，圆领短袖+九分裤。多色印花可选。S-2XL全尺码。', priceMin: 22.0, priceMax: 42.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['Oeko-Tex']), rating: 4.5, reviewCount: 7200 },
+      { name: '男士无缝船袜 10双装', description: '精梳棉+氨纶，无缝编织工艺。防滑硅胶后跟，不掉跟。透气吸汗，四季通用。10双/盒。', priceMin: 8.0, priceMax: 15.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['Oeko-Tex']), rating: 4.4, reviewCount: 15800 },
+    ],
+  },
+  {
+    nameZh: '浙江舟山兴业水产有限公司',
+    nameEn: 'Zhejiang Zhoushan Xingye Aquatic Products Co., Ltd.',
+    location: '浙江舟山 · 定海区',
+    yearEstablished: 2004, employeeCount: 350,
+    annualExportRevenue: 1800,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'BRC', 'MSC', 'ASC', 'FDA']),
+    businessTags: JSON.stringify(['海鲜', '水产品', '鱼类', '鱿鱼', '蟹类', '水产加工']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.6, reviewCount: 2200, isVerified: true, type: 'factory',
+    products: [
+      { name: '冷冻鱿鱼 整条 500g*20', description: '舟山渔场新鲜捕捞，-18°C急冻保鲜。肉质肥厚Q弹，适合烧烤/爆炒/铁板。500g/条。', priceMin: 6.0, priceMax: 12.0, currency: 'CNY', moq: 500, supportsDropShipping: false, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'MSC', 'FDA']), rating: 4.5, reviewCount: 5200 },
+    ],
+  },
+  {
+    nameZh: '广东广州金发科技股份有限公司',
+    nameEn: 'Guangzhou Kinfa Technology Co., Ltd.',
+    location: '广东广州 · 黄埔区',
+    yearEstablished: 2005, employeeCount: 800,
+    annualExportRevenue: 5000,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'UL', 'RoHS', 'REACH', 'FDA']),
+    businessTags: JSON.stringify(['改性塑料', '可降解材料', '工程塑料', '塑料原料', '新材料']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '印度']),
+    rating: 4.6, reviewCount: 2800, isVerified: true, type: 'factory',
+    products: [
+      { name: 'PLA全降解吸管 生物基 200支', description: '聚乳酸PLA材质，100%生物降解。耐热80°C，适合冷热饮。200支/包。符合EN13432标准。', priceMin: 5.0, priceMax: 10.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['UL', 'RoHS', 'FDA']), rating: 4.5, reviewCount: 6500 },
+    ],
+  },
+  {
+    nameZh: '山东东营华泰纸业有限公司',
+    nameEn: 'Shandong Dongying Huatai Paper Co., Ltd.',
+    location: '山东东营 · 广饶县',
+    yearEstablished: 2003, employeeCount: 500,
+    annualExportRevenue: 2000,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'FSC', 'SGS']),
+    businessTags: JSON.stringify(['纸制品', '复印纸', '生活用纸', '工业用纸', '纸板']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '中东']),
+    rating: 4.4, reviewCount: 1800, isVerified: true, type: 'factory',
+    products: [
+      { name: 'A4复印纸 70g 500张*5包', description: '100%纯木浆，70g标准克重。纸张洁白，双面打印不渗墨。500张/包5包/箱。办公首选。', priceMin: 10.0, priceMax: 18.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['FSC', 'SGS']), rating: 4.5, reviewCount: 12000 },
+    ],
+  },
+  {
+    nameZh: '福建漳州青蛙王子日化有限公司',
+    nameEn: 'Fujian Zhangzhou Prince Frog Daily Chemical Co., Ltd.',
+    location: '福建漳州 · 龙文区',
+    yearEstablished: 2006, employeeCount: 300,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 22716', 'GMPC', 'FDA', 'SGS']),
+    businessTags: JSON.stringify(['儿童护理', '沐浴露', '洗发水', '润肤露', '牙膏']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '非洲']),
+    rating: 4.5, reviewCount: 2000, isVerified: true, type: 'factory',
+    products: [
+      { name: '儿童洗发沐浴露 二合一 500ml', description: '氨基酸+APG温和配方，无泪配方。pH值弱酸性，不刺激眼睛。天然植物提取，500ml按压瓶。', priceMin: 6.0, priceMax: 12.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['FDA', 'SGS']), rating: 4.6, reviewCount: 14200 },
+    ],
+  },
+  {
+    nameZh: '广东佛山格兰仕微波炉有限公司',
+    nameEn: 'Foshan Galanz Microwave Oven Co., Ltd.',
+    location: '广东佛山 · 顺德区',
+    yearEstablished: 2002, employeeCount: 800,
+    annualExportRevenue: 5000,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'UL', 'CB', 'RoHS', 'FDA']),
+    businessTags: JSON.stringify(['微波炉', '烤箱', '微蒸烤一体', '厨房电器']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚', '南美', '中东']),
+    rating: 4.7, reviewCount: 6000, isVerified: true, type: 'factory',
+    products: [
+      { name: '微波炉 23L 平板式 800W', description: '800W输出功率，23L大容量。平板式加热更均匀。5档火力，一键解冻。机械旋钮操作，耐用可靠。', priceMin: 55.0, priceMax: 95.0, currency: 'CNY', moq: 50, supportsDropShipping: true, supportsOEM: false, certifications: JSON.stringify(['CE', 'UL', 'FDA', 'RoHS']), rating: 4.6, reviewCount: 12000 },
+    ],
+  },
+  {
+    nameZh: '浙江杭州天堂伞业集团有限公司',
+    nameEn: 'Zhejiang Hangzhou Paradise Umbrella Group Co., Ltd.',
+    location: '浙江杭州 · 余杭区',
+    yearEstablished: 2001, employeeCount: 400,
+    annualExportRevenue: 1500,
+    certifications: JSON.stringify(['ISO 9001', 'SGS']),
+    businessTags: JSON.stringify(['雨伞', '太阳伞', '折叠伞', '直柄伞', '晴雨伞']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.6, reviewCount: 3500, isVerified: true, type: 'factory',
+    products: [
+      { name: '三折超轻雨伞 防紫外线 190T', description: '190T高密面料，防水防紫外线。超轻铝骨+玻纤伞架，仅重180g。三折设计，收纳方便。多色可选。', priceMin: 6.0, priceMax: 14.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['SGS']), rating: 4.5, reviewCount: 18500 },
+    ],
+  },
+  {
+    nameZh: '河北唐山惠达卫浴股份有限公司',
+    nameEn: 'Hebei Tangshan Huida Sanitary Ware Co., Ltd.',
+    location: '河北唐山 · 丰南区',
+    yearEstablished: 2000, employeeCount: 600,
+    annualExportRevenue: 3000,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'WaterSense', 'CUPC', 'SGS']),
+    businessTags: JSON.stringify(['卫浴', '马桶', '洗手盆', '浴室柜', '卫浴配件']),
+    exportDestinations: JSON.stringify(['美国', '加拿大', '欧洲', '澳大利亚', '东南亚']),
+    rating: 4.6, reviewCount: 3800, isVerified: true, type: 'factory',
+    products: [
+      { name: '连体马桶 节水型 超漩冲刷', description: '微晶抗污釉面，易洁不留垢。超漩虹吸冲水，一级节水3/6L。静音缓降盖板，55mm排污。', priceMin: 180.0, priceMax: 380.0, currency: 'CNY', moq: 20, supportsDropShipping: false, supportsOEM: true, certifications: JSON.stringify(['CE', 'WaterSense', 'CUPC']), rating: 4.6, reviewCount: 4500 },
+    ],
+  },
+  {
+    nameZh: '广东深圳康佳通信科技有限公司',
+    nameEn: 'Shenzhen Konka Communication Technology Co., Ltd.',
+    location: '广东深圳 · 南山区',
+    yearEstablished: 2005, employeeCount: 500,
+    annualExportRevenue: 3000,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FCC', 'RoHS', 'UL']),
+    businessTags: JSON.stringify(['电视机', '显示器', '智能终端', '影音设备', '消费电子']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '南美', '中东']),
+    rating: 4.5, reviewCount: 4000, isVerified: true, type: 'factory',
+    products: [
+      { name: '便携投影仪 1080P 自动对焦', description: '1080P全高清分辨率，自动对焦+梯形校正。LED光源寿命30000h。内置Android系统，含Netflix授权。', priceMin: 180.0, priceMax: 380.0, currency: 'CNY', moq: 30, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['CE', 'FCC', 'RoHS']), rating: 4.4, reviewCount: 5200 },
+    ],
+  },
+  {
+    nameZh: '四川宜宾五粮液酒业有限公司',
+    nameEn: 'Sichuan Yibin Wuliangye Liquor Co., Ltd.',
+    location: '四川宜宾 · 翠屏区',
+    yearEstablished: 1998, employeeCount: 1500,
+    annualExportRevenue: 10000,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 22000', 'HACCP', 'HALAL']),
+    businessTags: JSON.stringify(['白酒', '浓香型', '五粮液', '酒水出口']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '澳大利亚']),
+    rating: 4.9, reviewCount: 15000, isVerified: true, type: 'factory',
+    products: [
+      { name: '五粮液 普五 第八代 500ml', description: '经典浓香型白酒，五种粮食固态发酵。52%vol，500ml/瓶。水晶瓶礼盒装。出口版含英文标签。', priceMin: 180.0, priceMax: 280.0, currency: 'CNY', moq: 20, supportsDropShipping: false, supportsOEM: false, certifications: JSON.stringify(['HACCP', 'HALAL']), rating: 4.8, reviewCount: 35000 },
+    ],
+  },
+  {
+    nameZh: '广东深圳比亚迪电子有限公司',
+    nameEn: 'Shenzhen BYD Electronics Co., Ltd.',
+    location: '广东深圳 · 坪山区',
+    yearEstablished: 2004, employeeCount: 2000,
+    annualExportRevenue: 15000,
+    certifications: JSON.stringify(['ISO 9001', 'IATF 16949', 'ISO 14001', 'UL', 'CE', 'FCC']),
+    businessTags: JSON.stringify(['锂电池', '充电宝', '储能电源', '动力电池', '电子代工']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '印度']),
+    rating: 4.8, reviewCount: 8000, isVerified: true, type: 'factory',
+    products: [
+      { name: '户外储能电源 1000W 大容量', description: '磷酸铁锂电池，1024Wh大容量。1000W纯正弦波输出，支持PD 100W快充。太阳能/市电双充。重约12kg。', priceMin: 680.0, priceMax: 1280.0, currency: 'CNY', moq: 10, supportsDropShipping: false, supportsOEM: true, certifications: JSON.stringify(['CE', 'FCC', 'UL', 'RoHS']), rating: 4.7, reviewCount: 6500 },
+    ],
+  },
+
+  // ═════════════════════════════════════════════════════════════════════
+  //  最后补充 — 确保 200+ 商品 (10家)
+  // ═════════════════════════════════════════════════════════════════════
+  {
+    nameZh: '广西北海珍珠养殖有限公司',
+    nameEn: 'Guangxi Beihai Pearl Cultivation Co., Ltd.',
+    location: '广西北海 · 铁山港',
+    yearEstablished: 2003, employeeCount: 180,
+    annualExportRevenue: 400,
+    certifications: JSON.stringify(['ISO 9001', 'SGS']),
+    businessTags: JSON.stringify(['珍珠', '海水珍珠', '珍珠饰品', '珠宝', '贝雕']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '中东']),
+    rating: 4.4, reviewCount: 1200, isVerified: false, type: 'factory',
+    products: [
+      { name: '合浦海水珍珠项链 7-8mm 45cm', description: '北海合浦海域养殖，天然海水珍珠。圆度好，光泽强。7-8mm规格，45cm标准链长。配18K金扣。', priceMin: 88.0, priceMax: 280.0, currency: 'CNY', moq: 20, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['SGS']), rating: 4.5, reviewCount: 3200 },
+      { name: '珍珠贝母镶嵌耳钉 S925银', description: '天然珍珠贝母，手工镶嵌。S925银针，防过敏。简约百搭设计。礼盒包装。', priceMin: 12.0, priceMax: 28.0, currency: 'CNY', moq: 100, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['SGS']), rating: 4.4, reviewCount: 6800 },
+    ],
+  },
+  {
+    nameZh: '云南西双版纳云茶茶业有限公司',
+    nameEn: 'Yunnan Xishuangbanna Yuncha Tea Co., Ltd.',
+    location: '云南西双版纳 · 勐海县',
+    yearEstablished: 2007, employeeCount: 120,
+    annualExportRevenue: 350,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', '有机认证', '雨林联盟']),
+    businessTags: JSON.stringify(['普洱茶', '古树茶', '生普', '熟普', '红茶']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 1400, isVerified: true, type: 'factory',
+    products: [
+      { name: '勐海古树普洱生茶 357g 2022春', description: '勐海布朗山古树原料，2022年春季采摘。传统工艺晒青压制，兰香蜜韵。357g/饼，棉纸包装。', priceMin: 48.0, priceMax: 120.0, currency: 'CNY', moq: 30, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['有机认证', 'HACCP']), rating: 4.6, reviewCount: 4500 },
+    ],
+  },
+  {
+    nameZh: '江苏苏州绣娘丝绸工艺有限公司',
+    nameEn: 'Jiangsu Suzhou Xiuniang Silk Craft Co., Ltd.',
+    location: '江苏苏州 · 吴江区',
+    yearEstablished: 2008, employeeCount: 160,
+    annualExportRevenue: 500,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex', 'SGS']),
+    businessTags: JSON.stringify(['苏绣', '刺绣', '丝绸', '手工艺品', '礼品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 1100, isVerified: true, type: 'factory',
+    products: [
+      { name: '苏绣双面绣 台屏摆件 20cm', description: '真丝底料，手工苏绣。双面绣工艺，图案精美。红木底座+玻璃框架。直径20cm。送礼/收藏佳品。', priceMin: 65.0, priceMax: 168.0, currency: 'CNY', moq: 20, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['SGS']), rating: 4.6, reviewCount: 2800 },
+    ],
+  },
+  {
+    nameZh: '内蒙古呼和浩特伊利乳业有限公司',
+    nameEn: 'Inner Mongolia Hohhot Yili Dairy Co., Ltd.',
+    location: '内蒙古呼和浩特 · 土默特左旗',
+    yearEstablished: 2002, employeeCount: 1000,
+    annualExportRevenue: 6000,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'BRC', 'FDA', 'HALAL']),
+    businessTags: JSON.stringify(['乳制品', '奶粉', '液态奶', '酸奶', '奶酪']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '非洲']),
+    rating: 4.7, reviewCount: 8000, isVerified: true, type: 'factory',
+    products: [
+      { name: '全脂奶粉 400g*12袋', description: '100%生牛乳，喷雾干燥工艺。富含钙和蛋白质。400g/袋，12袋/箱。适合烘焙/冲饮/食品加工。', priceMin: 8.0, priceMax: 15.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: false, certifications: JSON.stringify(['HACCP', 'BRC', 'HALAL']), rating: 4.7, reviewCount: 28000 },
+    ],
+  },
+  {
+    nameZh: '广东佛山雄塑管业有限公司',
+    nameEn: 'Foshan Xiongshu Pipe Industry Co., Ltd.',
+    location: '广东佛山 · 顺德区',
+    yearEstablished: 2006, employeeCount: 250,
+    annualExportRevenue: 900,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'NSF', 'WRAS']),
+    businessTags: JSON.stringify(['管材', 'PVC管', '排水管', '电工管', '波纹管']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '非洲']),
+    rating: 4.4, reviewCount: 1200, isVerified: true, type: 'factory',
+    products: [
+      { name: 'PVC-U排水管 110mm*3.2mm', description: '优质PVC-U原料，壁厚3.2mm。抗压耐腐蚀，内壁光滑排水快。4米/根。用于建筑排水系统。', priceMin: 8.0, priceMax: 15.0, currency: 'CNY', moq: 200, supportsDropShipping: false, supportsOEM: true, certifications: JSON.stringify(['CE', 'NSF']), rating: 4.4, reviewCount: 3200 },
+    ],
+  },
+  {
+    nameZh: '海南海口椰树集团食品饮料公司',
+    nameEn: 'Hainan Haikou Coconut Palm Group Food & Beverage Co., Ltd.',
+    location: '海南海口 · 龙华区',
+    yearEstablished: 2005, employeeCount: 350,
+    annualExportRevenue: 1500,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA', 'HALAL']),
+    businessTags: JSON.stringify(['饮料', '椰汁', '椰子水', '热带水果', '食品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 2800, isVerified: true, type: 'factory',
+    products: [
+      { name: '椰子水 100%纯天然 330ml*24罐', description: '泰国香水椰，NFC非浓缩还原。0脂肪0胆固醇，天然电解质。330ml*24罐/箱。出口版。', priceMin: 3.5, priceMax: 6.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: false, certifications: JSON.stringify(['HACCP', 'FDA', 'HALAL']), rating: 4.6, reviewCount: 15800 },
+    ],
+  },
+  {
+    nameZh: '广东广州立白企业集团有限公司',
+    nameEn: 'Guangzhou Liby Enterprise Group Co., Ltd.',
+    location: '广东广州 · 荔湾区',
+    yearEstablished: 2003, employeeCount: 600,
+    annualExportRevenue: 3500,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 14001', 'FDA', 'SGS']),
+    businessTags: JSON.stringify(['洗涤用品', '洗衣液', '洗洁精', '清洁剂', '日化']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '东南亚', '中东', '非洲']),
+    rating: 4.6, reviewCount: 5000, isVerified: true, type: 'factory',
+    products: [
+      { name: '天然皂液洗衣液 2kg 薰衣草香', description: '植物基表面活性剂，温和不伤手。深层去污，低泡易漂洗。2kg/瓶，薰衣草香型。适合全家使用。', priceMin: 8.0, priceMax: 15.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: false, certifications: JSON.stringify(['FDA', 'SGS']), rating: 4.6, reviewCount: 22000 },
+    ],
+  },
+  {
+    nameZh: '山东德州扒鸡集团有限公司',
+    nameEn: 'Shandong Dezhou Braised Chicken Group Co., Ltd.',
+    location: '山东德州 · 德城区',
+    yearEstablished: 2001, employeeCount: 400,
+    annualExportRevenue: 1200,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA', 'HALAL']),
+    businessTags: JSON.stringify(['扒鸡', '熟食', '肉制品', '卤味', '休闲食品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 2500, isVerified: true, type: 'factory',
+    products: [
+      { name: '德州扒鸡 500g 真空包装', description: '传统五香工艺，20余种香辛料卤制。肉质酥烂脱骨，香味浓郁。500g/袋，真空包装。开袋即食/加热。', priceMin: 12.0, priceMax: 22.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: false, certifications: JSON.stringify(['HACCP', 'FDA', 'HALAL']), rating: 4.6, reviewCount: 8500 },
+    ],
+  },
+  {
+    nameZh: '江苏南京苏美达纺织有限公司',
+    nameEn: 'Jiangsu Nanjing Sumec Textile Co., Ltd.',
+    location: '江苏南京 · 江宁区',
+    yearEstablished: 2006, employeeCount: 300,
+    annualExportRevenue: 1800,
+    certifications: JSON.stringify(['ISO 9001', 'Oeko-Tex Standard 100', 'BSCI', 'GOTS']),
+    businessTags: JSON.stringify(['服装', '工作服', '制服', '工装', '劳保用品']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '东南亚', '中东']),
+    rating: 4.5, reviewCount: 1600, isVerified: true, type: 'factory',
+    products: [
+      { name: '反光安全背心 荧光黄 EN471标准', description: '荧光黄涤纶面料，3M反光条。EN471标准认证，夜间反光距离200m。多口袋设计。多尺码S-3XL。', priceMin: 5.0, priceMax: 12.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['Oeko-Tex', 'CE']), rating: 4.5, reviewCount: 9800 },
+    ],
+  },
+  {
+    nameZh: '安徽芜湖三只松鼠食品有限公司',
+    nameEn: 'Anhui Wuhu Three Squirrels Food Co., Ltd.',
+    location: '安徽芜湖 · 弋江区',
+    yearEstablished: 2012, employeeCount: 400,
+    annualExportRevenue: 2000,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA', 'BRC']),
+    businessTags: JSON.stringify(['零食', '坚果', '卤味', '肉脯', '烘焙']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '澳大利亚']),
+    rating: 4.6, reviewCount: 5000, isVerified: true, type: 'factory',
+    products: [
+      { name: '夏威夷果 奶油味 500g', description: '澳洲进口夏威夷果，奶香浓郁。开口率高，好剥不费劲。500g/袋，充氮保鲜。', priceMin: 12.0, priceMax: 22.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'FDA']), rating: 4.6, reviewCount: 18000 },
+      { name: '猪肉脯 原味 200g*5袋', description: '精选猪后腿肉，传统炭烤工艺。肉质紧实有嚼劲，甜咸适中。200g/袋，5袋/组。独立包装。', priceMin: 8.0, priceMax: 14.0, currency: 'CNY', moq: 300, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'FDA']), rating: 4.5, reviewCount: 22000 },
+    ],
+  },
+  {
+    nameZh: '黑龙江哈尔滨秋林里道斯食品公司',
+    nameEn: 'Heilongjiang Harbin Qiulin Lidaosi Food Co., Ltd.',
+    location: '黑龙江哈尔滨 · 南岗区',
+    yearEstablished: 2005, employeeCount: 300,
+    annualExportRevenue: 800,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA']),
+    businessTags: JSON.stringify(['红肠', '肉制品', '熟食', '熏酱', '哈尔滨特产']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '俄罗斯']),
+    rating: 4.5, reviewCount: 2200, isVerified: true, type: 'factory',
+    products: [
+      { name: '哈尔滨红肠 精品 500g', description: '传统果木熏烤工艺，猪牛混合肉馅。蒜香浓郁，肉质紧实。500g/袋真空包装。开袋即食。', priceMin: 12.0, priceMax: 22.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'FDA']), rating: 4.6, reviewCount: 8500 },
+      { name: '儿童肠 无淀粉 300g', description: '纯肉无淀粉添加，低盐配方。果木熏烤，口感细腻。300g/根，真空包装。适合儿童/老人。', priceMin: 10.0, priceMax: 18.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'FDA']), rating: 4.5, reviewCount: 6200 },
+    ],
+  },
+  {
+    nameZh: '河南郑州宇通客车配件有限公司',
+    nameEn: 'Henan Zhengzhou Yutong Bus Parts Co., Ltd.',
+    location: '河南郑州 · 管城区',
+    yearEstablished: 2007, employeeCount: 350,
+    annualExportRevenue: 1500,
+    certifications: JSON.stringify(['ISO 9001', 'IATF 16949', 'CE', 'SGS']),
+    businessTags: JSON.stringify(['汽车配件', '客车配件', '座椅', '车身件', '内饰件']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '中东', '东南亚', '南美']),
+    rating: 4.5, reviewCount: 1800, isVerified: true, type: 'factory',
+    products: [
+      { name: '汽车座椅座套 皮质 通用款', description: '环保PU皮革，防水防刮。通用款适合大多数车型。前排双座+后排，四季通用。易安装。', priceMin: 48.0, priceMax: 95.0, currency: 'CNY', moq: 50, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['SGS']), rating: 4.4, reviewCount: 4800 },
+    ],
+  },
+  {
+    nameZh: '山西太原老陈醋集团有限公司',
+    nameEn: 'Shanxi Taiyuan Mature Vinegar Group Co., Ltd.',
+    location: '山西太原 · 清徐县',
+    yearEstablished: 2003, employeeCount: 280,
+    annualExportRevenue: 600,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA', 'HALAL', '有机认证']),
+    businessTags: JSON.stringify(['老陈醋', '食醋', '调味品', '山西特产', '醋饮']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 2500, isVerified: true, type: 'factory',
+    products: [
+      { name: '山西老陈醋 五年陈酿 500ml', description: '传统固态发酵，五年陈酿。色泽黑紫，酸香醇厚。500ml/瓶，适合蘸食/烹饪/养生。', priceMin: 6.0, priceMax: 15.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'FDA', 'HALAL']), rating: 4.6, reviewCount: 12000 },
+    ],
+  },
+  {
+    nameZh: '陕西西安冰峰饮料食品有限公司',
+    nameEn: 'Shaanxi Xian Bingfeng Beverage Food Co., Ltd.',
+    location: '陕西西安 · 莲湖区',
+    yearEstablished: 2008, employeeCount: 200,
+    annualExportRevenue: 400,
+    certifications: JSON.stringify(['ISO 22000', 'HACCP', 'FDA']),
+    businessTags: JSON.stringify(['饮料', '汽水', '果汁', '饮品', '西安特产']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.4, reviewCount: 1500, isVerified: true, type: 'factory',
+    products: [
+      { name: '冰峰橙味汽水 330ml*24罐', description: '经典橙味碳酸饮料，西安老字号。含真实果汁，清爽解渴。330ml*24罐/箱。出口版。', priceMin: 2.0, priceMax: 4.0, currency: 'CNY', moq: 1000, supportsDropShipping: true, supportsOEM: false, certifications: JSON.stringify(['HACCP', 'FDA']), rating: 4.5, reviewCount: 15000 },
+    ],
+  },
+  {
+    nameZh: '河北石家庄以岭药业有限公司',
+    nameEn: 'Hebei Shijiazhuang Yiling Pharmaceutical Co., Ltd.',
+    location: '河北石家庄 · 高新区',
+    yearEstablished: 2002, employeeCount: 500,
+    annualExportRevenue: 2500,
+    certifications: JSON.stringify(['ISO 9001', 'GMP', 'FDA', 'HACCP']),
+    businessTags: JSON.stringify(['中药', '保健品', '健康食品', '中药材', '中药饮片']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 3500, isVerified: true, type: 'factory',
+    products: [
+      { name: '连花清瘟胶囊 36粒装', description: '连翘/金银花/板蓝根等13味中药组方。清热解毒，宣肺泄热。36粒/盒。出口版含英文说明。', priceMin: 8.0, priceMax: 18.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: false, certifications: JSON.stringify(['GMP', 'FDA']), rating: 4.6, reviewCount: 32000 },
+    ],
+  },
+  {
+    nameZh: '福建厦门九牧王男装有限公司',
+    nameEn: 'Fujian Xiamen Jomwang Menwear Co., Ltd.',
+    location: '福建厦门 · 思明区',
+    yearEstablished: 2006, employeeCount: 350,
+    annualExportRevenue: 1500,
+    certifications: JSON.stringify(['ISO 9001', 'BSCI', 'Oeko-Tex']),
+    businessTags: JSON.stringify(['男装', '西裤', '衬衫', '夹克', '商务男装']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚']),
+    rating: 4.5, reviewCount: 2200, isVerified: true, type: 'factory',
+    products: [
+      { name: '免烫全棉衬衫 男士长袖', description: '100%全棉免烫面料，DP整理工艺。挺括不起皱，机洗免烫。经典尖领设计。多色可选S-3XL。', priceMin: 22.0, priceMax: 42.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['Oeko-Tex']), rating: 4.5, reviewCount: 7200 },
+      { name: '商务休闲裤 直筒 四季款', description: '含毛面料，挺括垂顺。中腰直筒版型，修身有型。后袋纽扣设计。多色多码。', priceMin: 28.0, priceMax: 52.0, currency: 'CNY', moq: 200, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['Oeko-Tex']), rating: 4.4, reviewCount: 6500 },
+    ],
+  },
+  {
+    nameZh: '贵州遵义茅台镇国宝酒业有限公司',
+    nameEn: 'Guizhou Zunyi Maotai Town Guobao Liquor Co., Ltd.',
+    location: '贵州遵义 · 仁怀市',
+    yearEstablished: 2004, employeeCount: 400,
+    annualExportRevenue: 3000,
+    certifications: JSON.stringify(['ISO 9001', 'ISO 22000', 'HACCP', 'HALAL']),
+    businessTags: JSON.stringify(['酱香白酒', '茅台', '白酒', '大曲酱香', '酒水']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '澳大利亚']),
+    rating: 4.6, reviewCount: 4000, isVerified: true, type: 'factory',
+    products: [
+      { name: '酱香型白酒 53%vol 500ml 礼盒装', description: '茅台镇核心产区酿造，大曲坤沙工艺。5年窖藏，酱香突出，回味悠长。500ml/瓶，礼盒包装。', priceMin: 80.0, priceMax: 168.0, currency: 'CNY', moq: 30, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['HACCP', 'HALAL']), rating: 4.6, reviewCount: 8500 },
+    ],
+  },
+  {
+    nameZh: '广东深圳倍思科技有限公司',
+    nameEn: 'Shenzhen Baseus Technology Co., Ltd.',
+    location: '广东深圳 · 龙岗区',
+    yearEstablished: 2011, employeeCount: 500,
+    annualExportRevenue: 2000,
+    certifications: JSON.stringify(['ISO 9001', 'CE', 'FCC', 'RoHS', 'UL']),
+    businessTags: JSON.stringify(['数码配件', '充电器', '数据线', '手机支架', '音频']),
+    exportDestinations: JSON.stringify(['美国', '欧洲', '日本', '韩国', '东南亚', '南美']),
+    rating: 4.6, reviewCount: 5000, isVerified: true, type: 'brand',
+    products: [
+      { name: 'GaN氮化镓充电器 65W 三口快充', description: '氮化镓技术，65W大功率。2C+1A三口输出，兼容PD/QC/PPS协议。可折叠插脚，体积小巧。', priceMin: 25.0, priceMax: 45.0, currency: 'CNY', moq: 100, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['CE', 'FCC', 'UL', 'RoHS']), rating: 4.6, reviewCount: 25000 },
+      { name: '车载手机支架 磁吸 出风口', description: '360°旋转球头，强磁吸附。单手取放手机，驾驶更安全。适用于4.7-7.2寸手机含手机壳。', priceMin: 5.0, priceMax: 12.0, currency: 'CNY', moq: 500, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['CE', 'RoHS']), rating: 4.4, reviewCount: 18000 },
+      { name: '蓝牙5.3接收器 3.5mm AUX', description: '蓝牙5.3芯片，aptX高清解码。3.5mm AUX输出，可连接车载音响/音箱。续航12小时，通话降噪。', priceMin: 8.0, priceMax: 16.0, currency: 'CNY', moq: 300, supportsDropShipping: true, supportsOEM: true, certifications: JSON.stringify(['CE', 'FCC', 'RoHS']), rating: 4.5, reviewCount: 14200 },
+    ],
+  },
+];
+
+// ═════════════════════════════════════════════════════════════════════
+//  物流服务商 (12家)
+// ═════════════════════════════════════════════════════════════════════
+const logisticsProviders = [
+  {
+    name: '顺丰国际',
+    routes: JSON.stringify([{ from: '中国', to: '美国', type: '空运' }, { from: '中国', to: '欧洲', type: '空运' }, { from: '中国', to: '日本', type: '空运' }]),
+    priceMin: 45, priceMax: 120, avgTransitDays: 7,
+    coverCountries: JSON.stringify(['美国', '英国', '德国', '法国', '日本', '韩国', '澳大利亚']),
+    rating: 4.9,
+  },
+  {
+    name: '极兔国际',
+    routes: JSON.stringify([{ from: '中国', to: '东南亚', type: '空运' }, { from: '中国', to: '中东', type: '空运' }]),
+    priceMin: 18, priceMax: 65, avgTransitDays: 7,
+    coverCountries: JSON.stringify(['泰国', '越南', '印尼', '马来西亚', '菲律宾', '新加坡', '沙特']),
+    rating: 4.5,
+  },
+  {
+    name: '菜鸟国际',
+    routes: JSON.stringify([{ from: '中国', to: '全球', type: '空运' }, { from: '中国', to: '全球', type: '海运' }]),
+    priceMin: 15, priceMax: 150, avgTransitDays: 12,
+    coverCountries: JSON.stringify(['美国', '英国', '德国', '法国', '西班牙', '巴西', '俄罗斯']),
+    rating: 4.4,
+  },
+  {
+    name: '中国邮政国际小包',
+    routes: JSON.stringify([{ from: '中国', to: '全球', type: '邮政' }]),
+    priceMin: 10, priceMax: 80, avgTransitDays: 18,
+    coverCountries: JSON.stringify(['全球200+国家']),
+    rating: 4.1,
+  },
+  {
+    name: '中外运海运',
+    routes: JSON.stringify([{ from: '深圳', to: '洛杉矶', type: '海运' }, { from: '宁波', to: '汉堡', type: '海运' }, { from: '上海', to: '悉尼', type: '海运' }]),
+    priceMin: 800, priceMax: 3500, avgTransitDays: 28,
+    coverCountries: JSON.stringify(['美国', '德国', '英国', '荷兰', '澳大利亚', '日本']),
+    rating: 4.3,
+  },
+  {
+    name: 'DHL国际快递',
+    routes: JSON.stringify([{ from: '中国', to: '全球', type: '快递' }]),
+    priceMin: 120, priceMax: 400, avgTransitDays: 5,
+    coverCountries: JSON.stringify(['全球220+国家']),
+    rating: 4.8,
+  },
+  {
+    name: 'FedEx国际优先',
+    routes: JSON.stringify([{ from: '中国', to: '全球', type: '快递' }]),
+    priceMin: 130, priceMax: 380, avgTransitDays: 4,
+    coverCountries: JSON.stringify(['全球200+国家']),
+    rating: 4.7,
+  },
+  {
+    name: 'UPS国际快递',
+    routes: JSON.stringify([{ from: '中国', to: '全球', type: '快递' }]),
+    priceMin: 140, priceMax: 420, avgTransitDays: 4,
+    coverCountries: JSON.stringify(['全球200+国家']),
+    rating: 4.7,
+  },
+  {
+    name: '云途物流',
+    routes: JSON.stringify([{ from: '深圳', to: '欧洲', type: '空铁' }, { from: '深圳', to: '美国', type: '空运' }]),
+    priceMin: 25, priceMax: 90, avgTransitDays: 10,
+    coverCountries: JSON.stringify(['美国', '英国', '德国', '法国', '意大利', '西班牙']),
+    rating: 4.3,
+  },
+  {
+    name: '燕文物流',
+    routes: JSON.stringify([{ from: '中国', to: '全球', type: '经济' }]),
+    priceMin: 8, priceMax: 50, avgTransitDays: 15,
+    coverCountries: JSON.stringify(['全球150+国家']),
+    rating: 4.0,
+  },
+  {
+    name: '递四方速递',
+    routes: JSON.stringify([{ from: '深圳', to: '全球', type: '空运' }, { from: '香港', to: '全球', type: '空运' }]),
+    priceMin: 20, priceMax: 80, avgTransitDays: 9,
+    coverCountries: JSON.stringify(['美国', '加拿大', '英国', '德国', '法国', '澳大利亚']),
+    rating: 4.2,
+  },
+  {
+    name: '华翰物流',
+    routes: JSON.stringify([{ from: '深圳', to: '美国', type: '空运' }, { from: '广州', to: '欧洲', type: '铁路' }]),
+    priceMin: 15, priceMax: 60, avgTransitDays: 13,
+    coverCountries: JSON.stringify(['美国', '英国', '德国', '法国', '波兰', '捷克']),
+    rating: 4.1,
+  },
+];
+
+// ═════════════════════════════════════════════════════════════════════
+//  销售渠道 (16个)
+// ═════════════════════════════════════════════════════════════════════
+const channels = [
+  { name: 'Amazon', type: 'platform', coverRegions: JSON.stringify(['北美', '欧洲', '日本', '澳大利亚', '中东', '印度']), entryRequirements: '企业营业执照，品牌注册或授权，月流水≥$10,000' },
+  { name: 'TikTok Shop', type: 'platform', coverRegions: JSON.stringify(['美国', '英国', '东南亚', '中东', '欧盟']), entryRequirements: '企业营业执照，有TikTok运营能力，短视频或直播经验' },
+  { name: 'Temu', type: 'platform', coverRegions: JSON.stringify(['美国', '加拿大', '欧洲', '澳大利亚', '新西兰']), entryRequirements: '企业营业执照，全托管模式，工厂优先，有价格竞争力' },
+  { name: '1688 跨境', type: 'platform', coverRegions: JSON.stringify(['全球']), entryRequirements: '企业营业执照，支持跨境代发，有出口资质' },
+  { name: 'Shopee', type: 'platform', coverRegions: JSON.stringify(['东南亚', '台湾', '巴西', '墨西哥']), entryRequirements: '企业或个人执照，SKU≥50，有当地仓储优先' },
+  { name: 'Lazada', type: 'platform', coverRegions: JSON.stringify(['东南亚', '菲律宾', '印尼', '泰国', '马来西亚']), entryRequirements: '企业营业执照，品牌授权，支持Lazada物流' },
+  { name: '阿里国际站', type: 'platform', coverRegions: JSON.stringify(['全球']), entryRequirements: '企业营业执照，出口资质，年费制会员' },
+  { name: 'Walmart', type: 'platform', coverRegions: JSON.stringify(['美国', '加拿大', '墨西哥']), entryRequirements: '企业营业执照，有美国公司主体或WFS仓储' },
+  { name: 'SHEIN', type: 'platform', coverRegions: JSON.stringify(['美国', '欧洲', '中东', '澳大利亚']), entryRequirements: '企业营业执照，工厂或品牌方，小单快反能力' },
+  { name: 'Mercado Libre', type: 'platform', coverRegions: JSON.stringify(['巴西', '墨西哥', '阿根廷', '智利', '哥伦比亚']), entryRequirements: '企业营业执照，拉丁美洲市场经验' },
+  { name: 'AliExpress', type: 'platform', coverRegions: JSON.stringify(['全球', '俄罗斯', '巴西', '西班牙', '法国']), entryRequirements: '企业或个人执照，支持国际小包物流' },
+  { name: 'eBay', type: 'platform', coverRegions: JSON.stringify(['全球', '美国', '英国', '德国', '澳大利亚']), entryRequirements: '企业或个人帐号，有跨境销售经验' },
+  { name: 'Wish', type: 'platform', coverRegions: JSON.stringify(['美国', '欧洲', '加拿大', '澳大利亚']), entryRequirements: '企业营业执照，价格敏感型产品优先' },
+  { name: 'OZON', type: 'platform', coverRegions: JSON.stringify(['俄罗斯', '哈萨克斯坦', '白俄罗斯']), entryRequirements: '企业营业执照，有对俄物流渠道' },
+  { name: 'Coupang', type: 'platform', coverRegions: JSON.stringify(['韩国', '台湾']), entryRequirements: '企业营业执照，韩国KC认证或台湾BSMI认证' },
+  { name: 'Noon', type: 'platform', coverRegions: JSON.stringify(['沙特', '阿联酋', '埃及']), entryRequirements: '企业营业执照，中东市场经验，HALAL/SASO认证' },
+];
+
+// ═════════════════════════════════════════════════════════════════════
+//  主逻辑
+// ═════════════════════════════════════════════════════════════════════
+async function main() {
+  const shouldDrop = process.argv.includes('--drop');
+
+  if (shouldDrop) {
+    console.log('清空现有数据...');
+    await prisma.aggregatedReview.deleteMany();
+    await prisma.product.deleteMany();
+    await prisma.supplier.deleteMany();
+    await prisma.category.deleteMany();
+    await prisma.logisticsProvider.deleteMany();
+    await prisma.channel.deleteMany();
+    console.log('已清空所有表');
+  }
+
+  // 1. 插入分类
+  console.log('\n插入分类...');
+  const categoryMap = {};
+  for (const cat of categories) {
+    if (!cat.parentName) {
+      const created = await prisma.category.create({
+        data: { name: cat.name, type: cat.type, icon: cat.icon, sortOrder: cat.sortOrder },
+      });
+      categoryMap[cat.name] = created.id;
+    }
+  }
+  for (const cat of categories) {
+    if (cat.parentName) {
+      const parentId = categoryMap[cat.parentName];
+      if (parentId) {
+        const created = await prisma.category.create({
+          data: { name: cat.name, type: cat.type, icon: cat.icon, sortOrder: cat.sortOrder, parentId },
+        });
+        categoryMap[cat.name] = created.id;
+      }
+    }
+  }
+  console.log(`已插入 ${Object.keys(categoryMap).length} 个分类`);
+
+  // 2. 插入供应商+商品
+  console.log('\n插入供应商和商品...');
+  let totalSuppliers = 0;
+  let totalProducts = 0;
+  let totalReviews = 0;
+
+  for (const supplierData of suppliers) {
+    const { products, ...supplierFields } = supplierData;
+
+    const supplier = await prisma.supplier.create({ data: supplierFields });
+    totalSuppliers++;
+
+    // 为供应商生成口碑数据
+    const supplierReviews = generateReviews(String(supplier.id), 'supplier', supplierFields.rating, supplierFields.nameZh, JSON.parse(supplierFields.businessTags));
+    for (const review of supplierReviews) {
+      await prisma.aggregatedReview.create({ data: review });
+      totalReviews++;
+    }
+
+    // 商品和商品口碑
+    for (const productData of products) {
+      // 确定分类
+      let categoryId = null;
+      const firstTag = (JSON.parse(supplierFields.businessTags)[0] || '') + ' ' + (productData.description || '');
+      const productName = productData.name;
+
+      if (/耳机|音箱|音质|蓝牙/.test(productName)) categoryId = categoryMap['手机配件'];
+      else if (/充电宝|数据线|手机壳|钢化膜|充电器|手机支架|GaN|充电支架/.test(productName)) categoryId = categoryMap['手机配件'];
+      else if (/智能手表|智能手环|智能眼镜|VR|AR|运动手表/.test(productName)) categoryId = categoryMap['智能穿戴'];
+      else if (/空气炸|榨汁|加湿|扇|取暖|电饭煲|煮锅|养生壶|电水壶|微波炉|电磁炉|蒸烤|电炖|电饼铛/.test(productName)) categoryId = categoryMap['小家电'];
+      else if (/连衣裙|T恤|女装|衬衫|卫衣|大衣|雪纺|毛呢|皮衣.*女|女款.*皮衣/.test(productName)) categoryId = categoryMap['女装'];
+      else if (/运动服|瑜伽|健身|运动套装/.test(productName)) categoryId = categoryMap['运动服装'];
+      else if (/童装|婴儿|爬服|儿童|宝宝/.test(productName)) categoryId = categoryMap['童装'];
+      else if (/沙发|茶几|家具|床头|办公椅|会议椅|电竞椅|人体工学/.test(productName)) categoryId = categoryMap['客厅家具'];
+      else if (/床垫|床架|床品|乳胶床/.test(productName)) categoryId = categoryMap['卧室家具'];
+      else if (/收纳|保温饭盒|厨房|保鲜|硅胶/.test(productName)) categoryId = categoryMap['厨房用品'];
+      else if (/饰品|项链|耳环|发夹|锁骨链|珍珠|戒指|手链|发圈|胸针|耳钉|牛仔扣|纽扣|拉链/.test(productName)) categoryId = categoryMap['饰品配件'];
+      else if (/笔记本|笔芯|钢笔|水彩笔|文具|铅笔|蜡笔|画本|复印纸|水笔|包装纸|礼品包装/.test(productName)) categoryId = categoryMap['文具办公'];
+      else if (/玩具|积木|盲盒|公仔|遥控|娃娃|泡泡机|水枪|布书|摇铃|牙胶|工程车|惯性|回力/.test(productName)) categoryId = categoryMap['玩具潮玩'];
+      else if (/宠物|猫|狗|猫窝|猫粮|狗粮|冻干/.test(productName)) categoryId = categoryMap['宠物用品'];
+      else if (/马桶|花洒|水龙头|浴室|卫浴|淋浴/.test(productName)) categoryId = categoryMap['卫浴陶瓷'];
+      else if (/灯|照明|LED|吸顶|灯带|灯泡/.test(productName)) categoryId = categoryMap['灯具照明'];
+      else if (/食品|海鲜|虾|鱼|辣酱|调味|豆瓣|酱|茶|零食|坚果|饼干|糖果|糖|扒鸡|培根|螺蛳粉|烤肉|火锅|牛奶|奶粉|椰汁|椰子|饮料|汽水|红肠|香肠|肉脯|腊肠|牛排|肥牛|毛肚|海苔|脆片|酥糖|枸杞|瓜子|葵花籽|葡萄干|红枣|灰枣|核桃|干果|老陈醋|陈醋|食醋|醋|夏威夷/.test(productName)) categoryId = categoryMap['食品加工'];
+      else if (/鞋|跑鞋|拖鞋|凉鞋|运动鞋/.test(productName)) categoryId = productName.includes('拖鞋') ? categoryMap['拖鞋凉鞋'] : categoryMap['运动鞋'];
+      else if (/眼镜|太阳镜|镜片/.test(productName)) categoryId = categoryMap['饰品配件'];
+      else if (/四件套|毛巾|被子|枕芯|蚕丝被|床品|枕|坐垫|靠垫|抱枕/.test(productName)) categoryId = categoryMap['家纺布艺'];
+      else if (/背包|双肩|箱包|拉杆箱|手提包|钱包|皮包|女包|斜挎|托特|丝巾/.test(productName)) categoryId = categoryMap['箱包皮具'];
+      else if (/帐篷|户外|露营/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/哑铃|健身|体育|瑜伽垫/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/自行车|电动|骑行/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/面膜|洗面奶|精华|唇釉|口红|护肤|化妆品|洗面|面霜|眼霜|防晒/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/洗衣机|空调|除湿|净化|投影|电视|WiFi智能|智能插座/.test(productName)) categoryId = categoryMap['小家电'];
+      else if (/白酒|啤酒|酒|五粮液|茅台|酱香/.test(productName)) categoryId = categoryMap['食品加工'];
+      else if (/行车记录|车载|汽车/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/打火机|烟具/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/PCB|PCBA|电路板|电子元|喇叭|扬声器|电源适配|无人机/.test(productName)) categoryId = categoryMap['消费电子'];
+      else if (/五金|工具|螺丝|紧固件|合页|门夹|锁|管材|水管|排水管|PPR|PVC|球阀|法兰|阀门|插座|墙壁开关|墙壁插座|板材|石材|花岗岩|大理石/.test(productName)) categoryId = categoryMap['五金工具'];
+      else if (/汉服|古装|民族/.test(productName)) categoryId = categoryMap['服装服饰'];
+      else if (/雨伞/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/陶瓷|餐具|碗|盘|茶具|花瓶/.test(productName)) categoryId = categoryMap['卫浴陶瓷'];
+      else if (/面料|纺织|汗布|针织|色织/.test(productName)) categoryId = categoryMap['家纺布艺'];
+      else if (/假发/.test(productName)) categoryId = categoryMap['饰品配件'];
+      else if (/烟花|鞭炮/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/PLA|纸制品|洗洁精|洗衣液|洗衣凝珠|清洁/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/储能电源|电池/.test(productName)) categoryId = categoryMap['消费电子'];
+      else if (/仿真花|花束|花艺|装饰花|户外/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/护理油|保养油|保养|护理|胶囊|中药|保健品/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/选品|样品包/.test(productName)) categoryId = categoryMap['日用百货'];
+      else if (/刺绣|苏绣|双面绣/.test(productName)) categoryId = categoryMap['饰品配件'];
+      else if (/针织|汗布|色织/.test(productName)) categoryId = categoryMap['家纺布艺'];
+      else if (/鱿鱼|蟹|冷冻水产|生蚝/.test(productName)) categoryId = categoryMap['食品加工'];
+      else if (/皮衣|皮革/.test(productName)) categoryId = categoryMap['箱包皮具'];
+      else if (/直筒裤|休闲裤|商务休闲/.test(productName)) categoryId = categoryMap['男装'];
+      else if (/夹克|外套|polo|POLO/.test(productName)) categoryId = categoryMap['男装'];
+      else if (/服装|内衣|保暖|家居服|袜子|文胸|船袜|安全背心|童/.test(productName)) categoryId = categoryMap['男装'];
+
+      const product = await prisma.product.create({
+        data: { ...productData, supplierId: supplier.id, categoryId },
+      });
+      totalProducts++;
+
+      // 商品口碑 (3-8条)
+      const productReviews = generateReviews(String(product.id), 'product', productData.rating, productData.name, JSON.parse(supplierFields.businessTags));
+      for (const review of productReviews) {
+        await prisma.aggregatedReview.create({ data: review });
+        totalReviews++;
+      }
+    }
+  }
+  console.log(`已插入 ${totalSuppliers} 个供应商`);
+  console.log(`已插入 ${totalProducts} 个商品`);
+  console.log(`已插入 ${totalReviews} 条口碑数据`);
+
+  // 3. 物流服务商
+  console.log('\n插入物流服务商...');
+  for (const lp of logisticsProviders) {
+    await prisma.logisticsProvider.create({ data: lp });
+  }
+  console.log(`已插入 ${logisticsProviders.length} 个物流服务商`);
+
+  // 4. 销售渠道
+  console.log('\n插入销售渠道...');
+  for (const ch of channels) {
+    await prisma.channel.create({ data: ch });
+  }
+  console.log(`已插入 ${channels.length} 个销售渠道`);
+
+  // 统计
+  const stats = {
+    suppliers: totalSuppliers,
+    products: totalProducts,
+    reviews: totalReviews,
+    categories: Object.keys(categoryMap).length,
+    logistics: logisticsProviders.length,
+    channels: channels.length,
+  };
+
+  console.log('\n' + '='.repeat(50));
+  console.log('种子数据插入完成！');
+  console.log('='.repeat(50));
+  for (const [key, val] of Object.entries(stats)) {
+    console.log(`  ${key}: ${val}`);
+  }
+  console.log('='.repeat(50) + '\n');
+}
+
+main()
+  .catch((e) => {
+    console.error('种子数据插入失败:', e);
+    process.exit(1);
+  })
+  .finally(() => prisma.$disconnect());

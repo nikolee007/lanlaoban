@@ -1,0 +1,281 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Supplier (工厂/供应商)
+model Supplier {
+  id                  Int      @id @default(autoincrement())
+  nameZh              String // 中文名称
+  nameEn              String // 英文名称
+  location            String // 地点
+  yearEstablished     Int // 成立年份
+  employeeCount       Int // 员工数
+  annualExportRevenue Float? // 年出口额（万美元）
+  certifications      String // 资质认证列表（JSON 数组）
+  businessTags        String // 主营业务标签（JSON 数组）
+  exportDestinations  String // 出口目的地（JSON 数组）
+  rating              Float // 评分
+  reviewCount         Int // 评论数
+  isVerified          Boolean // 是否懒老板认证
+  updatedAt           DateTime @updatedAt
+  type                String // 类型：factory / brand / distributor
+  contactName         String? // 联系人姓名
+  contactPhone        String? // 联系电话
+  companyIntro        String? // 公司简介(30-50字)
+  partnerBrands       String? // 合作品牌（JSON 数组）
+  monthlyCapacity     String? // 月产能
+  deliveryLeadTime    String? // 交货周期
+  paymentTerms        String? // 付款方式
+
+  products         Product[]
+  contactInquiries ContactInquiry[]
+}
+
+// Product (商品)
+model Product {
+  id                   Int      @id @default(autoincrement())
+  name                 String // 名称
+  description          String? // 描述
+  supplierId           Int // 关联供应商 ID
+  categoryId           Int? // 关联分类 ID
+  priceMin             Float? // 价格区间最小值
+  priceMax             Float? // 价格区间最大值
+  currency             String   @default("CNY") // 货币
+  moq                  Int? // 起订量
+  supportsDropShipping Boolean  @default(false) // 是否支持一件代发
+  supportsOEM          Boolean  @default(false) // 是否支持 OEM
+  images               String? // 图片列表（JSON 数组）
+  certifications       String? // 资质认证（JSON 数组）
+  salesData            String? // 销售数据（JSON 对象）
+  specs                String? // 规格参数（JSON 对象）
+  rating               Float? // 评分
+  reviewCount          Int? // 评论数
+  updatedAt            DateTime @updatedAt
+
+  supplier         Supplier         @relation(fields: [supplierId], references: [id])
+  category         Category?        @relation(fields: [categoryId], references: [id])
+  contactInquiries ContactInquiry[]
+  cartItems        PurchaseCart[]
+}
+
+// AggregatedReview (聚合口碑)
+model AggregatedReview {
+  id             Int      @id @default(autoincrement())
+  targetId       String // 目标 ID（支持多态关联）
+  targetType     String // 目标类型：supplier / product
+  platform       String // 平台：1688 / Amazon / TikTokShop
+  rating         Float // 评分
+  reviewCount    Int // 评论数
+  returnRate     Float? // 退货率
+  repurchaseRate Float? // 复购率
+  keywords       String? // 关键词（JSON 数组）
+  collectedAt    DateTime // 采集时间
+}
+
+// LogisticsProvider (物流服务商)
+model LogisticsProvider {
+  id             Int      @id @default(autoincrement())
+  name           String // 名称
+  logo           String? // Logo URL
+  routes         String? // 路线（JSON 数组）
+  priceMin       Float? // 价格区间最小值
+  priceMax       Float? // 价格区间最大值
+  currency       String   @default("CNY") // 货币
+  avgTransitDays Int? // 平均运输天数
+  coverCountries String? // 覆盖国家（JSON 数组）
+  rating         Float? // 评分
+  updatedAt      DateTime @updatedAt
+}
+
+// Channel (销售渠道)
+model Channel {
+  id                Int      @id @default(autoincrement())
+  name              String // 名称
+  type              String // 类型：platform / distributor / retailer
+  coverRegions      String? // 覆盖地区（JSON 数组）
+  entryRequirements String? // 入驻要求
+  updatedAt         DateTime @updatedAt
+}
+
+// User (用户)
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  avatar    String?
+  company   String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  collections    UserCollection[]
+  inquiries      ContactInquiry[]
+  cartItems      PurchaseCart[]
+  purchaseOrders PurchaseOrder[]
+  notifications  Notification[]
+  IpProfile      IpProfile?
+  IpChat         IpChat[]
+}
+
+// UserCollection (用户收藏)
+model UserCollection {
+  id         Int      @id @default(autoincrement())
+  userId     Int // 用户 ID
+  targetId   String // 目标 ID（支持多态关联）
+  targetType String // 目标类型：supplier / product / channel / logistics
+  userNote   String? // 用户备注
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// ContactInquiry (联系询盘)
+model ContactInquiry {
+  id         Int      @id @default(autoincrement())
+  userId     Int? // 关联用户 ID
+  name       String // 联系人姓名
+  phone      String // 联系电话
+  company    String? // 公司名称
+  productId  Int? // 关联商品 ID
+  supplierId Int? // 关联供应商 ID
+  message    String // 询盘内容
+  status     String   @default("pending") // 状态: pending / replied / closed
+  reply      String? // 回复内容
+  createdAt  DateTime @default(now())
+
+  user     User?     @relation(fields: [userId], references: [id])
+  product  Product?  @relation(fields: [productId], references: [id])
+  supplier Supplier? @relation(fields: [supplierId], references: [id])
+}
+
+// PurchaseCart (采购清单)
+model PurchaseCart {
+  id        Int      @id @default(autoincrement())
+  userId    Int // 用户 ID
+  productId Int // 商品 ID
+  quantity  Int      @default(1) // 数量
+  notes     String? // 备注
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
+
+// Category (分类)
+model Category {
+  id        Int     @id @default(autoincrement())
+  name      String // 名称
+  parentId  Int? // 父分类 ID（自关联）
+  icon      String? // 图标
+  sortOrder Int     @default(0) // 排序
+  type      String // 类型：domestic / crossborder / both
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products Product[]
+}
+
+// PurchaseOrder (采购单)
+model PurchaseOrder {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  orderNo       String   @unique // 订单号: PO202606060001
+  status        String   @default("pending") // pending/confirmed/shipped/completed/cancelled
+  supplierId    Int
+  supplierName  String
+  supplierPhone String?
+  totalAmount   Float
+  itemCount     Int
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  items PurchaseOrderItem[]
+  user  User                @relation(fields: [userId], references: [id])
+}
+
+// PurchaseOrderItem (采购单项)
+model PurchaseOrderItem {
+  id          Int    @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+  productName String
+  price       Float
+  quantity    Int
+  subtotal    Float
+
+  order PurchaseOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+// Notification (站内通知)
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  type      String // inquiry_reply / order_status / system
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  link      String? // 跳转链接
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// ─── IP素材库 ───────────────────────────────
+
+model IpProfile {
+  id             Int       @id @default(autoincrement())
+  userId         Int       @unique
+  // 基本信息
+  name           String? // 昵称/品牌名
+  industry       String? // 行业
+  product        String? // 产品/服务
+  experience     String? // 从业经历
+  startYear      String? // 入行年限
+  targetAudience String? // 目标人群
+  targetCustomer String? // 目标客户
+  // 个人故事
+  originStory    String? // 创业/品牌起源故事
+  keyEvents      String? // 关键经历(JSON数组)
+  achievements   String? // 成就(JSON数组)
+  hardest        String? // 最难时刻
+  // IP 人设
+  personality    String? // 性格
+  advantage      String? // 优势/核心卖点
+  pains          String? // 客户痛点
+  goal           String? // IP目标
+  commitment     String? // 承诺/slogan
+  catchphrase    String? // 口头禅
+  // 素材库
+  videoScripts   String? // 历史生成的脚本(JSON数组)
+  contentIdeas   String? // 内容灵感(JSON数组)
+  // 自动跟进
+  lastChatAt     DateTime? // 上次聊天时间
+  nextFollowUpAt DateTime? // 下次自动跟进时间
+  followUpCount  Int       @default(0) // 跟进次数
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  user           User      @relation(fields: [userId], references: [id])
+}
+
+model IpChat {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  role      String // 'user' | 'assistant' | 'system'
+  content   String
+  metadata  String? // JSON: 关联的素材类型、场景等
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}

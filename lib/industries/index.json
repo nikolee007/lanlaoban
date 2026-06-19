@@ -1,0 +1,31 @@
+{
+  "meta": { "version": "1.0", "updated": "2026-06-02", "count": 16 },
+  "已覆盖": [
+    { "id": "dining", "name": "餐饮门店", "type": "综合", "status": "core" },
+    { "id": "decoration", "name": "家装整装", "type": "综合", "status": "core" },
+    { "id": "factory", "name": "工厂制造", "type": "综合", "status": "core" },
+    { "id": "retail", "name": "综合门店", "type": "综合", "status": "core" },
+    { "id": "trade", "name": "外贸出口", "type": "外贸", "status": "core" },
+    { "id": "ai_service", "name": "AI轻服务&数字人", "type": "科技", "status": "新增" },
+    { "id": "local_life", "name": "本地生活代运营", "type": "服务", "status": "新增" },
+    { "id": "pet", "name": "宠物经济", "type": "消费", "status": "新增" },
+    { "id": "workplace", "name": "职场技能&职业规划", "type": "教育", "status": "新增" },
+    { "id": "family_edu", "name": "家庭教育&亲子教育", "type": "教育", "status": "新增" },
+    { "id": "art_edu", "name": "艺术类知识付费", "type": "教育", "status": "新增" },
+    { "id": "health", "name": "社区健康服务", "type": "医疗", "status": "新增" },
+    { "id": "ai_content", "name": "AI内容创作", "type": "科技", "status": "新增" },
+    { "id": "crossborder", "name": "跨境电商", "type": "外贸", "status": "新增" },
+    { "id": "tile_furniture", "name": "瓷砖卫浴&软装家居", "type": "建材", "status": "新增" },
+    { "id": "window_custom", "name": "门窗建材&全屋定制", "type": "建材", "status": "新增" }
+  ],
+  "未覆盖": [
+    { "id": "smart_community", "name": "智慧社区&智能家居", "priority": 1 },
+    { "id": "elderly", "name": "银发经济", "priority": 1 },
+    { "id": "crossborder_pay", "name": "跨境支付/金融", "priority": 2 },
+    { "id": "healthcare", "name": "健康保健", "priority": 2 },
+    { "id": "home_organization", "name": "家居收纳/智能家居", "priority": 2 },
+    { "id": "personal_growth", "name": "个人成长/职场提升", "priority": 3 },
+    { "id": "crossborder_compliance", "name": "跨境合规咨询", "priority": 3 },
+    { "id": "crossborder_mcn", "name": "跨境MCN/海外社媒", "priority": 3 }
+  ]
+}

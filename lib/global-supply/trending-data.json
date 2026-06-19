@@ -1,0 +1,429 @@
+{
+  "tiktokHotRank": [
+    {
+      "productName": "便携榨汁机",
+      "region": "美国",
+      "monthlySearchGrowth": 185,
+      "monthlySales": 32000,
+      "hotTags": ["#kitchengadgets", "#healthyjuice", "#morningroutine"],
+      "category": "小家电",
+      "priceRange": "$19.99 - $39.99"
+    },
+    {
+      "productName": "空气炸锅专用纸垫",
+      "region": "美国",
+      "monthlySearchGrowth": 240,
+      "monthlySales": 58000,
+      "hotTags": ["#airfryer", "#kitchenhacks", "#cleaninghack"],
+      "category": "厨房配件",
+      "priceRange": "$8.99 - $15.99"
+    },
+    {
+      "productName": "高腰瑜伽裤",
+      "region": "美国",
+      "monthlySearchGrowth": 120,
+      "monthlySales": 45000,
+      "hotTags": ["#yogapants", "#gymfit", "#ootd"],
+      "category": "运动服饰",
+      "priceRange": "$24.99 - $49.99"
+    },
+    {
+      "productName": "智能饮水提醒杯",
+      "region": "美国",
+      "monthlySearchGrowth": 310,
+      "monthlySales": 27000,
+      "hotTags": ["#smartwaterbottle", "#healthylifestyle", "#hydration"],
+      "category": "智能硬件",
+      "priceRange": "$29.99 - $59.99"
+    },
+    {
+      "productName": "美白防晒霜SPF50+",
+      "region": "东南亚",
+      "monthlySearchGrowth": 260,
+      "monthlySales": 89000,
+      "hotTags": ["#whitening", "#skincare", "#sunscreen"],
+      "category": "护肤品",
+      "priceRange": "$5.50 - $15.00"
+    },
+    {
+      "productName": "磁吸手机支架",
+      "region": "东南亚",
+      "monthlySearchGrowth": 190,
+      "monthlySales": 105000,
+      "hotTags": ["#phoneaccessories", "#magsafe", "#caraccessories"],
+      "category": "手机配件",
+      "priceRange": "$2.99 - $8.50"
+    },
+    {
+      "productName": "平价唇釉套装",
+      "region": "东南亚",
+      "monthlySearchGrowth": 145,
+      "monthlySales": 76000,
+      "hotTags": ["#lipgloss", "#makeup", "#koreanskincare"],
+      "category": "彩妆",
+      "priceRange": "$3.50 - $12.00"
+    },
+    {
+      "productName": "可降解竹纤维餐具",
+      "region": "欧洲",
+      "monthlySearchGrowth": 175,
+      "monthlySales": 22000,
+      "hotTags": ["#ecofriendly", "#sustainable", "#zerowaste"],
+      "category": "环保家居",
+      "priceRange": "€12.99 - €29.99"
+    },
+    {
+      "productName": "自行车手机导航支架",
+      "region": "欧洲",
+      "monthlySearchGrowth": 130,
+      "monthlySales": 18000,
+      "hotTags": ["#cycling", "#bikelife", "#bikeaccessories"],
+      "category": "户外运动",
+      "priceRange": "€9.99 - €24.99"
+    },
+    {
+      "productName": "智能宠物自动喂食器",
+      "region": "欧洲",
+      "monthlySearchGrowth": 220,
+      "monthlySales": 15000,
+      "hotTags": ["#petlover", "#smartpet", "#dogmom"],
+      "category": "宠物用品",
+      "priceRange": "€39.99 - €89.99"
+    },
+    {
+      "productName": "沉香精油香薰",
+      "region": "中东",
+      "monthlySearchGrowth": 200,
+      "monthlySales": 34000,
+      "hotTags": ["#oud", "#perfume", "#arabiclifestyle"],
+      "category": "香薰",
+      "priceRange": "$15.00 - $65.00"
+    },
+    {
+      "productName": "18K金锁骨链",
+      "region": "中东",
+      "monthlySearchGrowth": 95,
+      "monthlySales": 12000,
+      "hotTags": ["#goldjewelry", "#fashion", "#luxury"],
+      "category": "饰品",
+      "priceRange": "$80.00 - $350.00"
+    },
+    {
+      "productName": "自然款美瞳日抛",
+      "region": "中东",
+      "monthlySearchGrowth": 280,
+      "monthlySales": 51000,
+      "hotTags": ["#coloredcontacts", "#eyemakeup", "#beauty"],
+      "category": "美妆",
+      "priceRange": "$18.00 - $45.00"
+    },
+    {
+      "productName": "巴西丝滑假发片",
+      "region": "拉美",
+      "monthlySearchGrowth": 330,
+      "monthlySales": 63000,
+      "hotTags": ["#wig", "#brazilianhair", "#hairtransformation"],
+      "category": "美发",
+      "priceRange": "$25.00 - $120.00"
+    },
+    {
+      "productName": "凝胶美甲套装",
+      "region": "拉美",
+      "monthlySearchGrowth": 160,
+      "monthlySales": 48000,
+      "hotTags": ["#nails", "#nailart", "#gelpolish"],
+      "category": "美甲",
+      "priceRange": "$8.00 - $28.00"
+    },
+    {
+      "productName": "速干健身短裤",
+      "region": "拉美",
+      "monthlySearchGrowth": 110,
+      "monthlySales": 36000,
+      "hotTags": ["#gymwear", "#workout", "#fitnessmotivation"],
+      "category": "运动服饰",
+      "priceRange": "$12.99 - $29.99"
+    },
+    {
+      "productName": "日式保温便当盒",
+      "region": "日本",
+      "monthlySearchGrowth": 85,
+      "monthlySales": 19000,
+      "hotTags": ["#bento", "#lunchbox", "#japanesestyle"],
+      "category": "厨房用品",
+      "priceRange": "¥1,500 - ¥4,500"
+    },
+    {
+      "productName": "便携迷你手卷琴",
+      "region": "日本",
+      "monthlySearchGrowth": 140,
+      "monthlySales": 8500,
+      "hotTags": ["#musicalinstrument", "#handrollpiano", "#japantrend"],
+      "category": "乐器",
+      "priceRange": "¥2,800 - ¥6,800"
+    },
+    {
+      "productName": "无线领夹麦克风",
+      "region": "美国",
+      "monthlySearchGrowth": 350,
+      "monthlySales": 41000,
+      "hotTags": ["#contentcreator", "#microphone", "#videoproduction"],
+      "category": "数码配件",
+      "priceRange": "$29.99 - $79.99"
+    },
+    {
+      "productName": "防蓝光老花镜",
+      "region": "东南亚",
+      "monthlySearchGrowth": 115,
+      "monthlySales": 55000,
+      "hotTags": ["#readingglasses", "#blueblocker", "#eyecare"],
+      "category": "眼镜",
+      "priceRange": "$4.50 - $18.00"
+    }
+  ],
+  "trendingSearchTerms": [
+    {
+      "keyword": "蓝牙耳机",
+      "heatScore": 98,
+      "category": "数码配件"
+    },
+    {
+      "keyword": "充电宝",
+      "heatScore": 95,
+      "category": "数码配件"
+    },
+    {
+      "keyword": "T恤",
+      "heatScore": 93,
+      "category": "服饰"
+    },
+    {
+      "keyword": "连衣裙",
+      "heatScore": 91,
+      "category": "女装"
+    },
+    {
+      "keyword": "宠物玩具",
+      "heatScore": 87,
+      "category": "宠物用品"
+    },
+    {
+      "keyword": "空气炸锅",
+      "heatScore": 86,
+      "category": "小家电"
+    },
+    {
+      "keyword": "瑜伽垫",
+      "heatScore": 84,
+      "category": "运动用品"
+    },
+    {
+      "keyword": "假发",
+      "heatScore": 82,
+      "category": "美发"
+    },
+    {
+      "keyword": "美甲贴纸",
+      "heatScore": 80,
+      "category": "美甲"
+    },
+    {
+      "keyword": "保温杯",
+      "heatScore": 79,
+      "category": "家居用品"
+    },
+    {
+      "keyword": "无线充电器",
+      "heatScore": 77,
+      "category": "数码配件"
+    },
+    {
+      "keyword": "眼影盘",
+      "heatScore": 76,
+      "category": "彩妆"
+    },
+    {
+      "keyword": "男士手表",
+      "heatScore": 74,
+      "category": "饰品"
+    },
+    {
+      "keyword": "帆布包",
+      "heatScore": 73,
+      "category": "箱包"
+    },
+    {
+      "keyword": "精油",
+      "heatScore": 71,
+      "category": "香薰"
+    },
+    {
+      "keyword": "创意台灯",
+      "heatScore": 69,
+      "category": "家居装饰"
+    },
+    {
+      "keyword": "手机壳",
+      "heatScore": 68,
+      "category": "手机配件"
+    },
+    {
+      "keyword": "太阳镜",
+      "heatScore": 66,
+      "category": "眼镜"
+    },
+    {
+      "keyword": "运动水壶",
+      "heatScore": 65,
+      "category": "运动用品"
+    },
+    {
+      "keyword": "儿童积木",
+      "heatScore": 63,
+      "category": "玩具"
+    },
+    {
+      "keyword": "遮瑕膏",
+      "heatScore": 62,
+      "category": "彩妆"
+    },
+    {
+      "keyword": "电动牙刷头",
+      "heatScore": 60,
+      "category": "个护"
+    },
+    {
+      "keyword": "宠物梳毛器",
+      "heatScore": 58,
+      "category": "宠物用品"
+    },
+    {
+      "keyword": "厨房收纳架",
+      "heatScore": 56,
+      "category": "家居收纳"
+    },
+    {
+      "keyword": "车载香薰",
+      "heatScore": 55,
+      "category": "汽车用品"
+    },
+    {
+      "keyword": "女士皮带",
+      "heatScore": 53,
+      "category": "服饰配件"
+    },
+    {
+      "keyword": "筋膜枪",
+      "heatScore": 51,
+      "category": "运动器材"
+    },
+    {
+      "keyword": "LED化妆镜",
+      "heatScore": 49,
+      "category": "美妆工具"
+    },
+    {
+      "keyword": "旅行收纳袋套装",
+      "heatScore": 47,
+      "category": "旅行用品"
+    },
+    {
+      "keyword": "智能手环",
+      "heatScore": 45,
+      "category": "智能穿戴"
+    }
+  ],
+  "recommendedSuppliers": [
+    {
+      "supplierName": "深圳华强数码科技",
+      "certification": "懒老板金牌供应商",
+      "region": "中国深圳",
+      "mainCategory": "数码配件",
+      "recommendReason": "蓝牙耳机和充电宝月出货量超50万件，支持一件代发，48小时极速发货，在东南亚和拉美有稳定物流线路。",
+      "lazyBossComment": "这家老板靠谱，发货速度是真的快，退货率不到2%，新手卖家从他们家蓝牙耳机和充电宝入手基本不会踩坑。"
+    },
+    {
+      "supplierName": "义乌小商品优选",
+      "certification": "懒老板金牌供应商",
+      "region": "中国义乌",
+      "mainCategory": "家居百货",
+      "recommendReason": "覆盖3000+SKU，从厨房配件到宠物玩具一应俱全，价格极具竞争力，支持小批量混批。",
+      "lazyBossComment": "义乌的货就是全，你想得到的东西他们家基本都有。建议第一次先拿便携收纳和厨房小工具试试水，出单快。"
+    },
+    {
+      "supplierName": "广州美丽说美妆",
+      "certification": "懒老板金牌供应商",
+      "region": "中国广州",
+      "mainCategory": "美妆个护",
+      "recommendReason": "专注东南亚和中东市场，美白护肤品和美瞳类目TOP3供应商，持FDA和SGS认证。",
+      "lazyBossComment": "中东客户对美瞳需求真的大，这家有本地化的包装设计。记住：中东市场美瞳要带防紫外线功能，别问为什么。"
+    },
+    {
+      "supplierName": "汕头海美发制品",
+      "certification": "懒老板金牌供应商",
+      "region": "中国汕头",
+      "mainCategory": "美发制品",
+      "recommendReason": "拉美假发市场核心供应商，真人发合成发双线生产，月产能10万条，支持OEM贴牌。",
+      "lazyBossComment": "拉美假发市场不愁卖，关键看品质和款式。这家真人发品质稳，建议重点推巴西款和大波浪款，TikTok上随便拍个开箱视频都爆。"
+    },
+    {
+      "supplierName": "泉州乔丹运动工厂",
+      "certification": "懒老板金牌供应商",
+      "region": "中国泉州",
+      "mainCategory": "运动服饰",
+      "recommendReason": "瑜伽裤和健身服类目头部工厂，承接过多家跨境大卖订单，面料通过OEKO-TEX认证。",
+      "lazyBossComment": "瑜伽裤这东西美国人一年买四五条，复购率极高。这家面料手感好，别贪便宜找小厂，差评一个比什么都致命。"
+    },
+    {
+      "supplierName": "宁波欣荣小家电",
+      "certification": "懒老板金牌供应商",
+      "region": "中国宁波",
+      "mainCategory": "小家电",
+      "recommendReason": "便携榨汁机和空气炸锅配件专业工厂，拥有CE/FCC/UL认证，支持海外仓备货。",
+      "lazyBossComment": "空气炸锅在美国的热度一时半会降不下来，配件比机器本身利润高多了。纸垫和硅炸篮这两个单品稳稳的，走量很舒服。"
+    },
+    {
+      "supplierName": "东莞绿洲环保科技",
+      "certification": "懒老板金牌供应商",
+      "region": "中国东莞",
+      "mainCategory": "环保家居",
+      "recommendReason": "竹纤维和玉米淀粉降解材料专家，产品通过欧盟EN13432可堆肥认证，欧洲市场畅销。",
+      "lazyBossComment": "欧洲人对环保是真的较真，咱家这款竹纤维餐具卖得好就是因为真能降解。别打虚假环保标签，欧洲监管查到封店没商量。"
+    },
+    {
+      "supplierName": "莆田黄金珠宝产业园",
+      "certification": "懒老板金牌供应商",
+      "region": "中国莆田",
+      "mainCategory": "饰品",
+      "recommendReason": "中东金饰市场多年深耕，18K/22K金饰和镀金饰品工艺成熟，支持小单定制和宗教节日专属设计。",
+      "lazyBossComment": "中东客户买金饰跟咱们买衣服似的，开斋节和宰牲节前是爆发期。别卖太素的设计，中东喜欢有分量感、blingbling的款式。"
+    }
+  ],
+  "trendInsights": [
+    {
+      "title": "蓝牙耳机在东南亚TikTok搜索量月增长40%",
+      "detail": "菲律宾和印尼市场尤为突出，高性价比无线耳机（$5-$15价位）占据TikTok Shop耳机类目70%以上销量。建议重点布局入耳式运动款和半透明果冻色款式，契合当地年轻用户审美。",
+      "dataSource": "TikTok Shop Analytics 2026年5月"
+    },
+    {
+      "title": "美妆个护在中东市场呈现高端化趋势",
+      "detail": "中东TikTok用户对美瞳、防晒霜和精油香薰的客单价同比提升35%，消费者更倾向有阿拉伯语包装和清真认证的产品。香薰品类中沉香和玫瑰味搜索占比超60%，溢价空间可达50%以上。",
+      "dataSource": "TikTok for Business 2026年Q2区域报告"
+    },
+    {
+      "title": "拉美假发市场年增速超60%，美国后第二大体量",
+      "detail": "巴西和墨西哥占拉美假发市场80%份额，TikTok上#wig话题累积播放量超120亿次。客户偏好：巴西真人发（35-40cm）和合成发（20-25cm）为主要走量规格，深棕色和黑色占销售比例75%。",
+      "dataSource": "Google Trends + TikTok Shop 2026年5月跨境数据"
+    },
+    {
+      "title": "美国小家电品类进入配件红利期",
+      "detail": "空气炸锅配件（纸垫、硅胶炸篮、多功能烤架）搜索量同比增长210%，远高于主机本身增速。TikTok上#airfryerrecipes相关内容带动配件消耗品复购，同一用户平均3个月复购2.5次配件。",
+      "dataSource": "TikTok Shop美国站品类分析 2026年5月"
+    },
+    {
+      "title": "欧洲环保政策驱动可降解产品搜索暴涨",
+      "detail": "欧盟一次性塑料指令（SUP）全面实施后，竹纤维餐具、玉米淀粉垃圾袋和可堆肥宠物拾便袋搜索热度环比提升190%。德国和荷兰是搜索主力，消费者愿意为环保认证支付15-25%溢价。",
+      "dataSource": "欧盟SUP政策影响分析 + TikTok欧洲站趋势数据 2026年Q1"
+    }
+  ]
+}

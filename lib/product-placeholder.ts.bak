@@ -1,0 +1,234 @@
+/**
+ * 产品图片系统
+ * 优先使用Unsplash产品图 → 生成的图片映射 → 品类SVG产品轮廓
+ */
+
+let _imageMap: Record<string, string> = {}
+
+export function setProductImageMap(map: Record<string, string>) {
+  _imageMap = map
+}
+
+/* ─── 真实产品照片库（按品类多张轮替） ──────── */
+// 每个品类多张照片，用商品名hash选不同的
+const CATEGORY_REAL_PHOTOS: Record<string, string[]> = {
+  '电子产品': [
+    '/product-images/real/电子产品_phone2.jpg',
+    '/product-images/real/unsplash_电子产品_headphones.jpg',
+    '/product-images/real/unsplash_电子产品_laptop.jpg',
+    '/product-images/real/电子产品_9.jpg',
+    '/product-images/real/电子产品_27.jpg',
+    '/product-images/real/电子产品_18.jpg',
+    '/product-images/real/电子产品_36.jpg',
+  ],
+  '服装': [
+    '/product-images/real/服装_28.jpg',
+    '/product-images/real/服装_19.jpg',
+    '/product-images/real/unsplash_服装_tshirt.jpg',
+    '/product-images/real/服装_46.jpg',
+    '/product-images/real/服装_37.jpg',
+    '/product-images/real/服装_10.jpg',
+  ],
+  '家居': [
+    '/product-images/real/家居_29.jpg',
+    '/product-images/real/家居_20.jpg',
+    '/product-images/real/家居_2.jpg',
+    '/product-images/real/家居_11.jpg',
+    '/product-images/real/家居_47.jpg',
+    '/product-images/real/家居_38.jpg',
+  ],
+  '美妆': [
+    '/product-images/real/美妆_21.jpg',
+    '/product-images/real/美妆_12.jpg',
+    '/product-images/real/美妆_30.jpg',
+    '/product-images/real/美妆_3.jpg',
+    '/product-images/real/美妆_48.jpg',
+  ],
+  '食品': [
+    '/product-images/real/食品_13.jpg',
+    '/product-images/real/食品_22.jpg',
+    '/product-images/real/食品_40.jpg',
+    '/product-images/real/食品_4.jpg',
+    '/product-images/real/食品_49.jpg',
+  ],
+  '宠物': [
+    '/product-images/real/宠物_17.jpg',
+    '/product-images/real/unsplash_宠物_pet.jpg',
+    '/product-images/real/宠物_8.jpg',
+    '/product-images/real/宠物_26.jpg',
+    '/product-images/real/宠物_35.jpg',
+  ],
+  '运动': [
+    '/product-images/real/运动_32.jpg',
+    '/product-images/real/运动_14.jpg',
+    '/product-images/real/运动_41.jpg',
+    '/product-images/real/运动_5.jpg',
+    '/product-images/real/运动_23.jpg',
+  ],
+  '鞋类': [
+    '/product-images/real/鞋类_15.jpg',
+    '/product-images/real/鞋类_33.jpg',
+    '/product-images/real/鞋类_42.jpg',
+    '/product-images/real/鞋类_6.jpg',
+    '/product-images/real/鞋类_24.jpg',
+  ],
+  '玩具': [
+    '/product-images/real/玩具_34.jpg',
+    '/product-images/real/玩具_25.jpg',
+    '/product-images/real/玩具_16.jpg',
+    '/product-images/real/玩具_43.jpg',
+    '/product-images/real/玩具_7.jpg',
+  ],
+}
+
+/* ─── 品类SVG产品轮廓 ─────────────────────────────── */
+const CAT_ART: Record<string, { bg: string; accent: string; dark: string }> = {
+  '电子产品': { bg: '#EFF6FF', accent: '#3B82F6', dark: '#1E40AF' },
+  '服装':    { bg: '#FFF1F2', accent: '#FF6034', dark: '#BE123C' },
+  '家居':    { bg: '#F0FDF4', accent: '#22C55E', dark: '#166534' },
+  '美妆':    { bg: '#FDF2F8', accent: '#EC4899', dark: '#9D174D' },
+  '食品':    { bg: '#FFFBEB', accent: '#F59E0B', dark: '#92400E' },
+  '宠物':    { bg: '#F5F3FF', accent: '#8B5CF6', dark: '#5B21B6' },
+  '运动':    { bg: '#F0F9FF', accent: '#0EA5E9', dark: '#075985' },
+  '玩具':    { bg: '#FFF0F0', accent: '#F43F5E', dark: '#9F1239' },
+  '鞋类':    { bg: '#F8FAFC', accent: '#64748B', dark: '#334155' },
+  '其他':    { bg: '#F3F4F6', accent: '#9CA3AF', dark: '#4B5563' },
+}
+
+const CAT_KW: [RegExp, string][] = [
+  [/蓝牙|耳机|充电宝|数据线|智能|数码|电子|手机|电脑|手表|音箱|电器|LED|灯|充电|电池/, '电子产品'],
+  [/服装|服饰|衣服|T恤|连衣裙|裤子|衬衫|外套|内衣|童装|女装|男装|运动服|瑜伽|泳装|睡衣/, '服装'],
+  [/沙发|床垫|家具|茶几|椅子|桌子|收纳|厨房|餐具|陶瓷|花瓶|窗帘|地毯|毛巾|浴巾/, '家居'],
+  [/口红|面膜|护肤品|美妆|化妆品|粉底|眼影|香水|精华|面霜|护手霜/, '美妆'],
+  [/食品|零食|饮料|茶|咖啡|啤酒|白酒|红酒|保健品|营养|调料/, '食品'],
+  [/宠物|狗|猫|宠物粮|宠物玩具|宠物窝/, '宠物'],
+  [/运动|健身|瑜伽|跑步|球类|泳衣|运动鞋|跑鞋/, '运动'],
+  [/玩具|玩偶|积木|模型|儿童|早教/, '玩具'],
+  [/鞋|运动鞋|跑鞋|皮鞋|拖鞋/, '鞋类'],
+]
+
+function guessCategory(name: string): string {
+  for (const [regex, cat] of CAT_KW) {
+    if (regex.test(name)) return cat
+  }
+  return '其他'
+}
+
+export function getCategoryInfo(name: string): { category: string; color: string; bg: string } {
+  const category = guessCategory(name)
+  const c = CAT_ART[category] || CAT_ART['其他']
+  return { category, color: c.accent, bg: c.bg }
+}
+
+/**
+ * 获取产品图片URL
+ * 优先级: Unsplash产品图 → 生成图映射 → SVG品类轮廓
+ */
+export function productPlaceholderSVG(name: string, width = 200, height = 200, productId?: number | string): string {
+  const category = guessCategory(name)
+
+  // 1. 看品类有没有真实产品照片（用商品名hash选不同的照片）
+  const photos = CATEGORY_REAL_PHOTOS[category]
+  if (photos && photos.length > 0) {
+    // 用名称的hash值取模，同一商品始终显示同一张图
+    let hash = 0
+    for (let i = 0; i < name.length; i++) {
+      hash = ((hash << 5) - hash) + name.charCodeAt(i)
+      hash |= 0
+    }
+    const idx = Math.abs(hash) % photos.length
+    return photos[idx]
+  }
+
+  // 2. 没有真实图，查PIL生成图片映射
+  if (productId && _imageMap[String(productId)]) {
+    return _imageMap[String(productId)]
+  }
+
+  // 3. 回退到品类SVG产品轮廓
+  return categoryProductSVG(category, width, height)
+}
+
+/* ─── 品类SVG产品轮廓生成 ─────────────────────────── */
+function categoryProductSVG(category: string, w: number, h: number): string {
+  const c = CAT_ART[category] || CAT_ART['其他']
+  const cx = w/2, cy = h/2
+  const S = Math.min(w, h)
+
+  const PRODUCT_SVG: Record<string, string> = {
+    '电子产品': `
+<rect x="${cx-S*0.28}" y="${cy-S*0.3}" width="${S*0.56}" height="${S*0.58}" rx="${S*0.06}" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}"/>
+<rect x="${cx-S*0.2}" y="${cy-S*0.2}" width="${S*0.4}" height="${S*0.32}" rx="${S*0.02}" fill="${c.accent}" opacity="0.1"/>
+<ellipse cx="${cx}" cy="${cy+S*0.18}" rx="${S*0.04}" ry="${S*0.015}" fill="${c.dark}" opacity="0.2"/>
+<rect x="${cx-S*0.22}" y="${cy-S*0.34}" width="${S*0.44}" height="${S*0.08}" rx="${S*0.01}" fill="${c.accent}" opacity="0.15"/>`,
+    '服装': `
+<path d="M${cx-S*0.2} ${cy-S*0.15} L${cx-S*0.2} ${cy+S*0.25} L${cx-S*0.08} ${cy+S*0.25} L${cx-S*0.08} ${cy} L${cx} ${cy+S*0.05} L${cx+S*0.08} ${cy} L${cx+S*0.08} ${cy+S*0.25} L${cx+S*0.2} ${cy+S*0.25} L${cx+S*0.2} ${cy-S*0.15} L${cx} ${cy-S*0.25} Z" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}" stroke-linejoin="round"/>
+<circle cx="${cx-S*0.08}" cy="${cy-S*0.15}" r="${S*0.012}" fill="${c.accent}"/>
+<circle cx="${cx+S*0.08}" cy="${cy-S*0.15}" r="${S*0.012}" fill="${c.accent}"/>`,
+    '家居': `
+<path d="M${cx-S*0.3} ${cy+S*0.15} L${cx-S*0.3} ${cy+S*0.4} L${cx+S*0.3} ${cy+S*0.4} L${cx+S*0.3} ${cy+S*0.15} Z" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}"/>
+<path d="M${cx-S*0.35} ${cy+S*0.15} L${cx} ${cy-S*0.3} L${cx+S*0.35} ${cy+S*0.15}" fill="none" stroke="${c.accent}" stroke-width="${S*0.015}" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="${cx-S*0.1}" y="${cy+S*0.2}" width="${S*0.2}" height="${S*0.15}" rx="${S*0.01}" fill="${c.accent}" opacity="0.12"/>`,
+    '美妆': `
+<rect x="${cx-S*0.12}" y="${cy-S*0.3}" width="${S*0.24}" height="${S*0.18}" rx="${S*0.03}" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}"/>
+<rect x="${cx-S*0.1}" y="${cy-S*0.12}" width="${S*0.2}" height="${S*0.35}" rx="${S*0.02}" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}"/>
+<rect x="${cx-S*0.14}" y="${cy+S*0.23}" width="${S*0.28}" height="${S*0.06}" rx="${S*0.01}" fill="${c.accent}" opacity="0.2"/>`,
+    '食品': `
+<path d="M${cx-S*0.12} ${cy-S*0.25} Q${cx} ${cy-S*0.35} ${cx+S*0.12} ${cy-S*0.25} L${cx+S*0.1} ${cy+S*0.2} Q${cx} ${cy+S*0.3} ${cx-S*0.1} ${cy+S*0.2} Z" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}"/>
+<rect x="${cx-S*0.1}" y="${cy-S*0.3}" width="${S*0.2}" height="${S*0.06}" rx="${S*0.01}" fill="${c.accent}" opacity="0.25"/>
+<path d="M${cx-S*0.06} ${cy-S*0.05} L${cx} ${cy+S*0.1} L${cx+S*0.06} ${cy-S*0.05}" fill="none" stroke="${c.accent}" stroke-width="${S*0.01}" stroke-linecap="round" stroke-linejoin="round"/>`,
+    '宠物': `
+<ellipse cx="${cx-S*0.15}" cy="${cy}" rx="${S*0.08}" ry="${S*0.06}" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}"/>
+<ellipse cx="${cx+S*0.15}" cy="${cy}" rx="${S*0.08}" ry="${S*0.06}" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}"/>
+<rect x="${cx-S*0.15}" y="${cy-S*0.04}" width="${S*0.3}" height="${S*0.08}" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}"/>`,
+    '运动': `
+<circle cx="${cx}" cy="${cy-S*0.05}" r="${S*0.2}" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}"/>
+<path d="M${cx-S*0.08} ${cy-S*0.25} Q${cx} ${cy-S*0.18} ${cx+S*0.08} ${cy-S*0.25}" fill="none" stroke="${c.accent}" stroke-width="${S*0.008}" opacity="0.3"/>
+<path d="M${cx-S*0.08} ${cy+S*0.15} Q${cx} ${cy+S*0.22} ${cx+S*0.08} ${cy+S*0.15}" fill="none" stroke="${c.accent}" stroke-width="${S*0.008}" opacity="0.3"/>
+<path d="M${cx-S*0.08} ${cy+S*0.25} L${cx-S*0.12} ${cy+S*0.35}" stroke="${c.accent}" stroke-width="${S*0.01}" stroke-linecap="round"/>
+<path d="M${cx+S*0.08} ${cy+S*0.25} L${cx+S*0.12} ${cy+S*0.35}" stroke="${c.accent}" stroke-width="${S*0.01}" stroke-linecap="round"/>`,
+    '玩具': `
+<rect x="${cx-S*0.22}" y="${cy-S*0.22}" width="${S*0.44}" height="${S*0.44}" rx="${S*0.04}" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}"/>
+<rect x="${cx-S*0.1}" y="${cy-S*0.28}" width="${S*0.2}" height="${S*0.08}" rx="${S*0.02}" fill="${c.accent}" opacity="0.3"/>
+<circle cx="${cx-S*0.08}" cy="${cy}" r="${S*0.03}" fill="${c.accent}" opacity="0.15"/>
+<circle cx="${cx+S*0.08}" cy="${cy}" r="${S*0.03}" fill="${c.accent}" opacity="0.15"/>`,
+    '鞋类': `
+<path d="M${cx-S*0.25} ${cy-S*0.05} L${cx-S*0.25} ${cy+S*0.15} Q${cx-S*0.15} ${cy+S*0.22} ${cx} ${cy+S*0.15} L${cx+S*0.25} ${cy} Q${cx+S*0.3} ${cy-S*0.05} ${cx+S*0.2} ${cy-S*0.1} L${cx} ${cy-S*0.08} L${cx-S*0.15} ${cy-S*0.08} Z" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}" stroke-linejoin="round"/>`,
+    '其他': `
+<rect x="${cx-S*0.25}" y="${cy-S*0.22}" width="${S*0.5}" height="${S*0.44}" rx="${S*0.03}" fill="white" stroke="${c.accent}" stroke-width="${S*0.012}"/>
+<line x1="${cx-S*0.25}" y1="${cy-S*0.05}" x2="${cx+S*0.25}" y2="${cy-S*0.05}" stroke="${c.accent}" stroke-width="${S*0.008}" opacity="0.3"/>
+<circle cx="${cx}" cy="${cy+S*0.1}" r="${S*0.05}" fill="${c.accent}" opacity="0.08"/>`,
+  }
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="${c.bg}"/>
+      <stop offset="100%" stop-color="white"/>
+    </radialGradient>
+  </defs>
+  <rect width="${w}" height="${h}" fill="url(#bg)" rx="${S*0.04}"/>
+  <g opacity="0.04">
+    ${Array.from({length: 12}, (_, i) => {
+      const x = 15 + (i % 4) * (w-30)/3
+      const y = h-15 - Math.floor(i/4) * (h-30)/3
+      return `<circle cx="${x}" cy="${y}" r="2" fill="${c.accent}"/>`
+    }).join('')}
+  </g>
+  <g transform="translate(0, ${S*0.02})">
+    ${PRODUCT_SVG[category] || PRODUCT_SVG['其他']}
+  </g>
+  <text x="${w/2}" y="${S*0.92}" text-anchor="middle" font-family="system-ui,sans-serif" font-size="${S*0.035}" fill="${c.accent}" opacity="0.2">${category}</text>
+</svg>`
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+}
+
+export async function loadProductImageMap(): Promise<Record<string, string>> {
+  try {
+    const res = await fetch('/api/global-supply/product-images')
+    const json = await res.json()
+    return json?.data || json || {}
+  } catch {
+    return {}
+  }
+}

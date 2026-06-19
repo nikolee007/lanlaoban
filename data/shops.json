@@ -1,0 +1,652 @@
+{
+  "shop_1780889445887_963f": {
+    "id": "shop_1780889445887_963f",
+    "brand": "老李牛肉面",
+    "industry": "餐饮美食",
+    "slogan": "餐饮美食·用心做好每一件事",
+    "story": "开了15年的老店",
+    "sellPoints": "好吃不贵,真材实料",
+    "products": [
+      {
+        "id": 2098,
+        "name": "青岛啤酒 经典1903 500ml*24罐",
+        "price": "¥5-15",
+        "image": "/product-images/ai-generated/ai-product-1778.png",
+        "description": "百年经典配方精选进口麦芽和啤酒花，酒体清澈泡沫细腻。酒精度4.0%vol麦香浓郁，原麦汁浓度10°P口感纯正。500ml*24罐出口版适合酒吧/餐厅/家庭囤货。",
+        "supplier": "青岛啤酒国际有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2128,
+        "name": "5S压榨花生油 5L 家庭装",
+        "price": "¥45-88",
+        "image": "/product-images/ai-generated/ai-product-1829.png",
+        "description": "5S物理压榨工艺保留花生原香和营养，纯正花生油炒菜倍儿香。5L大容量满足全家烹饪需求，无添加无勾兑纯正100%花生油。适合煎炒烹炸各种中式烹饪。",
+        "supplier": "山东鲁花集团有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2134,
+        "name": "双黄白莲蓉月饼 4个装 礼盒",
+        "price": "¥38-128",
+        "image": "/product-images/ai-generated/ai-product-1961.png",
+        "description": "精选湘莲手工研磨莲蓉细腻香滑，2颗咸蛋黄起沙流油金黄透亮。传统广式月饼工艺皮薄馅足，精美礼盒包装送人体面。中秋佳节送礼必备经典之选。",
+        "supplier": "广州酒家集团食品有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2116,
+        "name": "每日坚果混合装 30包 750g",
+        "price": "¥18-48",
+        "image": "/product-images/ai-generated/ai-product-1745.png",
+        "description": "6种坚果果干科学配比：腰果/巴旦木/核桃/榛子/蔓越莓/蓝莓。独立小包每包25g控制摄入量，每日一包营养均衡。充氮保鲜技术锁住新鲜酥脆口感。",
+        "supplier": "杭州百草味食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2131,
+        "name": "夏威夷果仁 奶油味 500g",
+        "price": "¥18-42",
+        "image": "/product-images/ai-generated/ai-product-1785.png",
+        "description": "超大颗粒夏威夷果仁饱满圆润，奶油味香甜酥脆一口一颗停不下来。充氮保鲜包装锁住酥脆口感，500g家庭装追剧/聚会/办公室零食首选。颗颗开口易剥。",
+        "supplier": "安徽三只松鼠食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2048,
+        "name": "可折叠硅胶收纳盒 多功能",
+        "price": "¥12-45",
+        "image": "/product-images/ai-generated/ai-product-1903.png",
+        "description": "食品级铂金硅胶材质安全无毒，可折叠收纳节省空间。微波炉/洗碗机/烤箱通用耐高温。1.2L/2.5L/4L多规格组合，厨房/浴室/冰箱都能用。",
+        "supplier": "义乌宏盛日用百货有限公司",
+        "rating": 4.6
+      }
+    ],
+    "createdAt": "2026-06-08T03:30:45.891Z"
+  },
+  "shop_1780889460636_0hd6": {
+    "id": "shop_1780889460636_0hd6",
+    "brand": "老李牛肉面",
+    "industry": "餐饮美食",
+    "slogan": "餐饮美食·用心做好每一件事",
+    "story": "开了15年的老店",
+    "sellPoints": "好吃不贵,真材实料",
+    "products": [
+      {
+        "id": 2098,
+        "name": "青岛啤酒 经典1903 500ml*24罐",
+        "price": "¥5-15",
+        "image": "/product-images/ai-generated/ai-product-1778.png",
+        "description": "百年经典配方精选进口麦芽和啤酒花，酒体清澈泡沫细腻。酒精度4.0%vol麦香浓郁，原麦汁浓度10°P口感纯正。500ml*24罐出口版适合酒吧/餐厅/家庭囤货。",
+        "supplier": "青岛啤酒国际有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2128,
+        "name": "5S压榨花生油 5L 家庭装",
+        "price": "¥45-88",
+        "image": "/product-images/ai-generated/ai-product-1829.png",
+        "description": "5S物理压榨工艺保留花生原香和营养，纯正花生油炒菜倍儿香。5L大容量满足全家烹饪需求，无添加无勾兑纯正100%花生油。适合煎炒烹炸各种中式烹饪。",
+        "supplier": "山东鲁花集团有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2134,
+        "name": "双黄白莲蓉月饼 4个装 礼盒",
+        "price": "¥38-128",
+        "image": "/product-images/ai-generated/ai-product-1961.png",
+        "description": "精选湘莲手工研磨莲蓉细腻香滑，2颗咸蛋黄起沙流油金黄透亮。传统广式月饼工艺皮薄馅足，精美礼盒包装送人体面。中秋佳节送礼必备经典之选。",
+        "supplier": "广州酒家集团食品有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2116,
+        "name": "每日坚果混合装 30包 750g",
+        "price": "¥18-48",
+        "image": "/product-images/ai-generated/ai-product-1745.png",
+        "description": "6种坚果果干科学配比：腰果/巴旦木/核桃/榛子/蔓越莓/蓝莓。独立小包每包25g控制摄入量，每日一包营养均衡。充氮保鲜技术锁住新鲜酥脆口感。",
+        "supplier": "杭州百草味食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2131,
+        "name": "夏威夷果仁 奶油味 500g",
+        "price": "¥18-42",
+        "image": "/product-images/ai-generated/ai-product-1785.png",
+        "description": "超大颗粒夏威夷果仁饱满圆润，奶油味香甜酥脆一口一颗停不下来。充氮保鲜包装锁住酥脆口感，500g家庭装追剧/聚会/办公室零食首选。颗颗开口易剥。",
+        "supplier": "安徽三只松鼠食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2048,
+        "name": "可折叠硅胶收纳盒 多功能",
+        "price": "¥12-45",
+        "image": "/product-images/ai-generated/ai-product-1903.png",
+        "description": "食品级铂金硅胶材质安全无毒，可折叠收纳节省空间。微波炉/洗碗机/烤箱通用耐高温。1.2L/2.5L/4L多规格组合，厨房/浴室/冰箱都能用。",
+        "supplier": "义乌宏盛日用百货有限公司",
+        "rating": 4.6
+      }
+    ],
+    "createdAt": "2026-06-08T03:31:00.639Z"
+  },
+  "shop_1780889640664_cm50": {
+    "id": "shop_1780889640664_cm50",
+    "brand": "张三裁缝",
+    "industry": "服装时尚",
+    "slogan": "服装时尚·用心做好每一件事",
+    "story": "做了22年裁缝的老张",
+    "sellPoints": "手工定制,终身修改",
+    "products": [
+      {
+        "id": 2015,
+        "name": "法式复古碎花连衣裙 中长款",
+        "price": "¥32-128",
+        "image": "/product-images/ai-generated/ai-product-1905.png",
+        "description": "法式方领设计优雅复古，泡泡袖修饰手臂线条，收腰A字裙摆显瘦遮肉。面料为100%涤纶雪纺飘逸垂顺，内衬亲肤不扎人。多色可选尺码S-2XL。",
+        "supplier": "广州新丝路服装有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2065,
+        "name": "透气飞织运动跑鞋 男款",
+        "price": "¥28-88",
+        "image": "/product-images/ai-generated/ai-product-1971.png",
+        "description": "飞织鞋面透气轻盈如袜般贴合，EVA+橡胶大底耐磨防滑抓地力强。记忆鞋垫缓震回弹脚感舒适，多色多码(39-46)覆盖全尺码。适合跑步和日常休闲。",
+        "supplier": "晋江利达鞋业有限公司",
+        "rating": 4.6
+      },
+      {
+        "id": 2072,
+        "name": "专业跑步T恤 速干面料 男款",
+        "price": "¥12-42",
+        "image": "/product-images/ai-generated/ai-product-1838.png",
+        "description": "100%涤纶速干面料吸湿排汗保持干爽，激光透气孔设计增强散热。无缝工艺减少摩擦保护皮肤，反光印花夜跑安全可见。多色可选运动必备。",
+        "supplier": "晋江安踏体育用品代工厂",
+        "rating": 4.6
+      },
+      {
+        "id": 2073,
+        "name": "轻量缓震跑步鞋 女款",
+        "price": "¥32-98",
+        "image": "/product-images/ai-generated/ai-product-1964.png",
+        "description": "EVA中底缓震回弹保护膝盖，橡胶大底耐磨抓地。飞织鞋面透气包裹双脚，单只仅180g轻若无物跑起来无负担。多色可选满足个性搭配。",
+        "supplier": "晋江安踏体育用品代工厂",
+        "rating": 4.6
+      },
+      {
+        "id": 2132,
+        "name": "男士免烫衬衫 长袖 商务款",
+        "price": "¥35-128",
+        "image": "/product-images/ai-generated/ai-product-1791.png",
+        "description": "100%全棉免烫面料抗皱易打理免熨烫，穿着一天也不皱挺括有型。经典尖领设计正式商务场合得体，袖口可调节设计佩戴手表方便。多色多码S-4XL全覆盖。",
+        "supplier": "江苏红豆实业股份有限公司",
+        "rating": 4.6
+      },
+      {
+        "id": 2016,
+        "name": "纯棉印花短袖T恤 女款",
+        "price": "¥15-69",
+        "image": "/product-images/ai-generated/ai-product-1911.png",
+        "description": "100%精梳棉面料亲肤透气，240g重磅高克重挺括有型不松垮。宽松版型不挑身材，多色多印花图案可选。领口加固处理不易变形，机洗不起球。",
+        "supplier": "广州新丝路服装有限公司",
+        "rating": 4.5
+      }
+    ],
+    "createdAt": "2026-06-08T03:34:00.676Z"
+  },
+  "shop_1780890013632_o4xj": {
+    "id": "shop_1780890013632_o4xj",
+    "brand": "老李牛肉面",
+    "industry": "餐饮美食",
+    "slogan": "餐饮美食·用心做好每一件事",
+    "story": "开了15年的老店",
+    "sellPoints": "好吃不贵,真材实料",
+    "products": [
+      {
+        "id": 2098,
+        "name": "青岛啤酒 经典1903 500ml*24罐",
+        "price": "¥5-15",
+        "image": "/product-images/ai-generated/ai-product-1778.png",
+        "description": "百年经典配方精选进口麦芽和啤酒花，酒体清澈泡沫细腻。酒精度4.0%vol麦香浓郁，原麦汁浓度10°P口感纯正。500ml*24罐出口版适合酒吧/餐厅/家庭囤货。",
+        "supplier": "青岛啤酒国际有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2128,
+        "name": "5S压榨花生油 5L 家庭装",
+        "price": "¥45-88",
+        "image": "/product-images/ai-generated/ai-product-1829.png",
+        "description": "5S物理压榨工艺保留花生原香和营养，纯正花生油炒菜倍儿香。5L大容量满足全家烹饪需求，无添加无勾兑纯正100%花生油。适合煎炒烹炸各种中式烹饪。",
+        "supplier": "山东鲁花集团有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2134,
+        "name": "双黄白莲蓉月饼 4个装 礼盒",
+        "price": "¥38-128",
+        "image": "/product-images/ai-generated/ai-product-1961.png",
+        "description": "精选湘莲手工研磨莲蓉细腻香滑，2颗咸蛋黄起沙流油金黄透亮。传统广式月饼工艺皮薄馅足，精美礼盒包装送人体面。中秋佳节送礼必备经典之选。",
+        "supplier": "广州酒家集团食品有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2116,
+        "name": "每日坚果混合装 30包 750g",
+        "price": "¥18-48",
+        "image": "/product-images/ai-generated/ai-product-1745.png",
+        "description": "6种坚果果干科学配比：腰果/巴旦木/核桃/榛子/蔓越莓/蓝莓。独立小包每包25g控制摄入量，每日一包营养均衡。充氮保鲜技术锁住新鲜酥脆口感。",
+        "supplier": "杭州百草味食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2131,
+        "name": "夏威夷果仁 奶油味 500g",
+        "price": "¥18-42",
+        "image": "/product-images/ai-generated/ai-product-1785.png",
+        "description": "超大颗粒夏威夷果仁饱满圆润，奶油味香甜酥脆一口一颗停不下来。充氮保鲜包装锁住酥脆口感，500g家庭装追剧/聚会/办公室零食首选。颗颗开口易剥。",
+        "supplier": "安徽三只松鼠食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2048,
+        "name": "可折叠硅胶收纳盒 多功能",
+        "price": "¥12-45",
+        "image": "/product-images/ai-generated/ai-product-1903.png",
+        "description": "食品级铂金硅胶材质安全无毒，可折叠收纳节省空间。微波炉/洗碗机/烤箱通用耐高温。1.2L/2.5L/4L多规格组合，厨房/浴室/冰箱都能用。",
+        "supplier": "义乌宏盛日用百货有限公司",
+        "rating": 4.6
+      }
+    ],
+    "createdAt": "2026-06-08T03:40:13.675Z"
+  },
+  "shop_1780890435313_2o7u": {
+    "id": "shop_1780890435313_2o7u",
+    "brand": "老李面馆",
+    "industry": "餐饮",
+    "slogan": "餐饮·用心做好每一件事",
+    "story": "做了15年面",
+    "sellPoints": "真材实料",
+    "products": [
+      {
+        "id": 2098,
+        "name": "青岛啤酒 经典1903 500ml*24罐",
+        "price": "¥5-15",
+        "image": "/product-images/ai-generated/ai-product-1778.png",
+        "description": "百年经典配方精选进口麦芽和啤酒花，酒体清澈泡沫细腻。酒精度4.0%vol麦香浓郁，原麦汁浓度10°P口感纯正。500ml*24罐出口版适合酒吧/餐厅/家庭囤货。",
+        "supplier": "青岛啤酒国际有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2128,
+        "name": "5S压榨花生油 5L 家庭装",
+        "price": "¥45-88",
+        "image": "/product-images/ai-generated/ai-product-1829.png",
+        "description": "5S物理压榨工艺保留花生原香和营养，纯正花生油炒菜倍儿香。5L大容量满足全家烹饪需求，无添加无勾兑纯正100%花生油。适合煎炒烹炸各种中式烹饪。",
+        "supplier": "山东鲁花集团有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2134,
+        "name": "双黄白莲蓉月饼 4个装 礼盒",
+        "price": "¥38-128",
+        "image": "/product-images/ai-generated/ai-product-1961.png",
+        "description": "精选湘莲手工研磨莲蓉细腻香滑，2颗咸蛋黄起沙流油金黄透亮。传统广式月饼工艺皮薄馅足，精美礼盒包装送人体面。中秋佳节送礼必备经典之选。",
+        "supplier": "广州酒家集团食品有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2116,
+        "name": "每日坚果混合装 30包 750g",
+        "price": "¥18-48",
+        "image": "/product-images/ai-generated/ai-product-1745.png",
+        "description": "6种坚果果干科学配比：腰果/巴旦木/核桃/榛子/蔓越莓/蓝莓。独立小包每包25g控制摄入量，每日一包营养均衡。充氮保鲜技术锁住新鲜酥脆口感。",
+        "supplier": "杭州百草味食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2131,
+        "name": "夏威夷果仁 奶油味 500g",
+        "price": "¥18-42",
+        "image": "/product-images/ai-generated/ai-product-1785.png",
+        "description": "超大颗粒夏威夷果仁饱满圆润，奶油味香甜酥脆一口一颗停不下来。充氮保鲜包装锁住酥脆口感，500g家庭装追剧/聚会/办公室零食首选。颗颗开口易剥。",
+        "supplier": "安徽三只松鼠食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2020,
+        "name": "玻尿酸补水面膜 28ml 24片装",
+        "price": "¥12-48",
+        "image": "/product-images/ai-generated/ai-product-1864.png",
+        "description": "三重玻尿酸配方（大分子+中分子+小分子），层层补水锁水直达肌底。蚕丝膜布轻薄透气完美服帖，28ml足量精华深度滋养。无酒精无色素敏感肌安心用。",
+        "supplier": "广州美妆之源化妆品有限公司",
+        "rating": 4.6
+      }
+    ],
+    "createdAt": "2026-06-08T03:47:15.321Z"
+  },
+  "shop_1780890686980_3v2i": {
+    "id": "shop_1780890686980_3v2i",
+    "brand": "老李牛肉面",
+    "industry": "餐饮",
+    "slogan": "餐饮·用心做好每一件事",
+    "story": "开了15年的老店",
+    "sellPoints": "真材实料,价格实惠",
+    "products": [
+      {
+        "id": 2098,
+        "name": "青岛啤酒 经典1903 500ml*24罐",
+        "price": "¥5-15",
+        "image": "/product-images/ai-generated/ai-product-1778.png",
+        "description": "百年经典配方精选进口麦芽和啤酒花，酒体清澈泡沫细腻。酒精度4.0%vol麦香浓郁，原麦汁浓度10°P口感纯正。500ml*24罐出口版适合酒吧/餐厅/家庭囤货。",
+        "supplier": "青岛啤酒国际有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2128,
+        "name": "5S压榨花生油 5L 家庭装",
+        "price": "¥45-88",
+        "image": "/product-images/ai-generated/ai-product-1829.png",
+        "description": "5S物理压榨工艺保留花生原香和营养，纯正花生油炒菜倍儿香。5L大容量满足全家烹饪需求，无添加无勾兑纯正100%花生油。适合煎炒烹炸各种中式烹饪。",
+        "supplier": "山东鲁花集团有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2134,
+        "name": "双黄白莲蓉月饼 4个装 礼盒",
+        "price": "¥38-128",
+        "image": "/product-images/ai-generated/ai-product-1961.png",
+        "description": "精选湘莲手工研磨莲蓉细腻香滑，2颗咸蛋黄起沙流油金黄透亮。传统广式月饼工艺皮薄馅足，精美礼盒包装送人体面。中秋佳节送礼必备经典之选。",
+        "supplier": "广州酒家集团食品有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2116,
+        "name": "每日坚果混合装 30包 750g",
+        "price": "¥18-48",
+        "image": "/product-images/ai-generated/ai-product-1745.png",
+        "description": "6种坚果果干科学配比：腰果/巴旦木/核桃/榛子/蔓越莓/蓝莓。独立小包每包25g控制摄入量，每日一包营养均衡。充氮保鲜技术锁住新鲜酥脆口感。",
+        "supplier": "杭州百草味食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2131,
+        "name": "夏威夷果仁 奶油味 500g",
+        "price": "¥18-42",
+        "image": "/product-images/ai-generated/ai-product-1785.png",
+        "description": "超大颗粒夏威夷果仁饱满圆润，奶油味香甜酥脆一口一颗停不下来。充氮保鲜包装锁住酥脆口感，500g家庭装追剧/聚会/办公室零食首选。颗颗开口易剥。",
+        "supplier": "安徽三只松鼠食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2020,
+        "name": "玻尿酸补水面膜 28ml 24片装",
+        "price": "¥12-48",
+        "image": "/product-images/ai-generated/ai-product-1864.png",
+        "description": "三重玻尿酸配方（大分子+中分子+小分子），层层补水锁水直达肌底。蚕丝膜布轻薄透气完美服帖，28ml足量精华深度滋养。无酒精无色素敏感肌安心用。",
+        "supplier": "广州美妆之源化妆品有限公司",
+        "rating": 4.6
+      }
+    ],
+    "createdAt": "2026-06-08T03:51:26.992Z"
+  },
+  "shop_1780895196025_a766": {
+    "id": "shop_1780895196025_a766",
+    "brand": "测试店铺",
+    "industry": "餐饮",
+    "slogan": "餐饮·用心做好每一件事",
+    "story": "测试用",
+    "sellPoints": "品质保证",
+    "products": [
+      {
+        "id": 2098,
+        "name": "青岛啤酒 经典1903 500ml*24罐",
+        "price": "¥5-15",
+        "image": "/product-images/ai-generated/ai-product-1778.png",
+        "description": "百年经典配方精选进口麦芽和啤酒花，酒体清澈泡沫细腻。酒精度4.0%vol麦香浓郁，原麦汁浓度10°P口感纯正。500ml*24罐出口版适合酒吧/餐厅/家庭囤货。",
+        "supplier": "青岛啤酒国际有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2128,
+        "name": "5S压榨花生油 5L 家庭装",
+        "price": "¥45-88",
+        "image": "/product-images/ai-generated/ai-product-1829.png",
+        "description": "5S物理压榨工艺保留花生原香和营养，纯正花生油炒菜倍儿香。5L大容量满足全家烹饪需求，无添加无勾兑纯正100%花生油。适合煎炒烹炸各种中式烹饪。",
+        "supplier": "山东鲁花集团有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2134,
+        "name": "双黄白莲蓉月饼 4个装 礼盒",
+        "price": "¥38-128",
+        "image": "/product-images/ai-generated/ai-product-1961.png",
+        "description": "精选湘莲手工研磨莲蓉细腻香滑，2颗咸蛋黄起沙流油金黄透亮。传统广式月饼工艺皮薄馅足，精美礼盒包装送人体面。中秋佳节送礼必备经典之选。",
+        "supplier": "广州酒家集团食品有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2116,
+        "name": "每日坚果混合装 30包 750g",
+        "price": "¥18-48",
+        "image": "/product-images/ai-generated/ai-product-1745.png",
+        "description": "6种坚果果干科学配比：腰果/巴旦木/核桃/榛子/蔓越莓/蓝莓。独立小包每包25g控制摄入量，每日一包营养均衡。充氮保鲜技术锁住新鲜酥脆口感。",
+        "supplier": "杭州百草味食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2131,
+        "name": "夏威夷果仁 奶油味 500g",
+        "price": "¥18-42",
+        "image": "/product-images/ai-generated/ai-product-1785.png",
+        "description": "超大颗粒夏威夷果仁饱满圆润，奶油味香甜酥脆一口一颗停不下来。充氮保鲜包装锁住酥脆口感，500g家庭装追剧/聚会/办公室零食首选。颗颗开口易剥。",
+        "supplier": "安徽三只松鼠食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2020,
+        "name": "玻尿酸补水面膜 28ml 24片装",
+        "price": "¥12-48",
+        "image": "/product-images/ai-generated/ai-product-1864.png",
+        "description": "三重玻尿酸配方（大分子+中分子+小分子），层层补水锁水直达肌底。蚕丝膜布轻薄透气完美服帖，28ml足量精华深度滋养。无酒精无色素敏感肌安心用。",
+        "supplier": "广州美妆之源化妆品有限公司",
+        "rating": 4.6
+      }
+    ],
+    "createdAt": "2026-06-08T05:06:36.028Z"
+  },
+  "shop_1780905483215_w08x": {
+    "id": "shop_1780905483215_w08x",
+    "brand": "老李面馆",
+    "industry": "餐饮",
+    "slogan": "餐饮·用心做好每一件事",
+    "story": "开了15年的老店",
+    "sellPoints": "好吃不贵",
+    "products": [
+      {
+        "id": 2098,
+        "name": "青岛啤酒 经典1903 500ml*24罐",
+        "price": "¥5-15",
+        "image": "/product-images/ai-generated/ai-product-1778.png",
+        "description": "百年经典配方精选进口麦芽和啤酒花，酒体清澈泡沫细腻。酒精度4.0%vol麦香浓郁，原麦汁浓度10°P口感纯正。500ml*24罐出口版适合酒吧/餐厅/家庭囤货。",
+        "supplier": "青岛啤酒国际有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2128,
+        "name": "5S压榨花生油 5L 家庭装",
+        "price": "¥45-88",
+        "image": "/product-images/ai-generated/ai-product-1829.png",
+        "description": "5S物理压榨工艺保留花生原香和营养，纯正花生油炒菜倍儿香。5L大容量满足全家烹饪需求，无添加无勾兑纯正100%花生油。适合煎炒烹炸各种中式烹饪。",
+        "supplier": "山东鲁花集团有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2134,
+        "name": "双黄白莲蓉月饼 4个装 礼盒",
+        "price": "¥38-128",
+        "image": "/product-images/ai-generated/ai-product-1961.png",
+        "description": "精选湘莲手工研磨莲蓉细腻香滑，2颗咸蛋黄起沙流油金黄透亮。传统广式月饼工艺皮薄馅足，精美礼盒包装送人体面。中秋佳节送礼必备经典之选。",
+        "supplier": "广州酒家集团食品有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2116,
+        "name": "每日坚果混合装 30包 750g",
+        "price": "¥18-48",
+        "image": "/product-images/ai-generated/ai-product-1745.png",
+        "description": "6种坚果果干科学配比：腰果/巴旦木/核桃/榛子/蔓越莓/蓝莓。独立小包每包25g控制摄入量，每日一包营养均衡。充氮保鲜技术锁住新鲜酥脆口感。",
+        "supplier": "杭州百草味食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2131,
+        "name": "夏威夷果仁 奶油味 500g",
+        "price": "¥18-42",
+        "image": "/product-images/ai-generated/ai-product-1785.png",
+        "description": "超大颗粒夏威夷果仁饱满圆润，奶油味香甜酥脆一口一颗停不下来。充氮保鲜包装锁住酥脆口感，500g家庭装追剧/聚会/办公室零食首选。颗颗开口易剥。",
+        "supplier": "安徽三只松鼠食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2020,
+        "name": "玻尿酸补水面膜 28ml 24片装",
+        "price": "¥12-48",
+        "image": "/product-images/ai-generated/ai-product-1864.png",
+        "description": "三重玻尿酸配方（大分子+中分子+小分子），层层补水锁水直达肌底。蚕丝膜布轻薄透气完美服帖，28ml足量精华深度滋养。无酒精无色素敏感肌安心用。",
+        "supplier": "广州美妆之源化妆品有限公司",
+        "rating": 4.6
+      }
+    ],
+    "createdAt": "2026-06-08T07:58:03.218Z"
+  },
+  "shop_1781024812374_dyha": {
+    "id": "shop_1781024812374_dyha",
+    "brand": "测试面馆",
+    "industry": "餐饮美食",
+    "slogan": "餐饮美食·用心做好每一件事",
+    "story": "开了10年的老店",
+    "sellPoints": "好吃不贵,真材实料",
+    "products": [
+      {
+        "id": 2098,
+        "name": "青岛啤酒 经典1903 500ml*24罐",
+        "price": "¥5-15",
+        "image": "/product-images/ai-generated/ai-product-1778.png",
+        "description": "百年经典配方精选进口麦芽和啤酒花，酒体清澈泡沫细腻。酒精度4.0%vol麦香浓郁，原麦汁浓度10°P口感纯正。500ml*24罐出口版适合酒吧/餐厅/家庭囤货。",
+        "supplier": "青岛啤酒国际有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2128,
+        "name": "5S压榨花生油 5L 家庭装",
+        "price": "¥45-88",
+        "image": "/product-images/ai-generated/ai-product-1829.png",
+        "description": "5S物理压榨工艺保留花生原香和营养，纯正花生油炒菜倍儿香。5L大容量满足全家烹饪需求，无添加无勾兑纯正100%花生油。适合煎炒烹炸各种中式烹饪。",
+        "supplier": "山东鲁花集团有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2134,
+        "name": "双黄白莲蓉月饼 4个装 礼盒",
+        "price": "¥38-128",
+        "image": "/product-images/ai-generated/ai-product-1961.png",
+        "description": "精选湘莲手工研磨莲蓉细腻香滑，2颗咸蛋黄起沙流油金黄透亮。传统广式月饼工艺皮薄馅足，精美礼盒包装送人体面。中秋佳节送礼必备经典之选。",
+        "supplier": "广州酒家集团食品有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2116,
+        "name": "每日坚果混合装 30包 750g",
+        "price": "¥18-48",
+        "image": "/product-images/ai-generated/ai-product-1745.png",
+        "description": "6种坚果果干科学配比：腰果/巴旦木/核桃/榛子/蔓越莓/蓝莓。独立小包每包25g控制摄入量，每日一包营养均衡。充氮保鲜技术锁住新鲜酥脆口感。",
+        "supplier": "杭州百草味食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2131,
+        "name": "夏威夷果仁 奶油味 500g",
+        "price": "¥18-42",
+        "image": "/product-images/ai-generated/ai-product-1785.png",
+        "description": "超大颗粒夏威夷果仁饱满圆润，奶油味香甜酥脆一口一颗停不下来。充氮保鲜包装锁住酥脆口感，500g家庭装追剧/聚会/办公室零食首选。颗颗开口易剥。",
+        "supplier": "安徽三只松鼠食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2048,
+        "name": "可折叠硅胶收纳盒 多功能",
+        "price": "¥12-45",
+        "image": "/product-images/ai-generated/ai-product-1903.png",
+        "description": "食品级铂金硅胶材质安全无毒，可折叠收纳节省空间。微波炉/洗碗机/烤箱通用耐高温。1.2L/2.5L/4L多规格组合，厨房/浴室/冰箱都能用。",
+        "supplier": "义乌宏盛日用百货有限公司",
+        "rating": 4.6
+      }
+    ],
+    "createdAt": "2026-06-09T17:06:52.409Z"
+  },
+  "shop_1781096868794_5wxg": {
+    "id": "shop_1781096868794_5wxg",
+    "brand": "快测",
+    "industry": "餐饮美食",
+    "slogan": "餐饮美食·用心做好每一件事",
+    "story": "我在餐饮美食深耕多年，始终坚持用品质说话。",
+    "sellPoints": "品质保证,诚信经营,售后无忧",
+    "products": [
+      {
+        "id": 2098,
+        "name": "青岛啤酒 经典1903 500ml*24罐",
+        "price": "¥5-15",
+        "image": "/product-images/ai-generated/ai-product-1778.png",
+        "description": "百年经典配方精选进口麦芽和啤酒花，酒体清澈泡沫细腻。酒精度4.0%vol麦香浓郁，原麦汁浓度10°P口感纯正。500ml*24罐出口版适合酒吧/餐厅/家庭囤货。",
+        "supplier": "青岛啤酒国际有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2128,
+        "name": "5S压榨花生油 5L 家庭装",
+        "price": "¥45-88",
+        "image": "/product-images/ai-generated/ai-product-1829.png",
+        "description": "5S物理压榨工艺保留花生原香和营养，纯正花生油炒菜倍儿香。5L大容量满足全家烹饪需求，无添加无勾兑纯正100%花生油。适合煎炒烹炸各种中式烹饪。",
+        "supplier": "山东鲁花集团有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2134,
+        "name": "双黄白莲蓉月饼 4个装 礼盒",
+        "price": "¥38-128",
+        "image": "/product-images/ai-generated/ai-product-1961.png",
+        "description": "精选湘莲手工研磨莲蓉细腻香滑，2颗咸蛋黄起沙流油金黄透亮。传统广式月饼工艺皮薄馅足，精美礼盒包装送人体面。中秋佳节送礼必备经典之选。",
+        "supplier": "广州酒家集团食品有限公司",
+        "rating": 4.8
+      },
+      {
+        "id": 2116,
+        "name": "每日坚果混合装 30包 750g",
+        "price": "¥18-48",
+        "image": "/product-images/ai-generated/ai-product-1745.png",
+        "description": "6种坚果果干科学配比：腰果/巴旦木/核桃/榛子/蔓越莓/蓝莓。独立小包每包25g控制摄入量，每日一包营养均衡。充氮保鲜技术锁住新鲜酥脆口感。",
+        "supplier": "杭州百草味食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2131,
+        "name": "夏威夷果仁 奶油味 500g",
+        "price": "¥18-42",
+        "image": "/product-images/ai-generated/ai-product-1785.png",
+        "description": "超大颗粒夏威夷果仁饱满圆润，奶油味香甜酥脆一口一颗停不下来。充氮保鲜包装锁住酥脆口感，500g家庭装追剧/聚会/办公室零食首选。颗颗开口易剥。",
+        "supplier": "安徽三只松鼠食品有限公司",
+        "rating": 4.7
+      },
+      {
+        "id": 2048,
+        "name": "可折叠硅胶收纳盒 多功能",
+        "price": "¥12-45",
+        "image": "/product-images/ai-generated/ai-product-1903.png",
+        "description": "食品级铂金硅胶材质安全无毒，可折叠收纳节省空间。微波炉/洗碗机/烤箱通用耐高温。1.2L/2.5L/4L多规格组合，厨房/浴室/冰箱都能用。",
+        "supplier": "义乌宏盛日用百货有限公司",
+        "rating": 4.6
+      }
+    ],
+    "createdAt": "2026-06-10T13:07:48.818Z"
+  }
+}

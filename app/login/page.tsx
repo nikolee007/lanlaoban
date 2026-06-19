@@ -112,7 +112,7 @@ export default function LoginPage() {
       if (res.ok && data.token) {
         localStorage.setItem('lanlaoban_token', data.token)
         localStorage.setItem('lanlaoban_new_user', 'true')
-        window.location.href = '/global-supply'
+        window.location.href = '/interview'
       } else {
         setRegError(data.error || t('login.error.register', locale))
       }

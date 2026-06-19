@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { useLocale } from '@/app/contexts/LocaleContext'
 import { t } from '@/lib/i18n'
 import { useToast } from '../contexts/ToastContext'
@@ -10,6 +11,7 @@ type FeedbackType = '建议' | 'Bug' | '咨询'
 const TYPE_OPTIONS: FeedbackType[] = ['建议', 'Bug', '咨询']
 
 export default function FeedbackButton() {
+  const pathname = usePathname()
   const { locale } = useLocale()
   const [open, setOpen] = useState(false)
   const [type, setType] = useState<FeedbackType>('建议')
@@ -63,6 +65,9 @@ export default function FeedbackButton() {
       setSubmitting(false)
     }
   }
+
+  // 只在首页显示反馈按钮
+  if (pathname !== '/') return null
 
   return (
     <>

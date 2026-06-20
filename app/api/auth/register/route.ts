@@ -24,7 +24,14 @@ export async function POST(req: Request) {
       }
       user = await tursoDb.createUser(email, hashed, name)
       if (!user) {
-        return NextResponse.json({ error: '注册失败' }, { status: 500 })
+        // Turso 失败时回退到 Prisma（本地 SQLite）
+        try {
+          user = await db.user.create({
+            data: { email, password: hashed, name: name || email.split('@')[0] },
+          })
+        } catch {
+          return NextResponse.json({ error: '注册失败' }, { status: 500 })
+        }
       }
     } else {
       try {

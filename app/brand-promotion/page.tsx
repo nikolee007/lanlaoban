@@ -34,35 +34,35 @@ type DigitalHumanGender = 'male' | 'female'
 
 /* ─────────────────── Constants ─────────────────── */
 
-const STYLES: { key: Style; icon: any; label: string; desc: string; color: string }[] = [
-  { key: 'professional', icon: FiStar, label: '专业商务', desc: '正式、专业、可信赖，适合B2B企业宣传', color: '#1E3A5F' },
-  { key: 'social', icon: FiZap, label: '社交热辣', desc: '活泼、吸睛、节奏快，适合TikTok/抖音带货', color: '#FF6034' },
-  { key: 'tech', icon: FiZap, label: '科技感', desc: '未来感、极简、炫酷，适合科技产品与创新品牌', color: '#6366F1' },
-  { key: 'sincere', icon: FiUser, label: '朴实真诚', desc: '温暖、真实、接地气，适合工厂/手艺人/老字号', color: '#059669' },
+const STYLES: { key: Style; label: string; desc: string; image: string }[] = [
+  { key: 'professional', label: '专业商务', desc: '正式、专业、可信赖，适合B2B企业宣传', image: '/images/brand-promotion/style-professional.jpg' },
+  { key: 'social', label: '社交热辣', desc: '活泼、吸睛、节奏快，适合TikTok/抖音带货', image: '/images/brand-promotion/style-social.jpg' },
+  { key: 'tech', label: '科技感', desc: '未来感、极简、炫酷，适合科技产品与创新品牌', image: '/images/brand-promotion/style-tech.jpg' },
+  { key: 'sincere', label: '朴实真诚', desc: '温暖、真实、接地气，适合工厂/手艺人/老字号', image: '/images/brand-promotion/style-sincere.jpg' },
 ]
 
-const LANGUAGES: { key: string; emoji: string; label: string }[] = [
-  { key: 'zh', emoji: '🇨🇳', label: '简体中文' },
-  { key: 'zh-tw', emoji: '🇭🇰', label: '繁体中文' },
-  { key: 'en', emoji: '🇬🇧', label: '英语' },
-  { key: 'ja', emoji: '🇯🇵', label: '日语' },
-  { key: 'ko', emoji: '🇰🇷', label: '韩语' },
-  { key: 'fr', emoji: '🇫🇷', label: '法语' },
-  { key: 'de', emoji: '🇩🇪', label: '德语' },
-  { key: 'es', emoji: '🇪🇸', label: '西班牙语' },
-  { key: 'pt', emoji: '🇵🇹', label: '葡萄牙语' },
-  { key: 'ru', emoji: '🇷🇺', label: '俄语' },
-  { key: 'it', emoji: '🇮🇹', label: '意大利语' },
-  { key: 'ar', emoji: '🇸🇦', label: '阿拉伯语' },
-  { key: 'th', emoji: '🇹🇭', label: '泰语' },
-  { key: 'vi', emoji: '🇻🇳', label: '越南语' },
-  { key: 'id', emoji: '🇮🇩', label: '印尼语' },
+const LANGUAGES: { key: string; flagCode: string; label: string }[] = [
+  { key: 'zh', flagCode: 'cn', label: '简体中文' },
+  { key: 'zh-tw', flagCode: 'tw', label: '繁体中文' },
+  { key: 'en', flagCode: 'gb', label: '英语' },
+  { key: 'ja', flagCode: 'jp', label: '日语' },
+  { key: 'ko', flagCode: 'kr', label: '韩语' },
+  { key: 'fr', flagCode: 'fr', label: '法语' },
+  { key: 'de', flagCode: 'de', label: '德语' },
+  { key: 'es', flagCode: 'es', label: '西班牙语' },
+  { key: 'pt', flagCode: 'pt', label: '葡萄牙语' },
+  { key: 'ru', flagCode: 'ru', label: '俄语' },
+  { key: 'it', flagCode: 'it', label: '意大利语' },
+  { key: 'ar', flagCode: 'sa', label: '阿拉伯语' },
+  { key: 'th', flagCode: 'th', label: '泰语' },
+  { key: 'vi', flagCode: 'vn', label: '越南语' },
+  { key: 'id', flagCode: 'id', label: '印尼语' },
 ]
 
-const DIGITAL_HUMAN_MODES: { key: DigitalHumanMode; icon: any; label: string; desc: string }[] = [
-  { key: 'none', icon: FiVideo, label: '无数字人', desc: '纯产品展示 + AI配音，适合快速出片' },
-  { key: 'pip', icon: FiUser, label: '画中画口播', desc: '数字人站姿讲解，产品以画中画形式展示' },
-  { key: 'handhold', icon: FiCamera, label: '手持产品讲解', desc: '数字人手持产品展示讲解（需额外服务）' },
+const DIGITAL_HUMAN_MODES: { key: DigitalHumanMode; label: string; desc: string; image: string }[] = [
+  { key: 'none', label: '无数字人', desc: '纯产品展示 + AI配音，适合快速出片', image: '/images/brand-promotion/dh-none.jpg' },
+  { key: 'pip', label: '画中画口播', desc: '数字人站姿讲解，产品以画中画形式展示', image: '/images/brand-promotion/dh-pip.jpg' },
+  { key: 'handhold', label: '手持产品讲解', desc: '数字人手持产品展示讲解（需额外服务）', image: '/images/brand-promotion/dh-handhold.jpg' },
 ]
 
 const DURATIONS = [60, 90, 120]
@@ -546,21 +546,22 @@ export default function BrandPromotionPage() {
                     key={s.key}
                     onClick={() => setStyle(s.key)}
                     className={`
-                      relative p-4 rounded-xl border-2 text-left transition-all
+                      relative p-3 rounded-xl border-2 text-left transition-all overflow-hidden
                       ${style === s.key
                         ? 'border-[#FF6034] bg-orange-50/50 shadow-sm'
                         : 'border-gray-200 hover:border-gray-300'
                       }
                     `}
                   >
-                    <div className="flex items-center gap-2 mb-2">
-                      <s.icon size={18} style={{ color: s.color }} />
-                      <span className="font-semibold text-gray-800 text-sm">{s.label}</span>
+                    <div className="relative h-20 rounded-lg overflow-hidden mb-2 bg-gray-100">
+                      <img src={s.image} alt={s.label} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                      <span className="absolute bottom-1.5 left-2 text-white text-xs font-bold drop-shadow-sm">{s.label}</span>
                     </div>
-                    <p className="text-xs text-gray-500 leading-relaxed">{s.desc}</p>
+                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{s.desc}</p>
                     {style === s.key && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-[#FF6034] rounded-full flex items-center justify-center">
-                        <FiCheck size={12} className="text-white" />
+                      <div className="absolute top-4 right-4 w-6 h-6 bg-[#FF6034] rounded-full flex items-center justify-center shadow-md">
+                        <FiCheck size={13} className="text-white" />
                       </div>
                     )}
                   </button>
@@ -591,7 +592,11 @@ export default function BrandPromotionPage() {
                         }
                       `}
                     >
-                      <span className="text-base">{l.emoji}</span>
+                      <img
+                        src={`https://flagcdn.com/w40/${l.flagCode}.png`}
+                        alt={l.label}
+                        className="w-5 h-auto rounded-sm shadow-sm"
+                      />
                       <span className="truncate">{l.label}</span>
                       {selected && <FiCheck size={14} className="ml-auto shrink-0" />}
                     </button>
@@ -609,21 +614,22 @@ export default function BrandPromotionPage() {
                     key={m.key}
                     onClick={() => setDigitalHumanMode(m.key)}
                     className={`
-                      relative p-4 rounded-xl border-2 text-left transition-all
+                      relative p-3 rounded-xl border-2 text-left transition-all overflow-hidden
                       ${digitalHumanMode === m.key
                         ? 'border-[#FF6034] bg-orange-50/50 shadow-sm'
                         : 'border-gray-200 hover:border-gray-300'
                       }
                     `}
                   >
-                    <div className="flex items-center gap-2 mb-2">
-                      <m.icon size={18} className="text-[#FF6034]" />
-                      <span className="font-semibold text-gray-800 text-sm">{m.label}</span>
+                    <div className="relative h-20 rounded-lg overflow-hidden mb-2 bg-gray-100">
+                      <img src={m.image} alt={m.label} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                      <span className="absolute bottom-1.5 left-2 text-white text-xs font-bold drop-shadow-sm">{m.label}</span>
                     </div>
                     <p className="text-xs text-gray-500 leading-relaxed">{m.desc}</p>
                     {digitalHumanMode === m.key && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-[#FF6034] rounded-full flex items-center justify-center">
-                        <FiCheck size={12} className="text-white" />
+                      <div className="absolute top-4 right-4 w-6 h-6 bg-[#FF6034] rounded-full flex items-center justify-center shadow-md">
+                        <FiCheck size={13} className="text-white" />
                       </div>
                     )}
                   </button>
@@ -638,29 +644,29 @@ export default function BrandPromotionPage() {
                     <button
                       onClick={() => setDigitalHumanGender('male')}
                       className={`
-                        flex items-center gap-2 px-5 py-3 rounded-xl border-2 font-medium text-sm transition-all
+                        flex items-center gap-3 px-4 py-2.5 rounded-xl border-2 font-medium text-sm transition-all
                         ${digitalHumanGender === 'male'
                           ? 'border-[#FF6034] bg-orange-50 text-[#FF6034]'
                           : 'border-gray-200 text-gray-600 hover:border-gray-300'
                         }
                       `}
                     >
-                      <FiUser size={18} />
-                      男
+                      <img src="/images/brand-promotion/gender-male.jpg" alt="男" className="w-9 h-9 rounded-full object-cover" />
+                      <span>男</span>
                       {digitalHumanGender === 'male' && <FiCheck size={14} />}
                     </button>
                     <button
                       onClick={() => setDigitalHumanGender('female')}
                       className={`
-                        flex items-center gap-2 px-5 py-3 rounded-xl border-2 font-medium text-sm transition-all
+                        flex items-center gap-3 px-4 py-2.5 rounded-xl border-2 font-medium text-sm transition-all
                         ${digitalHumanGender === 'female'
                           ? 'border-[#FF6034] bg-orange-50 text-[#FF6034]'
                           : 'border-gray-200 text-gray-600 hover:border-gray-300'
                         }
                       `}
                     >
-                      <FiUser size={18} />
-                      女
+                      <img src="/images/brand-promotion/gender-female.jpg" alt="女" className="w-9 h-9 rounded-full object-cover" />
+                      <span>女</span>
                       {digitalHumanGender === 'female' && <FiCheck size={14} />}
                     </button>
                   </div>

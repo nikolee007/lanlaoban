@@ -1,102 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
 
-const OPENAI_TTS_VOICES: Record<string, Record<string, string>> = {
-  zh: { male: 'echo', female: 'shimmer' },
-  'zh-tw': { male: 'echo', female: 'shimmer' },
-  en: { male: 'echo', female: 'shimmer' },
-  ja: { male: 'echo', female: 'shimmer' },
-  ko: { male: 'echo', female: 'shimmer' },
-  fr: { male: 'echo', female: 'shimmer' },
-  de: { male: 'echo', female: 'shimmer' },
-  es: { male: 'echo', female: 'shimmer' },
-  pt: { male: 'echo', female: 'shimmer' },
-  ru: { male: 'echo', female: 'shimmer' },
-  it: { male: 'echo', female: 'shimmer' },
-  ar: { male: 'echo', female: 'shimmer' },
-  th: { male: 'echo', female: 'shimmer' },
-  vi: { male: 'echo', female: 'shimmer' },
-  id: { male: 'echo', female: 'shimmer' },
+const VOICE_MAP: Record<string, string> = {
+  zh: 'zh-CN-XiaoxiaoNeural',
+  'zh-tw': 'zh-TW-HsiaoChenNeural',
+  en: 'en-US-AriaNeural',
+  ja: 'ja-JP-NanamiNeural',
+  ko: 'ko-KR-SunHiNeural',
+  fr: 'fr-FR-DeniseNeural',
+  de: 'de-DE-KatjaNeural',
+  es: 'es-ES-AlvaroNeural',
+  pt: 'pt-BR-FranciscaNeural',
+  ru: 'ru-RU-SvetlanaNeural',
+  it: 'it-IT-ElsaNeural',
+  ar: 'ar-SA-ZariyahNeural',
+  th: 'th-TH-PremwadeeNeural',
+  vi: 'vi-VN-HoaiMyNeural',
+  id: 'id-ID-GadisNeural',
 }
 
-const OPENAI_TTS_MODEL = 'tts-1'
+export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { text, language = 'zh', voiceStyle = 'professional' } = body
+    const { text, language = 'zh' } = body
 
     if (!text?.trim()) {
       return NextResponse.json({ error: 'text is required' }, { status: 400 })
     }
 
-    // Try self-hosted TTS server first
-    const TTS_SERVER = process.env.TTS_SERVER_URL
-    if (TTS_SERVER) {
-      try {
-        const ttsRes = await fetch(`${TTS_SERVER}/v1/tts`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text: text.slice(0, 2000),
-            voice: language === 'zh' ? 'zh-CN-XiaoxiaoNeural' : 'en-US-JennyNeural',
-            speed: 1.0,
-          }),
-        })
+    const voice = VOICE_MAP[language] || VOICE_MAP['en']
 
-        if (ttsRes.ok) {
-          const ttsData = await ttsRes.json()
-          return NextResponse.json({ success: true, audioUrl: ttsData.url || ttsData.audioUrl, source: 'tts-server' })
-        }
-      } catch {
-        // Fall through to OpenAI TTS
-      }
+    // Use msedge-tts (free, no API key needed, works on Vercel)
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { MsEdgeTTS } = require('msedge-tts')
+    const tts = new MsEdgeTTS()
+    tts.setMetadata(voice, 1.0, { pitch: 0, volume: 0 })
+
+    // Get the audio stream
+    const { audioStream } = await tts.rawToStream(text.slice(0, 3000))
+
+    // Collect audio chunks
+    const chunks: Buffer[] = []
+    for await (const chunk of audioStream) {
+      chunks.push(Buffer.from(chunk))
     }
+    const audioBuffer = Buffer.concat(chunks)
 
-    // Fallback: OpenAI TTS
-    const apiKey = process.env.OPENAI_API_KEY
-    if (!apiKey) {
-      return NextResponse.json({ error: 'TTS_SERVER_URL or OPENAI_API_KEY not configured' }, { status: 503 })
-    }
-
-    const voices = OPENAI_TTS_VOICES[language] || OPENAI_TTS_VOICES['en']
-    const voice = voices.female // default to female voice
-
-    const openaiRes = await fetch('https://api.openai.com/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: OPENAI_TTS_MODEL,
-        input: text.slice(0, 4096),
-        voice,
-        response_format: 'mp3',
-        speed: 1.0,
-      }),
+    // Return audio as base64 in JSON
+    return NextResponse.json({
+      success: true,
+      audioData: audioBuffer.toString('base64'),
+      contentType: 'audio/mp3',
+      source: 'edge-tts',
     })
-
-    if (!openaiRes.ok) {
-      const errText = await openaiRes.text()
-      console.error('[brand-promotion] TTS OpenAI error:', errText)
-      return NextResponse.json({ error: `TTS generation failed: ${openaiRes.status}` }, { status: 502 })
-    }
-
-    // Save audio to public/uploads
-    const timestamp = Date.now().toString()
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'brand-promotion', timestamp)
-    await mkdir(uploadDir, { recursive: true })
-
-    const audioBuffer = Buffer.from(await openaiRes.arrayBuffer())
-    const filename = `tts_${language}_${Date.now()}.mp3`
-    const filePath = path.join(uploadDir, filename)
-    await writeFile(filePath, audioBuffer)
-
-    const audioUrl = `/uploads/brand-promotion/${timestamp}/${filename}`
-
-    return NextResponse.json({ success: true, audioUrl, source: 'openai-tts' })
   } catch (error: unknown) {
     console.error('[brand-promotion] tts:', error)
     const message = error instanceof Error ? error.message : 'TTS 生成失败'

@@ -254,7 +254,7 @@ export default function BrandPromotionPage() {
 
       // Step 3 — TTS for each language
       setProgressStep(2)
-      const ttsResults: Record<string, string> = {}
+      const ttsResults: Record<string, string> = {} // audio blob URLs
       for (const lang of selectedLanguages) {
         const ttsRes = await fetch('/api/brand-promotion/tts', {
           method: 'POST',
@@ -267,7 +267,16 @@ export default function BrandPromotionPage() {
         })
         if (ttsRes.ok) {
           const ttsData = await ttsRes.json()
-          ttsResults[lang] = ttsData.audioUrl
+          // Convert base64 to blob URL if audioData present, or use url if present
+          if (ttsData.audioData) {
+            const byteChars = atob(ttsData.audioData)
+            const byteNums = new Uint8Array(byteChars.length)
+            for (let i = 0; i < byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i)
+            const audioBlob = new Blob([byteNums], { type: 'audio/mp3' })
+            ttsResults[lang] = URL.createObjectURL(audioBlob)
+          } else if (ttsData.audioUrl) {
+            ttsResults[lang] = ttsData.audioUrl
+          }
         }
       }
 

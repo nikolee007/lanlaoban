@@ -142,13 +142,6 @@ export default function NavHeader() {
 
   const isAdminActive = pathname === '/admin'
 
-  const navLinkClasses = (href: string, color: GroupColor) => {
-    const c = groupActiveClasses[color]
-    return `flex items-center gap-1 px-2 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
-      isActive(href) ? c.active : `text-gray-600 ${c.hover}`
-    }`
-  }
-
   return (
     <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50" role="navigation" aria-label={mobileMenuOpen ? t('menu.label', locale) : t('menu.label', locale)}>
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
@@ -165,34 +158,29 @@ export default function NavHeader() {
           </div>
         </Link>
 
-        {/* Desktop Nav — 分组色块导航 */}
+        {/* Desktop Nav — 紧凑分组导航 */}
         <div className="hidden sm:flex items-center" ref={navRef}>
           {NAV_GROUPS.map((group, gi) => (
             <React.Fragment key={gi}>
-              {/* 分组间的分隔符 */}
+              {/* 分组间用小圆点分隔 */}
               {gi > 0 && (
-                <span className="mx-1.5 text-gray-200 select-none text-xs">|</span>
+                <span className="mx-1 text-gray-300 select-none text-[10px]">·</span>
               )}
-              {/* 每个分组用微色块包裹 */}
-              <div className={`flex items-center gap-0.5 rounded-lg px-0.5 py-0.5 ${
-                group.color === 'orange' ? 'bg-gradient-to-r from-orange-50/40 to-amber-50/20' :
-                group.color === 'emerald' ? 'bg-emerald-50/30' :
-                group.color === 'blue' ? 'bg-blue-50/30' :
-                ''
-              }`}>
-                {group.items.map((item) => (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    className={navLinkClasses(item.href, group.color)}
-                  >
-                    {t(item.key, locale)}
-                    {item.isAI && (
-                      <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
-                    )}
-                  </Link>
-                ))}
-              </div>
+              {/* 每个分组内的导航项 */}
+              {group.items.map((item) => (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  className={`flex items-center gap-1 px-1.5 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+                    isActive(item.href) ? groupActiveClasses[group.color].active : `text-gray-600 ${groupActiveClasses[group.color].hover}`
+                  }`}
+                >
+                  {t(item.key, locale)}
+                  {item.isAI && (
+                    <span className="inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-[3px] py-[1px] text-[8px] font-bold text-white leading-none">AI</span>
+                  )}
+                </Link>
+              ))}
             </React.Fragment>
           ))}
 

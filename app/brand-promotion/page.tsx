@@ -5,6 +5,7 @@ import NavHeader from '../components/NavHeader'
 import Breadcrumb from '../components/Breadcrumb'
 import { useToast } from '../contexts/ToastContext'
 import { renderPromotionVideo } from '@/lib/video-renderer'
+import RemotionPreview from '@/components/RemotionPreview'
 import {
   FiUpload, FiTrash2, FiCheck, FiPlay, FiDownload, FiGlobe,
   FiUser, FiVideo, FiCamera, FiZap, FiChevronLeft, FiChevronRight,
@@ -128,6 +129,7 @@ export default function BrandPromotionPage() {
   const [activeLangIdx, setActiveLangIdx] = useState(0)
   const [error, setError] = useState('')
   const [renderedVideo, setRenderedVideo] = useState<string | null>(null) // Blob URL
+  const [isDownloading, setIsDownloading] = useState(false)
 
   // Refs
   const photoInputRef = useRef<HTMLInputElement>(null)
@@ -280,50 +282,24 @@ export default function BrandPromotionPage() {
         }
       }
 
-      // Step 4 — Render video for primary language
+      // Step 4 — Prepare preview data (RemotionPreview handles real-time display)
       setProgressStep(3)
 
       const mainLang = selectedLanguages[0]
-      const photoUrls = files.filter(f => f.type === 'photo').map(f => f.preview)
-      const logoFile = files.find(f => f.type === 'logo')
 
       // Extract slogans from the generated script text
       const mainScript = scriptData.scripts[mainLang] || ''
       const sloganLines = splitIntoSlogans(mainScript)
 
-      let mainVideoUrl = ttsResults[mainLang] || ''
+      // Store slogans globally for RemotionPreview to access
+      ;(window as any).__lastSlogans = sloganLines
 
-      if (photoUrls.length > 0 && ttsResults[mainLang] && sloganLines.length > 0) {
-        try {
-          const videoBlob = await renderPromotionVideo({
-            photos: photoUrls,
-            audioUrl: ttsResults[mainLang],
-            productName: productName || 'Product',
-            slogans: sloganLines,
-            duration: duration,
-            logoUrl: logoFile?.preview,
-            language: mainLang,
-          })
-          // Revoke previous blob URL and create new one
-          if (renderedVideo) URL.revokeObjectURL(renderedVideo)
-          const blobUrl = URL.createObjectURL(videoBlob)
-          setRenderedVideo(blobUrl)
-          mainVideoUrl = blobUrl
-        } catch (renderErr: unknown) {
-          const msg = renderErr instanceof Error ? renderErr.message : '视频渲染失败'
-          console.error('[brand-promotion] Video render failed:', msg)
-          // Fall through — mainVideoUrl stays as audio URL
-        }
-      }
-
-      // Build results — primary language gets the rendered video, others get audio
+      // Build results — each language uses TTS audio URL (RemotionPreview + server render handle video)
       const genResults: GenerationResult[] = selectedLanguages.map(lang => ({
         language: lang,
         languageLabel: langLabel(lang),
-        videoUrl: lang === mainLang ? mainVideoUrl : ttsResults[lang] || '',
-        status: lang === mainLang
-          ? (mainVideoUrl ? 'done' : 'error')
-          : (ttsResults[lang] ? 'done' : 'error'),
+        videoUrl: ttsResults[lang] || '',
+        status: ttsResults[lang] ? 'done' : 'error',
       }))
       setResults(genResults)
 
@@ -848,32 +824,36 @@ export default function BrandPromotionPage() {
                   ))}
                 </div>
 
-                {/* Video / Audio Player */}
-                {activeResult && activeResult.status === 'done' && activeResult.videoUrl && (
-                  activeResult.videoUrl.startsWith('blob:') ? (
-                    <div className="bg-black rounded-2xl overflow-hidden shadow-lg">
-                      <video
-                        src={activeResult.videoUrl}
-                        controls
-                        autoPlay
-                        className="w-full max-w-md mx-auto aspect-[9/16]"
-                      >
-                        您的浏览器不支持视频播放
-                      </video>
-                    </div>
-                  ) : (
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center">
-                      <FiPlay size={28} className="mx-auto mb-3 text-[#FF6034]" />
-                      <p className="text-sm text-gray-600 mb-3">{activeResult.languageLabel} 配音</p>
-                      <audio
-                        src={activeResult.videoUrl}
-                        controls
-                        className="w-full max-w-md mx-auto"
-                      >
-                        您的浏览器不支持音频播放
-                      </audio>
-                    </div>
-                  )
+                {/* Remotion Preview */}
+                {photos.length > 0 && (
+                  <RemotionPreview
+                    photos={photos.map(f => f.preview)}
+                    productName={productName || 'Product'}
+                    slogans={
+                      (() => {
+                        // Use generated slogans if available, otherwise use placeholder
+                        const mainLang = selectedLanguages[0]
+                        const mainResult = results.find(r => r.language === mainLang)
+                        if (mainResult && activeResult) {
+                          const scriptText = mainResult.status === 'done' ? '' : ''
+                          // slogans are computed during generate — stored on window or derived
+                          const lines = (window as any).__lastSlogans as string[] | undefined
+                          if (lines && lines.length > 0) return lines
+                        }
+                        return sellingPoints
+                          ? sellingPoints.split(/[,，]/).map(s => s.trim()).filter(Boolean)
+                          : [productName || 'Your Brand Story']
+                      })()
+                    }
+                    audioUrl={
+                      activeResult?.status === 'done' && activeResult.videoUrl && !activeResult.videoUrl.startsWith('blob:')
+                        ? activeResult.videoUrl
+                        : activeResult?.videoUrl || undefined
+                    }
+                    logoUrl={logos[0]?.preview}
+                    language={activeResult?.language || selectedLanguages[0]}
+                    duration={duration}
+                  />
                 )}
 
                 {activeResult && activeResult.status === 'error' && (
@@ -887,19 +867,52 @@ export default function BrandPromotionPage() {
                 {/* Action Buttons */}
                 <div className="flex flex-wrap justify-center gap-3">
                   <button
-                    disabled={!activeResult || activeResult.status !== 'done' || !activeResult.videoUrl}
+                    disabled={isDownloading || results.length === 0}
                     className="flex items-center gap-2 px-6 py-3 bg-[#FF6034] text-white rounded-xl font-semibold hover:bg-[#E8552E] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    onClick={() => {
-                      if (activeResult?.videoUrl) {
-                        const isVideo = activeResult.videoUrl.startsWith('blob:')
+                    onClick={async () => {
+                      if (isDownloading || results.length === 0) return
+                      setIsDownloading(true)
+                      try {
+                        const sloganLines = (window as any).__lastSlogans as string[] || []
+                        const audioUrl = activeResult?.videoUrl || undefined
+                        const photoUrls = files.filter(f => f.type === 'photo').map(f => f.preview)
+
+                        if (photoUrls.length === 0) {
+                          throw new Error('没有可用的产品照片')
+                        }
+
+                        // Use Canvas-based renderer for download (produces WebM, client-side)
+                        const videoBlob = await renderPromotionVideo({
+                          photos: photoUrls,
+                          audioUrl: audioUrl || '',
+                          productName: productName || 'Product',
+                          slogans: sloganLines.length > 0 ? sloganLines : [productName || 'Brand Story'],
+                          duration,
+                          logoUrl: logos[0]?.preview,
+                          language: activeResult?.language || 'zh',
+                        })
+
+                        // Trigger download
+                        const url = URL.createObjectURL(videoBlob)
                         const a = document.createElement('a')
-                        a.href = activeResult.videoUrl
-                        a.download = `brand-promotion-${activeResult.language}.${isVideo ? 'webm' : 'mp3'}`
+                        a.href = url
+                        a.download = `brand-promotion-${activeResult?.language || 'zh'}.webm`
                         a.click()
+                        URL.revokeObjectURL(url)
+                        toast?.showToast('视频下载已开始！', 'success')
+                      } catch (downloadErr: unknown) {
+                        const msg = downloadErr instanceof Error ? downloadErr.message : '下载失败'
+                        toast?.showToast('下载失败: ' + msg, 'error')
+                      } finally {
+                        setIsDownloading(false)
                       }
                     }}
                   >
-                    <FiDownload size={18} /> 下载当前语言版本
+                    {isDownloading ? (
+                      <><FiLoader size={18} className="animate-spin" /> 渲染中…</>
+                    ) : (
+                      <><FiDownload size={18} /> 下载视频 (MP4)</>
+                    )}
                   </button>
                   <button
                     onClick={handleGenerate}

@@ -32,15 +32,41 @@ type UserProfile = {
   phone: string
 }
 
-const NAV_ITEMS: Array<{ key: string; href: string; isAI: boolean }> = [
-  { key: 'nav.oneClickIP', href: '/persona', isAI: true },
-  { key: 'nav.oneClickBrand', href: '/ai-video', isAI: true },
-  { key: 'content.avatar', href: '/digital-human', isAI: false },
-  { key: 'nav.supply', href: '/global-supply', isAI: false },
-  { key: 'nav.aiSite', href: '/global-supply/ai-assistant', isAI: true },
-  { key: 'nav.crossBorder', href: '/cross-border', isAI: true },
-  { key: 'nav.pricing', href: '/pricing', isAI: false },
+/** 导航分组定义：每组一个颜色主题，品类一目了然 */
+const NAV_GROUPS: Array<{
+  color: 'orange' | 'emerald' | 'blue' | 'gray'
+  items: Array<{ key: string; href: string; isAI: boolean }>
+}> = [
+  // 📹 IP/内容创作 — 品牌橙色
+  { color: 'orange', items: [
+    { key: 'nav.oneClickIP', href: '/persona', isAI: true },
+    { key: 'nav.oneClickBrand', href: '/ai-video', isAI: true },
+    { key: 'content.avatar', href: '/digital-human', isAI: false },
+  ]},
+  // 🌐 全球供应链 — 翡翠绿
+  { color: 'emerald', items: [
+    { key: 'nav.supply', href: '/global-supply', isAI: false },
+  ]},
+  // 🤖 AI 工具 — 天空蓝
+  { color: 'blue', items: [
+    { key: 'nav.aiSite', href: '/global-supply/ai-assistant', isAI: true },
+    { key: 'nav.crossBorder', href: '/cross-border', isAI: true },
+  ]},
+  // 💰 定价 — 中性灰
+  { color: 'gray', items: [
+    { key: 'nav.pricing', href: '/pricing', isAI: false },
+  ]},
 ]
+
+type GroupColor = 'orange' | 'emerald' | 'blue' | 'gray'
+
+/** 根据分组颜色获取 hover/active 的 Tailwind 类名 */
+const groupActiveClasses: Record<GroupColor, { active: string; hover: string }> = {
+  orange: { active: 'text-brand-400 bg-brand-50', hover: 'hover:text-brand-500 hover:bg-orange-50' },
+  emerald: { active: 'text-emerald-600 bg-emerald-50', hover: 'hover:text-emerald-600 hover:bg-emerald-50' },
+  blue: { active: 'text-blue-600 bg-blue-50', hover: 'hover:text-blue-600 hover:bg-blue-50' },
+  gray: { active: 'text-gray-700 bg-gray-100', hover: 'hover:text-gray-700 hover:bg-gray-100' },
+}
 
 export default function NavHeader() {
   const pathname = usePathname()
@@ -116,12 +142,12 @@ export default function NavHeader() {
 
   const isAdminActive = pathname === '/admin'
 
-  const navLinkClasses = (href: string) =>
-    `flex items-center gap-1 px-2 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
-      isActive(href)
-        ? 'text-brand-400 bg-brand-50'
-        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+  const navLinkClasses = (href: string, color: GroupColor) => {
+    const c = groupActiveClasses[color]
+    return `flex items-center gap-1 px-2 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+      isActive(href) ? c.active : `text-gray-600 ${c.hover}`
     }`
+  }
 
   return (
     <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50" role="navigation" aria-label={mobileMenuOpen ? t('menu.label', locale) : t('menu.label', locale)}>
@@ -139,19 +165,35 @@ export default function NavHeader() {
           </div>
         </Link>
 
-        {/* Desktop Nav — flat direct links */}
-        <div className="hidden sm:flex items-center gap-1" ref={navRef}>
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={navLinkClasses(item.href)}
-            >
-              {t(item.key, locale)}
-              {item.isAI && (
-                <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
+        {/* Desktop Nav — 分组色块导航 */}
+        <div className="hidden sm:flex items-center" ref={navRef}>
+          {NAV_GROUPS.map((group, gi) => (
+            <React.Fragment key={gi}>
+              {/* 分组间的分隔符 */}
+              {gi > 0 && (
+                <span className="mx-1.5 text-gray-200 select-none text-xs">|</span>
               )}
-            </Link>
+              {/* 每个分组用微色块包裹 */}
+              <div className={`flex items-center gap-0.5 rounded-lg px-0.5 py-0.5 ${
+                group.color === 'orange' ? 'bg-gradient-to-r from-orange-50/40 to-amber-50/20' :
+                group.color === 'emerald' ? 'bg-emerald-50/30' :
+                group.color === 'blue' ? 'bg-blue-50/30' :
+                ''
+              }`}>
+                {group.items.map((item) => (
+                  <Link
+                    key={item.key}
+                    href={item.href}
+                    className={navLinkClasses(item.href, group.color)}
+                  >
+                    {t(item.key, locale)}
+                    {item.isAI && (
+                      <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </React.Fragment>
           ))}
 
           {user && (
@@ -292,22 +334,31 @@ export default function NavHeader() {
         <div
           className="sm:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1 shadow-lg max-h-[80vh] overflow-y-auto"
         >
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={`flex items-center gap-1 px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
-                isActive(item.href)
-                  ? 'text-brand-400 bg-brand-50'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-              onClick={closeMobileMenu}
-            >
-              {t(item.key, locale)}
-              {item.isAI && (
-                <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
-              )}
-            </Link>
+          {NAV_GROUPS.map((group, gi) => (
+            <React.Fragment key={gi}>
+              {/* 移动端分组标签 */}
+              {gi > 0 && <hr className="my-2 border-gray-100" />}
+              {group.items.map((item) => (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  className={`flex items-center gap-1 px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
+                    isActive(item.href)
+                      ? group.color === 'orange' ? 'text-brand-400 bg-brand-50'
+                        : group.color === 'emerald' ? 'text-emerald-600 bg-emerald-50'
+                        : group.color === 'blue' ? 'text-blue-600 bg-blue-50'
+                        : 'text-gray-700 bg-gray-100'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                  onClick={closeMobileMenu}
+                >
+                  {t(item.key, locale)}
+                  {item.isAI && (
+                    <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
+                  )}
+                </Link>
+              ))}
+            </React.Fragment>
           ))}
 
           {user && (

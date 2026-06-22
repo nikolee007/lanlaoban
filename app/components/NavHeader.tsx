@@ -40,7 +40,7 @@ const NAV_GROUPS: Array<{
   // 📹 IP/内容创作 — 品牌橙色
   { color: 'orange', items: [
     { key: 'nav.oneClickIP', href: '/persona', isAI: true },
-    { key: 'nav.oneClickBrand', href: '/ai-video', isAI: true },
+    { key: 'nav.oneClickBrand', href: '/brand-promotion', isAI: true },
     { key: 'content.avatar', href: '/digital-human', isAI: false },
   ]},
   // 🌐 全球供应链 — 翡翠绿

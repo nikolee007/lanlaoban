@@ -6,9 +6,6 @@ import { useLocale } from '@/app/contexts/LocaleContext'
 import { t } from '@/lib/i18n'
 import Breadcrumb from '@/app/components/Breadcrumb'
 
-const AGNES_API_KEY = 'sk-wpsLt5JiISV9fjtN5h3bALz3oj0AtqbyAy0fcgpBhUN6UHCw'
-const AGNES_API_URL = 'https://apihub.agnes-ai.com/v1/chat/completions'
-
 const HOT_CATEGORIES = [
   { key: 'electronics', label: '电子产品', icon: FiMonitor },
   { key: 'clothing', label: '服装', icon: FiSmartphone },
@@ -44,27 +41,16 @@ export default function PhotographyGuidePage() {
       const catLabel = CATEGORY_LABELS[locale]?.[category] || category || '通用'
       const prompt = `为[${productName}]（品类：[${catLabel}]）提供产品拍摄建议，包括：1. 拍摄角度 2. 灯光设置 3. 背景选择 4. 道具搭配 5. 后期调色方向。用中文，分点回答。`
 
-      const res = await fetch(AGNES_API_URL, {
+      const res = await fetch('/api/agnes/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${AGNES_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'agnes-1.5-flash',
-          messages: [{ role: 'user', content: prompt }],
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
       })
 
       if (!res.ok) throw new Error(`请求失败: ${res.status}`)
 
       const data = await res.json()
-      const content =
-        data.choices?.[0]?.message?.content ||
-        data.reply ||
-        data.content ||
-        data.text ||
-        JSON.stringify(data)
+      const content = data.content || data.error || JSON.stringify(data)
       setResult(content)
     } catch (err) {
       setError(

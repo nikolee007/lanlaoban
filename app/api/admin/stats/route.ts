@@ -1,9 +1,12 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { requireAuth, unauthorized } from '@/lib/admin-auth'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!requireAuth(request.headers)) return unauthorized()
+
   try {
     const todayStart = new Date()
     todayStart.setHours(0, 0, 0, 0)

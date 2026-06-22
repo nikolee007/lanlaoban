@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const TTS_SERVER = process.env.TTS_SERVER_URL || 'http://192.168.1.55:8888'
-
 export async function POST(request: NextRequest) {
+  const TTS_SERVER = process.env.TTS_SERVER_URL
+  if (!TTS_SERVER) {
+    return NextResponse.json({ error: 'TTS_SERVER_URL not configured' }, { status: 503 })
+  }
+
   try {
     const body = await request.json()
     const { text, voice, speed } = body
@@ -30,6 +33,11 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
+  const TTS_SERVER = process.env.TTS_SERVER_URL
+  if (!TTS_SERVER) {
+    return NextResponse.json({ error: 'TTS_SERVER_URL not configured' }, { status: 503 })
+  }
+
   try {
     const res = await fetch(`${TTS_SERVER}/health`)
     if (!res.ok) return NextResponse.json({ success: false, error: 'TTS unavailable' })

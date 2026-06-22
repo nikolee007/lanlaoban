@@ -1,7 +1,10 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { requireAuth, unauthorized } from '@/lib/admin-auth'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!requireAuth(request.headers)) return unauthorized()
+
   try {
     const users = await db.user.findMany({
       orderBy: { createdAt: 'desc' },
@@ -13,7 +16,9 @@ export async function GET() {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
+  if (!requireAuth(request.headers)) return unauthorized()
+
   try {
     const { id } = await request.json()
     if (!id) return NextResponse.json({ success: false, error: '缺少用户ID' }, { status: 400 })

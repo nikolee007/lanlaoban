@@ -11,9 +11,6 @@ interface VideoGenerateModalProps {
   productName?: string
 }
 
-const AGNES_API_KEY = 'sk-wpsLt5JiISV9fjtN5h3bALz3oj0AtqbyAy0fcgpBhUN6UHCw'
-const AGNES_API_URL = 'https://apihub.agnes-ai.com/v1/chat/completions'
-
 const TARGET_MARKETS = [
   { value: 'southeast-asia', label: 'Southeast Asia' },
   { value: 'europe-america', label: 'Europe & America' },
@@ -81,28 +78,16 @@ export default function VideoGenerateModal({
         TARGET_MARKETS.find((m) => m.value === form.targetMarket)?.label || 'Global'
       const prompt = `为商品[${form.productName}]（品牌：${form.brandName || form.productName}，卖点：${form.sellingPoints}，目标市场：${marketLabel}）生成一个30秒TikTok带货视频脚本。格式：\n\n【开场钩子】(前3秒)\n【产品展示】(4-15秒)\n【使用场景】(16-25秒)\n【号召行动】(26-30秒)`
 
-      const res = await fetch(AGNES_API_URL, {
+      const res = await fetch('/api/agnes/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${AGNES_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'agnes-1.5-flash',
-          messages: [{ role: 'user', content: prompt }],
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
       })
 
       if (!res.ok) throw new Error(`请求失败: ${res.status}`)
 
       const data = await res.json()
-      const content =
-        data.choices?.[0]?.message?.content ||
-        data.reply ||
-        data.content ||
-        data.script ||
-        data.text ||
-        JSON.stringify(data)
+      const content = data.content || data.error || JSON.stringify(data)
       setGeneratedScript(content)
       setStep('result')
       setTimeout(() => startTypingEffect(content), 100)

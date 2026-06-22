@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useRef, useEffect, useMemo } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useLocale } from '../contexts/LocaleContext'
@@ -10,34 +10,18 @@ import DemoButton from './DemoButton'
 import LocaleSwitch from './LocaleSwitch'
 import NotificationBell from './NotificationBell'
 import {
-  FiCamera,
-  FiCalendar,
-  FiGlobe,
-  FiTrendingUp,
-  FiPackage,
-  FiSettings,
   FiChevronDown,
-  FiSearch,
+  FiSettings,
   FiLogOut,
   FiMenu,
   FiX,
-  FiShoppingCart,
-  FiInbox,
   FiSun,
   FiMoon,
-  FiZap,
+  FiShoppingCart,
+  FiInbox,
   FiFileText,
-  FiUser,
+  FiPackage,
 } from 'react-icons/fi'
-
-type DropdownItem = {
-  icon: React.ReactNode
-  title: string
-  desc: string
-  href?: string
-  disabled?: boolean
-  featured?: boolean
-}
 
 type UserProfile = {
   id: number
@@ -48,56 +32,21 @@ type UserProfile = {
   phone: string
 }
 
-type NavDropdown = {
-  label: string
-  items: DropdownItem[]
-}
-
-function getNavDropdowns(locale: Locale, user: UserProfile | null): NavDropdown[] {
-  const aiTools: DropdownItem[] = [
-    { icon: <FiCamera className="w-5 h-5 text-gray-500" />, title: t('content.generate', locale), desc: t('desc.generate', locale), href: '/ai-video' },
-    { icon: <FiUser className="w-5 h-5 text-purple-500" />, title: t('content.avatar', locale), desc: t('desc.avatar', locale), href: '/digital-human' },
-    { icon: <FiGlobe className="w-5 h-5 text-green-500" />, title: t('nav.crossBorder', locale), desc: t('desc.crossBorder', locale), href: '/cross-border' },
-  ]
-
-  const globalItems: DropdownItem[] = [
-    { icon: <FiGlobe className="w-5 h-5 text-gray-500" />, title: t('nav.findProducts', locale), desc: t('desc.supplyChain', locale), href: '/global-supply' },
-    { icon: <FiTrendingUp className="w-5 h-5 text-gray-500" />, title: t('nav.trending', locale), desc: t('desc.trending', locale), href: '/global-supply/hot' },
-    { icon: <FiPackage className="w-5 h-5 text-gray-500" />, title: t('nav.myResources', locale), desc: t('desc.resources', locale), href: '/global-supply/my-resources' },
-  ]
-
-  if (user) {
-    globalItems.push(
-      { icon: <FiShoppingCart className="w-5 h-5 text-gray-500" />, title: t('nav.cart', locale), desc: t('desc.cart', locale), href: '/global-supply/cart' },
-      { icon: <FiInbox className="w-5 h-5 text-gray-500" />, title: t('nav.inquiries', locale), desc: t('desc.inquiries', locale), href: '/global-supply/inquiries' },
-      { icon: <FiFileText className="w-5 h-5 text-gray-500" />, title: t('nav.orders', locale), desc: t('desc.orders', locale), href: '/global-supply/orders' },
-    )
-  }
-
-  return [
-    {
-      label: t('nav.aiContent', locale),
-      items: aiTools,
-    },
-    {
-      label: t('nav.global', locale),
-      items: globalItems,
-    },
-    {
-      label: t('nav.aiSite', locale),
-      items: [
-        { icon: <FiZap className="w-5 h-5 text-brand-400" />, title: t('nav.aiSite', locale), desc: t('desc.aiSite', locale), href: '/global-supply/ai-assistant', featured: true },
-      ],
-    },
-  ]
-}
+const NAV_ITEMS: Array<{ key: string; href: string; isAI: boolean }> = [
+  { key: 'nav.oneClickIP', href: '/persona', isAI: true },
+  { key: 'nav.oneClickBrand', href: '/ai-video', isAI: true },
+  { key: 'content.avatar', href: '/digital-human', isAI: false },
+  { key: 'nav.supply', href: '/global-supply', isAI: false },
+  { key: 'nav.aiSite', href: '/global-supply/ai-assistant', isAI: true },
+  { key: 'nav.crossBorder', href: '/cross-border', isAI: true },
+  { key: 'nav.pricing', href: '/pricing', isAI: false },
+]
 
 export default function NavHeader() {
   const pathname = usePathname()
   const router = useRouter()
   const { locale, setLocale } = useLocale()
   const { theme, toggleTheme } = useTheme()
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [user, setUser] = useState<UserProfile | null>(null)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -118,12 +67,9 @@ export default function NavHeader() {
     try { localStorage.setItem('lanlaoban_locale', locale) } catch {} // eslint-disable-line no-empty
   }, [locale])
 
-  const dropdowns = useMemo(() => getNavDropdowns(locale, user), [locale, user])
-
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (navRef.current && !navRef.current.contains(e.target as Node)) {
-        setOpenDropdown(null)
         setMobileMenuOpen(false)
       }
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
@@ -150,16 +96,14 @@ export default function NavHeader() {
     } catch {} // eslint-disable-line no-empty
   }, [])
 
-  const toggleDropdown = (label: string) => {
-    setOpenDropdown((prev) => (prev === label ? null : label))
-  }
+  const closeMobileMenu = () => setMobileMenuOpen(false)
 
-  const closeAll = () => {
-    setOpenDropdown(null)
-    setMobileMenuOpen(false)
+  const isActive = (href: string) => {
+    if (href === '/pricing') return pathname === '/pricing'
+    if (href === '/global-supply/ai-assistant') return pathname.startsWith('/global-supply/ai-assistant')
+    if (href === '/global-supply') return pathname === '/global-supply' || (pathname.startsWith('/global-supply/') && !pathname.startsWith('/global-supply/ai-assistant'))
+    return pathname.startsWith(href)
   }
-
-  const isGlobalSupplyActive = pathname.startsWith('/global-supply')
 
   const handleLogout = () => {
     try { localStorage.removeItem('lanlaoban_token') } catch {} // eslint-disable-line no-empty
@@ -170,16 +114,14 @@ export default function NavHeader() {
 
   const userInitial = user?.name?.charAt(0) || user?.email?.charAt(0) || '?'
 
-  const triggerClasses = (label: string) => {
-    const isActive = label === t('nav.global', locale) && isGlobalSupplyActive
-    return `flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-      isActive
+  const isAdminActive = pathname === '/admin'
+
+  const navLinkClasses = (href: string) =>
+    `flex items-center gap-1 px-2 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+      isActive(href)
         ? 'text-brand-400 bg-brand-50'
         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
     }`
-  }
-
-  const isAdminActive = pathname === '/admin'
 
   return (
     <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50" role="navigation" aria-label={mobileMenuOpen ? t('menu.label', locale) : t('menu.label', locale)}>
@@ -197,107 +139,25 @@ export default function NavHeader() {
           </div>
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Desktop Nav — flat direct links */}
         <div className="hidden sm:flex items-center gap-1" ref={navRef}>
-          {dropdowns.map((dd) => (
-            <div key={dd.label} className="relative">
-              <button
-                onClick={() => toggleDropdown(dd.label)}
-                className={triggerClasses(dd.label)}
-              >
-                {dd.label === t('nav.aiContent', locale) ? (
-                  <span className="bg-gradient-to-r from-brand-400 to-purple-500 bg-clip-text text-transparent font-bold">{dd.label}</span>
-                ) : dd.label}
-                {dd.label === t('nav.aiContent', locale) && (
-                  <span className="ml-1 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1.5 py-0.5 text-[9px] font-bold text-white leading-none shadow-sm animate-pulse-glow">AI</span>
-                )}
-                <FiChevronDown
-                  className={`h-3 w-3 transition-transform ${openDropdown === dd.label ? 'rotate-180' : ''}`}
-                />
-              </button>
-              {openDropdown === dd.label && (
-                <div className="absolute left-0 top-full z-50 mt-1 w-80 rounded-xl border border-gray-100 bg-white py-2 shadow-xl" role="menu">
-                  {/* Search box inside global resource dropdown */}
-                  {dd.label === t('nav.global', locale) && (
-                    <div className="border-b border-gray-100 px-4 pb-3 mb-1">
-                      <div className="relative">
-                        <FiSearch className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
-                        <input
-                          type="text"
-                          placeholder={t('search.supply', locale)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && (e.target as HTMLInputElement).value.trim()) {
-                              window.location.href = `/global-supply/search?q=${encodeURIComponent((e.target as HTMLInputElement).value.trim())}`
-                            }
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          className="w-full rounded-lg border border-gray-200 bg-gray-50 py-1.5 pl-7 pr-2 text-xs text-gray-700 placeholder-gray-400 transition-colors focus:border-brand-300 focus:bg-white focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  {dd.items.map((item) =>
-                    item.disabled ? (
-                      <div
-                        key={item.title}
-                        className="flex items-start gap-3 px-4 py-3 opacity-40 cursor-not-allowed select-none"
-                        role="menuitem"
-                      >
-                        <span className="mt-0.5 leading-none">{item.icon}</span>
-                        <div className="min-w-0">
-                          <div className="text-sm font-medium text-gray-400">{item.title}</div>
-                          <div className="text-xs text-gray-400 mt-0.5">{item.desc}</div>
-                        </div>
-                      </div>
-                    ) : (
-                      <Link
-                        key={item.title}
-                        href={item.href!}
-                        className={`flex items-start gap-3 px-4 py-3 transition-colors ${
-                          item.featured
-                            ? 'bg-gradient-to-r from-brand-50 to-white mx-2 rounded-lg border border-brand-100'
-                            : 'hover:bg-gray-50'
-                        }`}
-                        onClick={closeAll}
-                        role="menuitem"
-                      >
-                        <span className={`mt-0.5 leading-none ${item.featured ? 'text-brand-400' : ''}`}>{item.icon}</span>
-                        <div className="min-w-0">
-                          <div className={`text-sm font-medium ${
-                            item.featured
-                              ? 'text-brand-500'
-                              : item.href === '/global-supply' && isGlobalSupplyActive
-                                ? 'text-brand-400'
-                                : 'text-gray-900'
-                          }`}
-                          >
-                            {item.title}
-                          </div>
-                          <div className="text-xs text-gray-400 mt-0.5">{item.desc}</div>
-                        </div>
-                      </Link>
-                    )
-                  )}
-                </div>
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.key}
+              href={item.href}
+              className={navLinkClasses(item.href)}
+            >
+              {t(item.key, locale)}
+              {item.isAI && (
+                <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
               )}
-            </div>
+            </Link>
           ))}
-
-          <Link
-            href="/pricing"
-            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-              pathname === '/pricing'
-                ? 'text-brand-400 bg-brand-50'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-            }`}
-          >
-            {t('nav.pricing', locale)}
-          </Link>
 
           {user && (
             <Link
               href="/admin"
-              className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`flex items-center gap-1.5 px-2 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
                 isAdminActive
                   ? 'text-brand-400 bg-brand-50'
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
@@ -432,100 +292,23 @@ export default function NavHeader() {
         <div
           className="sm:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1 shadow-lg max-h-[80vh] overflow-y-auto"
         >
-          {dropdowns.map((dd) => (
-            <div key={dd.label}>
-              <button
-                onClick={() => toggleDropdown(dd.label)}
-                className={`w-full flex items-center justify-between px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
-                  dd.label === t('nav.global', locale) && isGlobalSupplyActive
-                    ? 'text-brand-400 bg-brand-50'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {dd.label}
-                <FiChevronDown
-                  className={`h-3 w-3 transition-transform ${openDropdown === dd.label ? 'rotate-180' : ''}`}
-                />
-              </button>
-              {openDropdown === dd.label && (
-                <div className="ml-2 mt-1 space-y-0.5 border-l-2 border-brand-100 pl-2" role="menu">
-                  {/* Search box inside mobile global resource dropdown */}
-                  {dd.label === t('nav.global', locale) && (
-                    <div className="px-3 pb-2 pt-1">
-                      <div className="relative">
-                        <FiSearch className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" />
-                        <input
-                          type="text"
-                          placeholder={t('search.supply', locale)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && (e.target as HTMLInputElement).value.trim()) {
-                              window.location.href = `/global-supply/search?q=${encodeURIComponent((e.target as HTMLInputElement).value.trim())}`
-                            }
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          className="w-full rounded-lg border border-gray-200 bg-gray-50 py-1.5 pl-7 pr-2 text-xs text-gray-700 placeholder-gray-400 transition-colors focus:border-brand-300 focus:bg-white focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  )}
-                  {dd.items.map((item) =>
-                    item.disabled ? (
-                      <div
-                        key={item.title}
-                        className="flex items-start gap-3 px-4 py-3 opacity-40 cursor-not-allowed select-none rounded-lg"
-                        role="menuitem"
-                      >
-                        <span className="leading-none">{item.icon}</span>
-                        <div className="min-w-0">
-                          <div className="text-sm font-medium text-gray-400">{item.title}</div>
-                          <div className="text-xs text-gray-400 mt-0.5">{item.desc}</div>
-                        </div>
-                      </div>
-                    ) : (
-                      <Link
-                        key={item.title}
-                        href={item.href!}
-                        className={`flex items-start gap-3 px-4 min-h-[44px] py-3 rounded-lg transition-colors ${
-                          item.featured
-                            ? 'bg-gradient-to-r from-brand-50 to-white border border-brand-100'
-                            : 'hover:bg-gray-50'
-                        }`}
-                        onClick={closeAll}
-                        role="menuitem"
-                      >
-                        <span className={`leading-none ${item.featured ? 'text-brand-400' : ''}`}>{item.icon}</span>
-                        <div className="min-w-0">
-                          <div className={`text-sm font-medium ${
-                            item.featured
-                              ? 'text-brand-500'
-                              : item.href === '/global-supply' && isGlobalSupplyActive
-                                ? 'text-brand-400'
-                                : 'text-gray-900'
-                          }`}
-                          >
-                            {item.title}
-                          </div>
-                          <div className="text-xs text-gray-400 mt-0.5">{item.desc}</div>
-                        </div>
-                      </Link>
-                    )
-                  )}
-                </div>
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.key}
+              href={item.href}
+              className={`flex items-center gap-1 px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
+                isActive(item.href)
+                  ? 'text-brand-400 bg-brand-50'
+                  : 'text-gray-700 hover:bg-gray-50'
+              }`}
+              onClick={closeMobileMenu}
+            >
+              {t(item.key, locale)}
+              {item.isAI && (
+                <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
               )}
-            </div>
+            </Link>
           ))}
-
-          <Link
-            href="/pricing"
-            className={`block px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
-              pathname === '/pricing'
-                ? 'text-brand-400 bg-brand-50'
-                : 'text-gray-700 hover:bg-gray-50'
-            }`}
-            onClick={closeAll}
-          >
-            {t('nav.pricing', locale)}
-          </Link>
 
           {user && (
             <Link
@@ -535,7 +318,7 @@ export default function NavHeader() {
                   ? 'text-brand-400 bg-brand-50'
                   : 'text-gray-500 hover:bg-gray-50'
               }`}
-              onClick={closeAll}
+              onClick={closeMobileMenu}
             >
               <FiSettings className="w-4 h-4" />
               {t('nav.adminPanel', locale)}
@@ -551,13 +334,13 @@ export default function NavHeader() {
               <Link
                 href="/settings"
                 className="block px-3 min-h-[44px] text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                onClick={closeAll}
+                onClick={closeMobileMenu}
               >
                 {t('account.settings', locale)}
               </Link>
               <div className="pt-2 px-3 pb-1">
                 <button
-                  onClick={() => { handleLogout(); closeAll(); }}
+                  onClick={() => { handleLogout(); closeMobileMenu(); }}
                   className="block w-full text-center px-4 min-h-[44px] text-sm font-semibold text-red-600 rounded-lg border border-red-200 hover:bg-red-50 transition-colors"
                 >
                   {t('account.logout', locale)}
@@ -569,7 +352,7 @@ export default function NavHeader() {
               <Link
                 href="/login"
                 className="block w-full text-center px-4 min-h-[44px] text-sm font-semibold text-white rounded-lg bg-brand-400 hover:bg-brand-500 transition-colors"
-                onClick={closeAll}
+                onClick={closeMobileMenu}
               >
                 {t('nav.login', locale)}
               </Link>

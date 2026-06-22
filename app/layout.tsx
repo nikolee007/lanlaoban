@@ -57,7 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           window.addEventListener('error', function(e) {
             var d = document.getElementById('__crash');
             if(!d) { d = document.createElement('div'); d.id='__crash'; d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(220,38,38,0.95);color:white;padding:16px 24px;font-size:14px;font-family:monospace;white-space:pre-wrap;line-height:1.5'; document.body.prepend(d); }
-            d.innerHTML = '\\u26a0\\ufe0f ' + (e.error ? e.error.stack || e.error.message : e.message || 'unknown');
+            d.textContent = '\\u26a0\\ufe0f ' + (e.error ? e.error.stack || e.error.message : e.message || 'unknown');
             e.preventDefault();
           });
           window.addEventListener('unhandledrejection', function(e) {

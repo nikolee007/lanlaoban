@@ -22,8 +22,10 @@ function getClient() {
 async function ensureSchema() {
   const client = getClient()
   if (!client || _readyFlag) return
-  if (!_ready) {
+  if (_ready === null) {
     _ready = (async () => {
+      // 双重检查：防止并发调用同时进入 if (_ready === null) 分支
+      if (_readyFlag) return
       try {
         const r = await client.execute("SELECT count(*) as cnt FROM sqlite_master WHERE type='table' AND name='User'")
         const row = r.rows?.[0] as any
@@ -57,7 +59,7 @@ export const tursoDb = {
     try {
       const r = await c.execute({ sql: 'SELECT * FROM "User" WHERE "email" = ?', args: [email] })
       return r.rows[0] || null
-    } catch { return null }
+    } catch (e) { console.error('[turso] findUserByEmail:', e); return null }
   },
 
   async createUser(email: string, password: string, name?: string): Promise<any | null> {
@@ -84,7 +86,7 @@ export const tursoDb = {
     try {
       const r = await c.execute({ sql: 'SELECT * FROM "IpProfile" WHERE "userId" = ?', args: [userId] })
       return r.rows[0] || null
-    } catch { return null }
+    } catch (e) { console.error('[turso] getProfile:', e); return null }
   },
 
   async saveProfile(userId: number, data: any) {
@@ -103,7 +105,7 @@ export const tursoDb = {
         const vals = [userId, ...fields.map(k => String(data[k])), now, now]
         await c.execute({ sql: `INSERT INTO "IpProfile" (${cols.map(c => `"${c}"`).join(',')}) VALUES (${cols.map(() => '?').join(',')})`, args: vals })
       }
-    } catch {}
+    } catch (e) { console.error('[turso] saveProfile:', e); }
   },
 
   async saveChat(userId: number, role: string, content: string, metadata?: string) {
@@ -116,7 +118,7 @@ export const tursoDb = {
         sql: 'INSERT INTO "IpChat" ("userId","role","content","metadata","createdAt") VALUES (?,?,?,?,?)',
         args: [userId, role, content, metadata || null, now],
       })
-    } catch {}
+    } catch (e) { console.error('[turso] saveChat:', e); }
   },
 
   async getChats(userId: number, limit = 50): Promise<any[]> {
@@ -126,6 +128,6 @@ export const tursoDb = {
     try {
       const r = await c.execute({ sql: 'SELECT * FROM "IpChat" WHERE "userId" = ? ORDER BY "createdAt" ASC LIMIT ?', args: [userId, limit] })
       return r.rows as any[]
-    } catch { return [] }
+    } catch (e) { console.error('[turso] getChats:', e); return [] }
   },
 }

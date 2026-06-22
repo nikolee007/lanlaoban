@@ -4,9 +4,12 @@ import { existsSync } from 'fs'
 import { join } from 'path'
 
 const CLONES_DIR = join(process.cwd(), 'data/voice-clones')
-const NAS_CLONE_API = process.env.NAS_CLONE_API || 'http://192.168.1.55:8890'
-
 export async function POST(request: NextRequest) {
+  const NAS_CLONE_API = process.env.NAS_CLONE_API
+  if (!NAS_CLONE_API) {
+    return NextResponse.json({ error: 'NAS_CLONE_API not configured' }, { status: 503 })
+  }
+
   try {
     const formData = await request.formData()
     const audioFile = formData.get('audio') as File | null
@@ -49,6 +52,7 @@ export async function POST(request: NextRequest) {
 // 获取已克隆的声音列表
 export async function GET() {
   const allClones: any[] = []
+  const NAS_CLONE_API = process.env.NAS_CLONE_API
   try {
     const { readdirSync, readFileSync } = await import('fs')
     if (existsSync(CLONES_DIR)) {

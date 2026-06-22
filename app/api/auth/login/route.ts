@@ -21,7 +21,12 @@ export async function POST(request: NextRequest) {
     let user: any = null
 
     if (TURSO_ENABLED) {
-      user = await tursoDb.findUserByEmail(email.trim())
+      try {
+        user = await tursoDb.findUserByEmail(email.trim())
+      } catch (e) {
+        console.error('[login] Turso error:', e)
+        return NextResponse.json({ error: '登录服务暂时不可用，请稍后再试' }, { status: 503 })
+      }
     } else {
       try {
         user = await db.user.findUnique({ where: { email: email.trim() } })

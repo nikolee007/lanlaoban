@@ -1,6 +1,10 @@
 import crypto from 'crypto'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'lanlaoban-jwt-secret-dev'
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET
+  if (!secret) throw new Error('JWT_SECRET environment variable is not set')
+  return secret
+}
 
 function base64url(input: string): string {
   return Buffer.from(input)
@@ -22,7 +26,7 @@ export function createSimpleToken(payload: Record<string, unknown>): string {
   const headerStr = base64url(JSON.stringify(header))
   const payloadStr = base64url(JSON.stringify(payload))
   const signature = crypto
-    .createHmac('sha256', JWT_SECRET)
+    .createHmac('sha256', getJwtSecret())
     .update(`${headerStr}.${payloadStr}`)
     .digest('base64')
     .replace(/=/g, '')
@@ -48,7 +52,7 @@ export function verifySimpleToken(token: string): JwtPayload | null {
     const [headerStr, payloadStr, signatureStr] = parts
 
     const expectedSignature = crypto
-      .createHmac('sha256', JWT_SECRET)
+      .createHmac('sha256', getJwtSecret())
       .update(`${headerStr}.${payloadStr}`)
       .digest('base64')
       .replace(/=/g, '')

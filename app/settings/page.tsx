@@ -232,7 +232,10 @@ export default function SettingsPage() {
                           (e.target as HTMLImageElement).style.display = 'none'
                           const parent = (e.target as HTMLImageElement).parentElement
                           if (parent) {
-                            parent.innerHTML = '<span class="text-2xl text-gray-400 font-bold">' + (name?.charAt(0) || '?') + '</span>'
+                            const span = document.createElement('span')
+                            span.className = 'text-2xl text-gray-400 font-bold'
+                            span.textContent = name?.charAt(0) || '?'
+                            parent.insertBefore(span, parent.firstChild)
                           }
                         }}
                       />

@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import NavHeader from '../components/NavHeader'
 import Breadcrumb from '../components/Breadcrumb'
 import { useToast } from '../contexts/ToastContext'
+import { renderPromotionVideo } from '@/lib/video-renderer'
 import {
   FiUpload, FiTrash2, FiCheck, FiPlay, FiDownload, FiGlobe,
   FiUser, FiVideo, FiCamera, FiZap, FiChevronLeft, FiChevronRight,
@@ -78,6 +79,27 @@ function langLabel(key: string): string {
   return LANGUAGES.find(l => l.key === key)?.label || key
 }
 
+function splitIntoSlogans(text: string): string[] {
+  // Split by sentence boundaries for various languages
+  // Chinese: split by 。！？；， then filter
+  // Other languages: split by .!?;\n then filter
+  if (/[一-鿿㐀-䶿]/.test(text)) {
+    // CJK text — split by sentence-ending punctuation
+    const raw = text.split(/[。！？；，\n]+/).map(s => s.trim()).filter(Boolean)
+    // If too few, split further by comma/space for shorter phrases
+    if (raw.length <= 2) {
+      return text.split(/[，,，\n]+/).map(s => s.trim()).filter(s => s.length > 2)
+    }
+    return raw
+  }
+  // Latin text — split by sentence boundaries
+  const raw = text.split(/[.!?;]\s+/).map(s => s.trim()).filter(Boolean)
+  if (raw.length <= 2) {
+    return text.split(/[,;\n]+/).map(s => s.trim()).filter(s => s.length > 2)
+  }
+  return raw
+}
+
 /* ─────────────────── Component ─────────────────── */
 
 export default function BrandPromotionPage() {
@@ -105,6 +127,7 @@ export default function BrandPromotionPage() {
   const [results, setResults] = useState<GenerationResult[]>([])
   const [activeLangIdx, setActiveLangIdx] = useState(0)
   const [error, setError] = useState('')
+  const [renderedVideo, setRenderedVideo] = useState<string | null>(null) // Blob URL
 
   // Refs
   const photoInputRef = useRef<HTMLInputElement>(null)
@@ -142,6 +165,7 @@ export default function BrandPromotionPage() {
   useEffect(() => {
     return () => {
       files.forEach(f => URL.revokeObjectURL(f.preview))
+      if (renderedVideo) URL.revokeObjectURL(renderedVideo)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -192,6 +216,10 @@ export default function BrandPromotionPage() {
     setError('')
     setProgressStep(0)
     setResults([])
+    if (renderedVideo) {
+      URL.revokeObjectURL(renderedVideo)
+      setRenderedVideo(null)
+    }
 
     try {
       // Step 1 — Upload files
@@ -243,13 +271,50 @@ export default function BrandPromotionPage() {
         }
       }
 
-      // Step 4 — Synthesize videos (mock for now: return audio as "video")
+      // Step 4 — Render video for primary language
       setProgressStep(3)
+
+      const mainLang = selectedLanguages[0]
+      const photoUrls = files.filter(f => f.type === 'photo').map(f => f.preview)
+      const logoFile = files.find(f => f.type === 'logo')
+
+      // Extract slogans from the generated script text
+      const mainScript = scriptData.scripts[mainLang] || ''
+      const sloganLines = splitIntoSlogans(mainScript)
+
+      let mainVideoUrl = ttsResults[mainLang] || ''
+
+      if (photoUrls.length > 0 && ttsResults[mainLang] && sloganLines.length > 0) {
+        try {
+          const videoBlob = await renderPromotionVideo({
+            photos: photoUrls,
+            audioUrl: ttsResults[mainLang],
+            productName: productName || 'Product',
+            slogans: sloganLines,
+            duration: duration,
+            logoUrl: logoFile?.preview,
+            language: mainLang,
+          })
+          // Revoke previous blob URL and create new one
+          if (renderedVideo) URL.revokeObjectURL(renderedVideo)
+          const blobUrl = URL.createObjectURL(videoBlob)
+          setRenderedVideo(blobUrl)
+          mainVideoUrl = blobUrl
+        } catch (renderErr: unknown) {
+          const msg = renderErr instanceof Error ? renderErr.message : '视频渲染失败'
+          console.error('[brand-promotion] Video render failed:', msg)
+          // Fall through — mainVideoUrl stays as audio URL
+        }
+      }
+
+      // Build results — primary language gets the rendered video, others get audio
       const genResults: GenerationResult[] = selectedLanguages.map(lang => ({
         language: lang,
         languageLabel: langLabel(lang),
-        videoUrl: ttsResults[lang] || '',
-        status: ttsResults[lang] ? 'done' : 'error',
+        videoUrl: lang === mainLang ? mainVideoUrl : ttsResults[lang] || '',
+        status: lang === mainLang
+          ? (mainVideoUrl ? 'done' : 'error')
+          : (ttsResults[lang] ? 'done' : 'error'),
       }))
       setResults(genResults)
 
@@ -768,18 +833,32 @@ export default function BrandPromotionPage() {
                   ))}
                 </div>
 
-                {/* Video Player */}
+                {/* Video / Audio Player */}
                 {activeResult && activeResult.status === 'done' && activeResult.videoUrl && (
-                  <div className="bg-black rounded-2xl overflow-hidden shadow-lg">
-                    <video
-                      src={activeResult.videoUrl}
-                      controls
-                      className="w-full aspect-video"
-                      poster="/placeholder-video.jpg"
-                    >
-                      您的浏览器不支持视频播放
-                    </video>
-                  </div>
+                  activeResult.videoUrl.startsWith('blob:') ? (
+                    <div className="bg-black rounded-2xl overflow-hidden shadow-lg">
+                      <video
+                        src={activeResult.videoUrl}
+                        controls
+                        autoPlay
+                        className="w-full max-w-md mx-auto aspect-[9/16]"
+                      >
+                        您的浏览器不支持视频播放
+                      </video>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center">
+                      <FiPlay size={28} className="mx-auto mb-3 text-[#FF6034]" />
+                      <p className="text-sm text-gray-600 mb-3">{activeResult.languageLabel} 配音</p>
+                      <audio
+                        src={activeResult.videoUrl}
+                        controls
+                        className="w-full max-w-md mx-auto"
+                      >
+                        您的浏览器不支持音频播放
+                      </audio>
+                    </div>
+                  )
                 )}
 
                 {activeResult && activeResult.status === 'error' && (
@@ -793,13 +872,14 @@ export default function BrandPromotionPage() {
                 {/* Action Buttons */}
                 <div className="flex flex-wrap justify-center gap-3">
                   <button
-                    disabled={!activeResult || activeResult.status !== 'done'}
+                    disabled={!activeResult || activeResult.status !== 'done' || !activeResult.videoUrl}
                     className="flex items-center gap-2 px-6 py-3 bg-[#FF6034] text-white rounded-xl font-semibold hover:bg-[#E8552E] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     onClick={() => {
                       if (activeResult?.videoUrl) {
+                        const isVideo = activeResult.videoUrl.startsWith('blob:')
                         const a = document.createElement('a')
                         a.href = activeResult.videoUrl
-                        a.download = `brand-promotion-${activeResult.language}.mp4`
+                        a.download = `brand-promotion-${activeResult.language}.${isVideo ? 'webm' : 'mp3'}`
                         a.click()
                       }
                     }}

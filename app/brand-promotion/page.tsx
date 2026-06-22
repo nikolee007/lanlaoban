@@ -340,16 +340,16 @@ export default function BrandPromotionPage() {
         <Breadcrumb
           items={[
             { label: '首页', href: '/' },
-            { label: '一键做企宣', href: '/brand-promotion' },
+            { label: '产品可视化', href: '/brand-promotion' },
           ]}
         />
 
         {/* Page Title */}
         <div className="mt-4 mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-900">
-            <span className="text-[#FF6034]">一键做企宣</span> · AI智能生成多语言宣传视频
+            <span className="text-[#FF6034]">产品可视化</span> · AI智能生成产品宣传视频
           </h1>
-          <p className="mt-2 text-gray-500">上传产品素材，选择风格与语言，AI全自动生成专业宣传片</p>
+          <p className="mt-2 text-gray-500">上传产品照片，选择风格与语言，AI全自动生成专业产品展示视频</p>
         </div>
 
         {/* ─── Step Indicators ─── */}

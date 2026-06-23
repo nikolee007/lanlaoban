@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
     const hashed = await bcrypt.hash(newPassword, 10)
     await db.user.update({ where: { id: user.id }, data: { password: hashed } })
     return NextResponse.json({ success: true, message: '密码已重置' })
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '重置失败'
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }

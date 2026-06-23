@@ -30,9 +30,9 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const allowedFields = ['name', 'industry', 'product', 'experience', 'startYear', 'targetAudience', 'targetCustomer', 'originStory', 'keyEvents', 'achievements', 'hardest', 'personality', 'advantage', 'pains', 'goal', 'commitment', 'catchphrase', 'videoScripts', 'contentIdeas']
 
-    const data: Record<string, unknown> = {}
+    const data: Record<string, string> = {}
     for (const field of allowedFields) {
-      if (body[field] !== undefined && body[field] !== '') data[field] = body[field]
+      if (body[field] !== undefined && body[field] !== '') data[field] = String(body[field])
     }
 
     if (Object.keys(data).length === 0) {

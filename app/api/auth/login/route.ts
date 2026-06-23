@@ -4,6 +4,13 @@ import { createSimpleToken } from '@/lib/auth'
 import { tursoDb } from '@/lib/turso'
 import { db } from '@/lib/db'
 
+interface UserRecord {
+  id: number
+  email: string
+  password: string
+  name: string | null
+}
+
 const TURSO_ENABLED = !!process.env.TURSO_DATABASE_URL
 
 export async function POST(request: NextRequest) {
@@ -18,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '请输入有效的邮箱地址' }, { status: 400 })
     }
 
-    let user: any = null
+    let user: UserRecord | null = null
 
     if (TURSO_ENABLED) {
       try {

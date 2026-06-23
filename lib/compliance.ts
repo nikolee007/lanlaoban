@@ -17,7 +17,7 @@ export function checkForbidden(text: string, industry: string): Violation[] {
 
   const rules: Record<string, string[]> = {}
   ;['通用', industryKey].forEach(key => {
-    const cat = (forbidden as any)[key]
+    const cat = (forbidden as Record<string, Record<string, string[]>>)[key]
     if (!cat) return
     Object.entries(cat).forEach(([type, words]) => {
       if (!rules[type]) rules[type] = []
@@ -45,7 +45,7 @@ export function cleanForbidden(text: string, industry: string): string {
   let cleaned = text
   const rules: Record<string, string[]> = {}
   ;['通用', industryKey].forEach(key => {
-    const cat = (forbidden as any)[key]
+    const cat = (forbidden as Record<string, Record<string, string[]>>)[key]
     if (!cat) return
     Object.entries(cat).forEach(([type, words]) => {
       if (!rules[type]) rules[type] = []

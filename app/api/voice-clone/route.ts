@@ -3,6 +3,13 @@ import { writeFile, mkdir } from 'fs/promises'
 import { existsSync } from 'fs'
 import { join } from 'path'
 
+interface VoiceClone {
+  voiceId: string
+  name: string
+  size?: number
+  createdAt?: string
+}
+
 const CLONES_DIR = join(process.cwd(), 'data/voice-clones')
 export async function POST(request: NextRequest) {
   const NAS_CLONE_API = process.env.NAS_CLONE_API
@@ -44,14 +51,15 @@ export async function POST(request: NextRequest) {
       success: true,
       data: { voiceId: nasVoiceId, name, message: '声音克隆完成！' },
     })
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message || '处理失败' }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '处理失败'
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }
 
 // 获取已克隆的声音列表
 export async function GET() {
-  const allClones: any[] = []
+  const allClones: VoiceClone[] = []
   const NAS_CLONE_API = process.env.NAS_CLONE_API
   try {
     const { readdirSync, readFileSync } = await import('fs')

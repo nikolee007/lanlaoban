@@ -50,10 +50,11 @@ export async function POST(request: NextRequest) {
         message: '视频生成任务已提交',
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('数字人生成失败:', error)
+    const message = error instanceof Error ? error.message : '生成失败'
     return NextResponse.json(
-      { success: false, error: error.message || '生成失败' },
+      { success: false, error: message },
       { status: 500 },
     )
   }

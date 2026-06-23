@@ -3,6 +3,24 @@ import { getClient } from '@/lib/openai'
 import { getPainPointsForIndustry, getOralPhrases } from '@/lib/knowledge'
 import { checkForbidden } from '@/lib/compliance'
 
+interface ScriptSegment {
+  time: string
+  content: string
+  shotType: string
+  notes: string
+}
+
+interface GeneratedLongScript {
+  id: string
+  module: string
+  title: string
+  content: string
+  duration?: string
+  segments?: ScriptSegment[]
+  violations?: string[]
+  safe?: boolean
+}
+
 const COACH_LONG_PROMPTS: Record<string, string> = {
   libazi: `你是"李八字与号神体系"的长视频脚本生成器。
 
@@ -159,11 +177,11 @@ ${painSection}${oralSection}
       return NextResponse.json({ error: '格式异常' }, { status: 500 })
     }
 
-    const checkedScripts = data.scripts.map((s: any) => {
+    const checkedScripts = data.scripts.map((s: GeneratedLongScript) => {
       const violations = checkForbidden(s.content || s.title || '', industry || '通用')
       return { ...s, violations, safe: violations.length === 0 }
     })
-    const violationCount = checkedScripts.filter((s: any) => !s.safe).length
+    const violationCount = checkedScripts.filter((s: GeneratedLongScript) => !s.safe).length
 
     return NextResponse.json({ scripts: checkedScripts, coach, type: 'long', meta: { violationCount } })
   } catch (error: unknown) {

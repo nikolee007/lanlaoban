@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getEngineClient } from '@/lib/openai'
+import type { OpenAIChatBody } from '@/lib/openai'
 
 const STYLE_PROFILES: Record<string, string> = {
   professional: '正式专业的商务风格，用词严谨、数据说话、体现行业权威感。适合B2B企业宣传片。',
@@ -105,16 +106,17 @@ ${styleDesc}
 请根据以上信息，生成多语言宣传视频旁白脚本。`
 
     const client = getEngineClient('zhipu')
-    const response = await client.chat.completions.create({
+    const requestBody: OpenAIChatBody = {
       model: 'glm-5.2',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
-      ] as any,
+      ],
       temperature: 0.8,
       max_tokens: 8192,
       thinking: { type: 'enabled' },
-    } as any)
+    }
+    const response = await client.chat.completions.create(requestBody)
 
     const content = response.choices[0]?.message?.content
     if (!content) {

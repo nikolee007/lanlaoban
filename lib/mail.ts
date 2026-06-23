@@ -1,5 +1,12 @@
 import nodemailer from 'nodemailer'
 
+interface MailOptions {
+  to: string
+  subject: string
+  html?: string
+  [key: string]: unknown
+}
+
 interface DeliveryOptions {
   to: string
   subject: string
@@ -25,7 +32,7 @@ function getTransporter(): nodemailer.Transporter {
   if (!user || !pass) {
     console.warn('[mail] SMTP 未配置，邮件将打印到控制台')
     _transporter = {
-      sendMail: async (opts: any) => {
+      sendMail: async (opts: MailOptions) => {
         console.log('[mail] 📧 模拟发送:', opts.to, opts.subject)
         return { messageId: 'mock-' + Date.now(), envelope: { to: [opts.to] } }
       },

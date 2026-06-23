@@ -1,6 +1,28 @@
 import { NextResponse } from 'next/server'
 import { generateImage, generateVideo } from '@/lib/agnes-api'
 
+interface CrossBorderProduct {
+  name?: string
+  description?: string
+  category?: string
+}
+
+interface CrossBorderRequestBody {
+  action: string
+  platform?: string
+  country?: string
+  product?: CrossBorderProduct
+  imageTypes?: string[]
+  style?: string
+  script?: string
+}
+
+interface AgnesRequestBody {
+  model?: string
+  messages: Array<{ role: string; content: string }>
+  temperature?: number
+}
+
 const AGNES_API_BASE = process.env.AGNES_API_BASE || 'https://apihub.agnes-ai.com/v1'
 const AGNES_KEY = process.env.AGNES_API_KEY || ''
 
@@ -15,7 +37,7 @@ const PLATFORM_STYLES: Record<string, string> = {
   aliexpress: 'clean, global cross-border e-commerce style',
 }
 
-async function agnesFetch(endpoint: string, body: any) {
+async function agnesFetch(endpoint: string, body: AgnesRequestBody) {
   const res = await fetch(`${AGNES_API_BASE}${endpoint}`, {
     method: 'POST',
     headers: {
@@ -129,9 +151,10 @@ High quality, photorealistic, 4K, well-lit, professional product photography. Wh
     }
 
     return NextResponse.json({ success: false, error: '未知操作' }, { status: 400 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('跨境AI工具报错:', error)
-    return NextResponse.json({ success: false, error: error.message || '处理失败' }, { status: 500 })
+    const message = error instanceof Error ? error.message : '处理失败'
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }
 

@@ -3,6 +3,16 @@ import { getClient } from '@/lib/openai'
 import { getPainPointsForIndustry, getOralPhrases, getTitleFormulas } from '@/lib/knowledge'
 import { checkForbidden } from '@/lib/compliance'
 
+interface GeneratedScript {
+  id: string
+  module: string
+  title: string
+  content: string
+  emotion?: string
+  violations?: string[]
+  safe?: boolean
+}
+
 const COACH_PROMPTS: Record<string, string> = {
   libazi: `你是"纪实派·真诚人设"体系的实体老板IP短视频脚本生成器。
 
@@ -117,11 +127,11 @@ ID：a1-a6, b1-b6, c1-c6, d1-d6, e1-e6`
     }
 
     // 违禁词检测
-    const checkedScripts = data.scripts.map((s: any) => {
+    const checkedScripts = data.scripts.map((s: GeneratedScript) => {
       const violations = checkForbidden(s.content || s.title || '', industry || '通用')
       return { ...s, violations, safe: violations.length === 0 }
     })
-    const violationCount = checkedScripts.filter((s: any) => !s.safe).length
+    const violationCount = checkedScripts.filter((s: GeneratedScript) => !s.safe).length
 
     return NextResponse.json({ scripts: checkedScripts, coach, meta: { painCount: painPoints.length, oralCount: oralPhrases.length, violationCount } })
   } catch (error: unknown) {

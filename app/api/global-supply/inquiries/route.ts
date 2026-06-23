@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 import { getAuthUserId } from '@/lib/auth'
 
@@ -53,7 +54,7 @@ export async function GET(request: NextRequest) {
     )
     const status = searchParams.get('status') // 按状态筛选
 
-    const where: Record<string, unknown> = { userId }
+    const where: Prisma.ContactInquiryWhereInput = { userId }
     if (status && ['pending', 'replied', 'closed'].includes(status)) {
       where.status = status
     }
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest) {
 
     const [items, total] = await Promise.all([
       db.contactInquiry.findMany({
-        where: where as any,
+        where,
         include: {
           product: {
             select: {
@@ -114,7 +115,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: pageSize,
       }),
-      db.contactInquiry.count({ where: where as any }),
+      db.contactInquiry.count({ where }),
     ])
 
     const data = items.map((item) => ({

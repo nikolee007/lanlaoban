@@ -4,6 +4,13 @@ import { createSimpleToken } from '@/lib/auth'
 import { tursoDb } from '@/lib/turso'
 import { db } from '@/lib/db'
 
+interface UserRecord {
+  id: number
+  email: string
+  password: string
+  name: string | null
+}
+
 const TURSO_ENABLED = !!process.env.TURSO_DATABASE_URL
 
 export async function POST(req: Request) {
@@ -13,8 +20,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: '邮箱和密码必填' }, { status: 400 })
     }
 
-    let existing: any = null
-    let user: any = null
+    let existing: UserRecord | null = null
+    let user: UserRecord | null = null
     const hashed = await bcrypt.hash(password, 10)
 
     if (TURSO_ENABLED) {
@@ -56,7 +63,7 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json({ token })
-  } catch (err) {
+  } catch (err: unknown) {
     console.error(err)
     return NextResponse.json({ error: '注册失败' }, { status: 500 })
   }

@@ -9,6 +9,15 @@ import {
   type VideoGenMode,
 } from '@/lib/video-gen'
 
+interface ScriptEntry {
+  title: string
+  content: string
+  emotion?: string
+  shotType?: string
+  shotDesc?: string
+  duration?: number
+}
+
 // POST /api/ip-profile/video-gen — 生成视频素材包（ABC三模式）
 export async function POST(request: NextRequest) {
   try {
@@ -30,16 +39,16 @@ export async function POST(request: NextRequest) {
 
     // 1. 用 AI 生成脚本内容（如果是空）
     let segments: VideoSegment[] = []
-    let existingScripts: any[] = []
+    let existingScripts: ScriptEntry[] = []
     if (profile.videoScripts) {
       try { existingScripts = JSON.parse(profile.videoScripts) } catch {}
     }
 
     if (existingScripts.length >= 3) {
-      segments = existingScripts.map((s: any, i: number) => ({
+      segments = existingScripts.map((s: ScriptEntry, i: number) => ({
         index: i,
         title: s.title || `第${i + 1}条`,
-        content: s.content || s.line || '',
+        content: s.content || '',
         emotion: s.emotion || '😯 被吸引',
         shotType: s.shotType || getDefaultShotType(i),
         shotDesc: s.shotDesc || '胸口以上近景口播，眼神看镜头',
@@ -67,7 +76,7 @@ export async function POST(request: NextRequest) {
         ]
       }
 
-      segments = existingScripts.map((s: any, i: number) => ({
+      segments = existingScripts.map((s: ScriptEntry, i: number) => ({
         index: i,
         title: s.title || `第${i + 1}条`,
         content: s.content || '',

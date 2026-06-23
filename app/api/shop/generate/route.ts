@@ -3,6 +3,37 @@ import { db } from '@/lib/db'
 import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 
+interface ProductWithSupplier {
+  id: number
+  name: string
+  priceMin: number | null
+  priceMax: number | null
+  description: string | null
+  rating: number | null
+  supplier: { nameZh: string; location: string } | null
+}
+
+interface ShopProduct {
+  id: number
+  name: string
+  price: string
+  image: string
+  description: string
+  supplier: string
+  rating: number
+}
+
+interface ShopData {
+  id: string
+  brand: string
+  industry: string
+  slogan: string
+  story: string
+  sellPoints: string
+  products: ShopProduct[]
+  createdAt: string
+}
+
 export const dynamic = 'force-dynamic'
 
 // 精确品类ID映射（叶节点ID，非父节点——因为商品关联的是叶节点）
@@ -48,7 +79,7 @@ export async function POST(req: Request) {
     // 根据行业选品类ID
     const categoryIds = CAT_MAP[industry] || [417, 410] // 默认用食品+日用
 
-    let products: any[] = []
+    let products: ProductWithSupplier[] = []
 
     // 1) 从匹配品类取评分最高的6个商品
     try {
@@ -76,8 +107,8 @@ export async function POST(req: Request) {
 
     // 3) 终极兜底
     if (products.length === 0) {
-      const all = await db.product.findMany({ take: 6, orderBy: { rating: 'desc' }, include: { supplier: { select: { nameZh: true } } } })
-      products = all
+      const all = await db.product.findMany({ take: 6, orderBy: { rating: 'desc' }, include: { supplier: { select: { nameZh: true, location: true } } } })
+      products = all as unknown as ProductWithSupplier[]
     }
 
     // 构建商品列表：使用正确的图片路径
@@ -114,7 +145,7 @@ export async function POST(req: Request) {
       const dir = join(process.cwd(), 'data')
       if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
       const storePath = join(dir, 'shops.json')
-      let shops: Record<string, any> = {}
+      let shops: Record<string, ShopData> = {}
       try { shops = JSON.parse(readFileSync(storePath, 'utf-8')) } catch {}
       shops[shopId] = shopData
       writeFileSync(storePath, JSON.stringify(shops, null, 2))

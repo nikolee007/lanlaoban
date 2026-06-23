@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
       type: s.type, yearEstablished: s.yearEstablished,
     }))
     return NextResponse.json({ success: true, data })
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '获取供应商列表失败'
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }

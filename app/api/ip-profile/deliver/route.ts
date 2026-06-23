@@ -4,6 +4,12 @@ import { getAuthUserId } from '@/lib/auth'
 import { generateContent } from '@/lib/openai'
 import { sendDeliveryEmail, buildScriptDeliveryHtml, buildScriptItemHtml } from '@/lib/mail'
 
+interface DeliverScriptEntry {
+  title: string
+  content: string
+  emotion?: string
+}
+
 // POST /api/ip-profile/deliver — 打包最近生成的30条脚本，发送到老板邮箱
 export async function POST(request: NextRequest) {
   try {
@@ -26,7 +32,7 @@ export async function POST(request: NextRequest) {
     })
 
     // 如果没有现有脚本，先生成一批
-    let scripts: any[] = []
+    let scripts: DeliverScriptEntry[] = []
     if (profile?.videoScripts) {
       try { scripts = JSON.parse(profile.videoScripts) } catch {}
     }

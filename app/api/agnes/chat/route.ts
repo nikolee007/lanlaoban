@@ -49,9 +49,10 @@ export async function POST(request: NextRequest) {
       JSON.stringify(data)
 
     return NextResponse.json({ success: true, content })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Agnes chat failed'
     return NextResponse.json(
-      { error: error.message || 'Agnes chat failed' },
+      { error: message },
       { status: 500 },
     )
   }

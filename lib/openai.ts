@@ -1,5 +1,18 @@
 import OpenAI from 'openai'
 
+interface OpenAIChatMessage {
+  role: 'system' | 'user' | 'assistant'
+  content: string
+}
+
+export interface OpenAIChatBody {
+  model: string
+  messages: OpenAIChatMessage[]
+  temperature: number
+  thinking?: { type: string }
+  max_tokens?: number
+}
+
 let _deepseekClient: OpenAI | null = null
 let _zhipuClient: OpenAI | null = null
 
@@ -56,7 +69,7 @@ export async function generateContent(
   const client = getEngineClient(engine)
   const model = engine === 'zhipu' ? 'glm-5.2' : 'deepseek-chat'
 
-  const body: any = {
+  const body: OpenAIChatBody = {
     model,
     messages: [
       {
@@ -76,6 +89,8 @@ export async function generateContent(
     body.max_tokens = 65536
   }
 
-  const response = await client.chat.completions.create(body)
+  const response = await client.chat.completions.create(
+    body as unknown as OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming
+  )
   return response.choices[0]?.message?.content || ''
 }

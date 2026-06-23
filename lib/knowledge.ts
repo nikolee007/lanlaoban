@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-const CACHE: Record<string, any> = {}
+const CACHE: Record<string, unknown> = {}
 
 function load<T>(name: string): T | null {
   if (CACHE[name]) return CACHE[name] as T
@@ -51,8 +51,14 @@ export function getTitleFormulas(industry: string, count = 3): { type: string; p
   return result
 }
 
-export function getRelevantScenes(coach: string, industry: string): { character: any[]; business: any[] } {
-  const data = load<any>('pain-points')
+interface SceneItem {
+  name: string
+  note: string
+  shotType: string
+}
+
+export function getRelevantScenes(coach: string, industry: string): { character: SceneItem[]; business: SceneItem[] } {
+  const data = load<Record<string, unknown>>('pain-points')
   const cat = matchIndustry(industry)
   return {
     character: [{ name: `${industry}现场口播`, note: '近景固定机位', shotType: '近景' }],

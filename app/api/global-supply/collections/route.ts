@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 import { getAuthUserId } from '@/lib/auth'
 
@@ -19,19 +20,19 @@ export async function GET(request: NextRequest) {
     const targetType = searchParams.get('type') || undefined
     const sort = searchParams.get('sort') || 'createdAt_desc'
 
-    const where: Record<string, unknown> = { userId }
+    const where: Prisma.UserCollectionWhereInput = { userId }
     if (targetType) {
       where.targetType = targetType
     }
 
-    const orderBy: Record<string, string> =
+    const orderBy: Prisma.UserCollectionOrderByWithRelationInput =
       sort === 'createdAt_asc'
         ? { createdAt: 'asc' }
         : { createdAt: 'desc' }
 
     const collections = await db.userCollection.findMany({
-      where: where as any,
-      orderBy: orderBy as any,
+      where,
+      orderBy,
     })
 
     // 关联商品/供应商信息

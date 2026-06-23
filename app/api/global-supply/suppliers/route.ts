@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
@@ -16,7 +17,7 @@ export async function GET(request: NextRequest) {
     const minRating = searchParams.get('minRating')
     const certification = searchParams.get('certification')
 
-    const where: Record<string, unknown> = {}
+    const where: Prisma.SupplierWhereInput = {}
     if (search) {
       where.OR = [
         { nameZh: { contains: search } },
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     const [items, total] = await Promise.all([
       db.supplier.findMany({
-        where: where as any,
+        where,
         orderBy: { rating: 'desc' },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
           _count: { select: { products: true } },
         },
       }),
-      db.supplier.count({ where: where as any }),
+      db.supplier.count({ where }),
     ])
 
     const data = items.map(({ _count, ...supplier }) => ({

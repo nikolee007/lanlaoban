@@ -12,9 +12,10 @@ export async function GET(request: NextRequest) {
   try {
     const status = await queryVideoTask(taskId)
     return NextResponse.json({ success: true, data: status })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '查询失败'
     return NextResponse.json(
-      { success: false, error: error.message || '查询失败' },
+      { success: false, error: message },
       { status: 500 },
     )
   }

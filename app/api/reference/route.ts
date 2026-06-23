@@ -2,10 +2,32 @@ import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
 
-const CACHE: Record<string, any> = {}
+interface PainPointsData {
+  [category: string]: string[]
+}
 
-function loadJSON(name: string): any {
-  if (CACHE[name]) return CACHE[name]
+interface OralPhrasesEntry {
+  style: string
+  phrases: string[]
+}
+
+interface OralPhrasesData {
+  [coach: string]: OralPhrasesEntry
+}
+
+interface TitleFormulaCategory {
+  pattern: string
+  industries: Record<string, string[]>
+}
+
+interface TitleFormulasData {
+  categories: Record<string, TitleFormulaCategory>
+}
+
+const CACHE: Record<string, unknown> = {}
+
+function loadJSON(name: string): unknown {
+  if (CACHE[name] !== undefined) return CACHE[name]
   try {
     const filePath = path.join(process.cwd(), 'lib', `${name}.json`)
     const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'))
@@ -32,22 +54,22 @@ export async function GET(request: NextRequest) {
 
   switch (type) {
     case 'pain-points': {
-      const data = loadJSON('pain-points')
+      const data = loadJSON('pain-points') as PainPointsData | null
       const points = data?.[cat] || data?.retail
       return NextResponse.json({ industry: cat, painPoints: points })
     }
 
     case 'oral-phrases': {
-      const data = loadJSON('oral-phrases')
+      const data = loadJSON('oral-phrases') as OralPhrasesData | null
       const phrases = data?.[coach]?.phrases?.slice(0, 10) || []
       return NextResponse.json({ coach, style: data?.[coach]?.style || '', phrases })
     }
 
     case 'title-formulas': {
-      const data = loadJSON('title-formulas')
+      const data = loadJSON('title-formulas') as TitleFormulasData | null
       const categories = data?.categories || {}
-      const result: Record<string, any> = {}
-      Object.entries(categories).forEach(([key, val]: [string, any]) => {
+      const result: Record<string, { pattern: string; examples: string[] }> = {}
+      Object.entries(categories).forEach(([key, val]: [string, TitleFormulaCategory]) => {
         result[key] = { pattern: val.pattern, examples: val.industries?.[cat]?.slice(0, 3) || val.industries?.retail?.slice(0, 3) || [] }
       })
       return NextResponse.json({ industry: cat, formulas: result })
@@ -71,7 +93,7 @@ export async function GET(request: NextRequest) {
     default:
       return NextResponse.json({
         availableTypes: ['pain-points', 'oral-phrases', 'title-formulas', 'all'],
-        industries: Object.keys(loadJSON('pain-points') || {}),
+        industries: Object.keys((loadJSON('pain-points') as PainPointsData) || {}),
       })
   }
 }

@@ -6,6 +6,36 @@
 
 import { createClient } from '@libsql/client'
 
+interface TursoUser {
+  id: number
+  email: string
+  password: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+interface TursoProfile {
+  id: number
+  userId: number
+  [key: string]: unknown
+  createdAt: string
+  updatedAt: string
+}
+
+interface TursoChat {
+  id: number
+  userId: number
+  role: string
+  content: string
+  metadata: string | null
+  createdAt: string
+}
+
+interface SqliteMasterRow {
+  cnt: number
+}
+
 let _client: ReturnType<typeof createClient> | null = null
 let _ready: Promise<void> | null = null
 let _readyFlag = false
@@ -28,8 +58,8 @@ async function ensureSchema() {
       if (_readyFlag) return
       try {
         const r = await client.execute("SELECT count(*) as cnt FROM sqlite_master WHERE type='table' AND name='User'")
-        const row = r.rows?.[0] as any
-        if (row?.cnt === 0) {
+        const row = r.rows?.[0] as unknown as SqliteMasterRow | undefined
+        if (row && Number(row.cnt) === 0) {
           const fs = await import('fs')
           const path = await import('path')
           const sqlPath = path.join(process.cwd(), 'prisma', 'setup.sql')
@@ -52,17 +82,17 @@ async function ensureSchema() {
 export const tursoDb = {
   ready: ensureSchema,
 
-  async findUserByEmail(email: string): Promise<any | null> {
+  async findUserByEmail(email: string): Promise<TursoUser | null> {
     const c = getClient()
     if (!c) return null
     await ensureSchema()
     try {
       const r = await c.execute({ sql: 'SELECT * FROM "User" WHERE "email" = ?', args: [email] })
-      return r.rows[0] || null
+      return (r.rows[0] as unknown as TursoUser) || null
     } catch (e) { console.error('[turso] findUserByEmail:', e); return null }
   },
 
-  async createUser(email: string, password: string, name?: string): Promise<any | null> {
+  async createUser(email: string, password: string, name?: string): Promise<TursoUser | null> {
     const c = getClient()
     if (!c) return null
     await ensureSchema()
@@ -75,21 +105,21 @@ export const tursoDb = {
       })
       // 回查获取完整数据（包含自动生成的 id）
       const r2 = await c.execute({ sql: 'SELECT * FROM "User" WHERE "email" = ?', args: [email] })
-      return r2.rows[0] || { id: 0, email, password, name: displayName }
+      return (r2.rows[0] as unknown as TursoUser) || { id: 0, email, password, name: displayName, createdAt: now, updatedAt: now }
     } catch (e) { console.error('[turso] createUser error:', e); return null }
   },
 
-  async getProfile(userId: number): Promise<any | null> {
+  async getProfile(userId: number): Promise<TursoProfile | null> {
     const c = getClient()
     if (!c) return null
     await ensureSchema()
     try {
       const r = await c.execute({ sql: 'SELECT * FROM "IpProfile" WHERE "userId" = ?', args: [userId] })
-      return r.rows[0] || null
+      return (r.rows[0] as unknown as TursoProfile) || null
     } catch (e) { console.error('[turso] getProfile:', e); return null }
   },
 
-  async saveProfile(userId: number, data: any) {
+  async saveProfile(userId: number, data: Record<string, unknown>) {
     const c = getClient()
     if (!c) return
     await ensureSchema()
@@ -121,13 +151,13 @@ export const tursoDb = {
     } catch (e) { console.error('[turso] saveChat:', e); }
   },
 
-  async getChats(userId: number, limit = 50): Promise<any[]> {
+  async getChats(userId: number, limit = 50): Promise<TursoChat[]> {
     const c = getClient()
     if (!c) return []
     await ensureSchema()
     try {
       const r = await c.execute({ sql: 'SELECT * FROM "IpChat" WHERE "userId" = ? ORDER BY "createdAt" ASC LIMIT ?', args: [userId, limit] })
-      return r.rows as any[]
+      return r.rows as unknown as TursoChat[]
     } catch (e) { console.error('[turso] getChats:', e); return [] }
   },
 }

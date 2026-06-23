@@ -11,8 +11,9 @@ export async function GET(request: NextRequest) {
       select: { id: true, email: true, name: true, company: true, phone: true, createdAt: true },
     })
     return NextResponse.json({ success: true, data: users })
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '操作失败'
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }
 
@@ -24,7 +25,8 @@ export async function DELETE(request: NextRequest) {
     if (!id) return NextResponse.json({ success: false, error: '缺少用户ID' }, { status: 400 })
     await db.user.delete({ where: { id } })
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : '操作失败'
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }

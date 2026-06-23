@@ -18,7 +18,17 @@ export interface AgnesTaskStatus {
   error?: string
 }
 
-async function agnesFetch(endpoint: string, body: any) {
+interface AgnesRequestBody {
+  model?: string
+  prompt?: string
+  n?: number
+  size?: string
+  duration?: number
+  image_url?: string
+  [key: string]: unknown
+}
+
+async function agnesFetch(endpoint: string, body: AgnesRequestBody) {
   const res = await fetch(`${AGNES_BASE}${endpoint}`, {
     method: 'POST',
     headers: {
@@ -45,7 +55,7 @@ export async function generateImage(prompt: string, size = '1024x1024'): Promise
 }
 
 export async function generateVideo(prompt: string, imageUrl?: string, duration = 10): Promise<AgnesVideoResult> {
-  const body: any = {
+  const body: AgnesRequestBody = {
     model: 'agnes-video-v2.0',
     prompt,
     duration,

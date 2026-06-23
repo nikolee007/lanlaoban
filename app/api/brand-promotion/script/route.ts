@@ -142,12 +142,6 @@ ${styleDesc}
   } catch (error: unknown) {
     console.error('[brand-promotion] script:', error)
     const message = error instanceof Error ? error.message : '文案生成失败'
-    if (message.includes('API') || message.includes('OPENAI') || message.includes('key')) {
-      return NextResponse.json(
-        { error: 'AI 服务配置异常，请检查 OPENAI_API_KEY 是否有效' },
-        { status: 500 }
-      )
-    }
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

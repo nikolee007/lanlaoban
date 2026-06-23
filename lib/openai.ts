@@ -31,8 +31,9 @@ export function getClient(): OpenAI {
 /** 智谱 GLM-5.2 客户端 */
 export function getZhipuClient(): OpenAI {
   if (!_zhipuClient) {
+    const apiKey = process.env.ZHIPU_API_KEY || '713341f1eeae4b67ad99e320566968a7.86r3Xq5jU6I44NJh'
     _zhipuClient = new OpenAI({
-      apiKey: getApiKey('ZHIPU_API_KEY'),
+      apiKey,
       baseURL: 'https://open.bigmodel.cn/api/paas/v4',
     })
   }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
+import sharp from 'sharp'
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,15 +20,19 @@ export async function POST(request: NextRequest) {
 
     const savedFiles: { type: string; path: string; name: string }[] = []
 
-    // Save photos
+    // Save & optimize photos with Sharp
     for (let i = 0; i < photos.length; i++) {
       const file = photos[i]
       if (!file || typeof file === 'string') continue
       const buffer = Buffer.from(await file.arrayBuffer())
-      const ext = file.name.split('.').pop() || 'jpg'
-      const filename = `photo_${i + 1}.${ext}`
+      // Optimize: resize to max 1920px, convert to WebP, compress
+      const optimized = await sharp(buffer)
+        .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer()
+      const filename = `photo_${i + 1}.webp`
       const filePath = path.join(uploadDir, filename)
-      await writeFile(filePath, buffer)
+      await writeFile(filePath, optimized)
       savedFiles.push({
         type: 'photo',
         path: `/uploads/brand-promotion/${timestamp}/${filename}`,
@@ -35,7 +40,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Save videos
+    // Save videos (no optimization needed)
     for (let i = 0; i < videos.length; i++) {
       const file = videos[i]
       if (!file || typeof file === 'string') continue
@@ -51,13 +56,16 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Save logo
+    // Save & optimize logo with Sharp
     if (logo && typeof logo !== 'string' && logo.size > 0) {
       const buffer = Buffer.from(await logo.arrayBuffer())
-      const ext = logo.name.split('.').pop() || 'png'
-      const filename = `logo.${ext}`
+      const optimized = await sharp(buffer)
+        .resize(400, 400, { fit: 'inside', withoutEnlargement: true })
+        .webp({ quality: 90 })
+        .toBuffer()
+      const filename = `logo.webp`
       const filePath = path.join(uploadDir, filename)
-      await writeFile(filePath, buffer)
+      await writeFile(filePath, optimized)
       savedFiles.push({
         type: 'logo',
         path: `/uploads/brand-promotion/${timestamp}/${filename}`,

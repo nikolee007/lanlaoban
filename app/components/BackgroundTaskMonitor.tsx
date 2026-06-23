@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { useToast } from '@/app/contexts/ToastContext'
 
-interface RenderTask {
+export interface RenderTask {
   taskId: string
   scene: string
   script: string

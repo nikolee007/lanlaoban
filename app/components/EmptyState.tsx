@@ -1,4 +1,3 @@
-'use client'
 import Link from 'next/link'
 import { FiInbox } from 'react-icons/fi'
 import type { IconType } from 'react-icons'

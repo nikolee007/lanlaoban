@@ -1,24 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const VOICE_MAP: Record<string, string> = {
-  zh: 'zh-CN-XiaoxiaoNeural',
-  'zh-tw': 'zh-TW-HsiaoChenNeural',
-  en: 'en-US-AriaNeural',
-  ja: 'ja-JP-NanamiNeural',
-  ko: 'ko-KR-SunHiNeural',
-  fr: 'fr-FR-DeniseNeural',
-  de: 'de-DE-KatjaNeural',
-  es: 'es-ES-AlvaroNeural',
-  pt: 'pt-BR-FranciscaNeural',
-  ru: 'ru-RU-SvetlanaNeural',
-  it: 'it-IT-ElsaNeural',
-  ar: 'ar-SA-ZariyahNeural',
-  th: 'th-TH-PremwadeeNeural',
-  vi: 'vi-VN-HoaiMyNeural',
-  id: 'id-ID-GadisNeural',
-}
-
 export const runtime = 'nodejs'
+
+const MOSS_TTS_URL = process.env.MOSS_TTS_URL || 'http://124.222.200.151/moss-tts'
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,25 +13,50 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'text is required' }, { status: 400 })
     }
 
-    const voice = VOICE_MAP[language] || VOICE_MAP['en']
+    // Step 1: Try MOSS-TTS-Nano (high quality, 48kHz stereo, voice cloning capable)
+    try {
+      const mossRes = await fetch(`${MOSS_TTS_URL}/v1/tts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.slice(0, 3000), language }),
+        signal: AbortSignal.timeout(30000),
+      })
 
-    // Use msedge-tts (free, no API key needed, works on Vercel)
+      if (mossRes.ok) {
+        const audioBuffer = Buffer.from(await mossRes.arrayBuffer())
+        return NextResponse.json({
+          success: true,
+          audioData: audioBuffer.toString('base64'),
+          contentType: 'audio/wav',
+          source: 'moss-tts',
+        })
+      }
+      console.warn('[tts] MOSS-TTS returned', mossRes.status, '- falling back')
+    } catch (mossErr) {
+      console.warn('[tts] MOSS-TTS unavailable:', mossErr instanceof Error ? mossErr.message : mossErr)
+    }
+
+    // Step 2: Fallback to msedge-tts
+    const EDGE_VOICE_MAP: Record<string, string> = {
+      zh: 'zh-CN-XiaoxiaoNeural', 'zh-tw': 'zh-TW-HsiaoChenNeural',
+      en: 'en-US-AriaNeural', ja: 'ja-JP-NanamiNeural', ko: 'ko-KR-SunHiNeural',
+      fr: 'fr-FR-DeniseNeural', de: 'de-DE-KatjaNeural', es: 'es-ES-AlvaroNeural',
+      pt: 'pt-BR-FranciscaNeural', ru: 'ru-RU-SvetlanaNeural', it: 'it-IT-ElsaNeural',
+      ar: 'ar-SA-ZariyahNeural', th: 'th-TH-PremwadeeNeural',
+      vi: 'vi-VN-HoaiMyNeural', id: 'id-ID-GadisNeural',
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { MsEdgeTTS } = require('msedge-tts')
     const tts = new MsEdgeTTS()
-    tts.setMetadata(voice, 1.0, { pitch: 0, volume: 0 })
-
-    // Get the audio stream
+    tts.setMetadata(EDGE_VOICE_MAP[language] || EDGE_VOICE_MAP['en'], 1.0, { pitch: 0, volume: 0 })
     const { audioStream } = await tts.rawToStream(text.slice(0, 3000))
-
-    // Collect audio chunks
     const chunks: Buffer[] = []
     for await (const chunk of audioStream) {
       chunks.push(Buffer.from(chunk))
     }
     const audioBuffer = Buffer.concat(chunks)
 
-    // Return audio as base64 in JSON
     return NextResponse.json({
       success: true,
       audioData: audioBuffer.toString('base64'),
@@ -55,8 +64,7 @@ export async function POST(request: NextRequest) {
       source: 'edge-tts',
     })
   } catch (error: unknown) {
-    console.error('[brand-promotion] tts:', error)
-    const message = error instanceof Error ? error.message : 'TTS 生成失败'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('[tts] both engines failed:', error)
+    return NextResponse.json({ error: 'TTS 生成失败，请稍后重试' }, { status: 500 })
   }
 }

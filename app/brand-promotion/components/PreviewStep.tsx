@@ -56,6 +56,7 @@ export default function PreviewStep({
   isGenerating, progressStep, results, activeLangIdx, error, isDownloading,
   onGenerate, onSetActiveLangIdx, onDownload, onRetry,
   onModifyConfig, onBackToStep2,
+  onAsyncSubmit, taskId, taskStatus, taskProgress,
 }: PreviewStepProps) {
   const activeResult = results[activeLangIdx]
 

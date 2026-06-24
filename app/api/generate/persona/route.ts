@@ -68,7 +68,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const data = JSON.parse(content)
+    // Strip markdown code blocks if present
+    let jsonStr = content
+    const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/)
+    if (jsonMatch) {
+      jsonStr = jsonMatch[1].trim()
+    }
+    const data = JSON.parse(jsonStr)
     return NextResponse.json(data)
   } catch (error: unknown) {
     const errorMessage =

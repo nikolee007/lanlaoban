@@ -15,6 +15,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@copilotkit/react-core": "^1.61.1",
+    "@copilotkit/react-ui": "^1.61.1",
+    "@copilotkit/runtime": "^1.61.1",
     "@libsql/client": "^0.14.0",
     "@prisma/client": "^5.22.0",
     "@remotion/bundler": "^4.0.481",

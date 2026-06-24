@@ -1,0 +1,22 @@
+[Unit]
+Description=懒老板 Task Worker — 异步任务处理服务
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/app/task-worker
+EnvironmentFile=-/app/task-worker/.env
+ExecStart=/usr/bin/node /app/task-worker/server.js
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=task-worker
+
+# 安全加固
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -44,6 +44,12 @@ export default function BrandPromotionPage() {
   const [digitalHumanVideoUrl, setDigitalHumanVideoUrl] = useState<string | null>(null) // Agnes API result
   const [isDownloading, setIsDownloading] = useState(false)
 
+  // 异步任务模式
+  const [asyncMode, setAsyncMode] = useState(true)
+  const [taskId, setTaskId] = useState<string | null>(null)
+  const [taskStatus, setTaskStatus] = useState<string>('')
+  const [taskProgress, setTaskProgress] = useState(0)
+
   // Refs
   const photoInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
@@ -116,7 +122,85 @@ export default function BrandPromotionPage() {
     )
   }
 
-  /* ─── Generate ─── */
+  /* ─── Async Task Submission ─── */
+
+  const TASK_WORKER_URL = 'https://124.222.200.151/task'
+
+  const handleAsyncSubmit = async () => {
+    if (!productName && files.length === 0) {
+      toast?.showToast('请上传产品照片或填写产品名称', 'error')
+      return
+    }
+    setIsGenerating(true)
+    setError('')
+    setTaskId(null)
+    setTaskStatus('提交中...')
+
+    try {
+      // 先上传文件
+      const formData = new FormData()
+      files.forEach(f => {
+        const key = f.type === 'photo' ? 'photos' : f.type === 'video' ? 'videos' : 'logo'
+        formData.append(key, f.file)
+      })
+      formData.append('productName', productName)
+      formData.append('sellingPoints', sellingPoints)
+      const uploadRes = await fetch('/api/brand-promotion/upload', { method: 'POST', body: formData })
+      if (!uploadRes.ok) throw new Error('上传失败')
+      const uploadData = await uploadRes.json()
+
+      // 提交任务
+      const taskRes = await fetch(`${TASK_WORKER_URL}/api/task`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'brand_promotion',
+          input: {
+            productName,
+            sellingPoints,
+            style,
+            languages: selectedLanguages,
+            duration,
+            filePaths: uploadData.files,
+          },
+        }),
+      })
+      if (!taskRes.ok) throw new Error('任务提交失败')
+      const taskData = await taskRes.json()
+      const tid = taskData.taskId
+      setTaskId(tid)
+      setTaskStatus('任务已提交，正在后台处理...')
+
+      // 轮询任务状态
+      const poll = setInterval(async () => {
+        try {
+          const statusRes = await fetch(`${TASK_WORKER_URL}/api/task/${tid}`)
+          if (!statusRes.ok) return
+          const statusData = await statusRes.json()
+          const d = statusData.data
+          if (d) {
+            setTaskProgress(d.progress || 0)
+            setTaskStatus(d.step || '处理中...')
+            if (d.status === 'done') {
+              setTaskStatus('✅ 已完成')
+              clearInterval(poll)
+              setIsGenerating(false)
+            } else if (d.status === 'error') {
+              setTaskStatus('❌ 生成失败: ' + (d.step || ''))
+              clearInterval(poll)
+              setIsGenerating(false)
+            }
+          }
+        } catch { /* poll again */ }
+      }, 5000)
+    } catch (err: any) {
+      setError(err.message || '提交失败')
+      setTaskStatus('')
+      setIsGenerating(false)
+    }
+  }
+
+  /* ─── Generate (同步) ─── */
 
   const handleGenerate = async () => {
     if (isGenerating) return
@@ -457,6 +541,11 @@ export default function BrandPromotionPage() {
             onRetry={handleGenerate}
             onModifyConfig={() => setStep(2)}
             onBackToStep2={() => setStep(2)}
+            asyncMode={asyncMode}
+            taskId={taskId}
+            taskStatus={taskStatus}
+            taskProgress={taskProgress}
+            onAsyncSubmit={handleAsyncSubmit}
           />
         )}
       </div>

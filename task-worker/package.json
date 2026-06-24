@@ -1,0 +1,16 @@
+{
+  "name": "task-worker",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "懒老板异步任务处理服务 — 文案生成 → 翻译 → TTS → 视频合成 → 数字人",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "express": "^4.21.2",
+    "uuid": "^10.0.0"
+  }
+}

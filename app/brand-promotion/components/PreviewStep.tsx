@@ -39,6 +39,13 @@ interface PreviewStepProps {
   onRetry: () => Promise<void>
   onModifyConfig: () => void
   onBackToStep2: () => void
+  // 异步任务模式
+  asyncMode?: boolean
+  taskId?: string | null
+  taskStatus?: string
+  taskProgress?: number
+  onAsyncToggle?: () => void
+  onAsyncSubmit?: () => Promise<void>
 }
 
 /* ─────────────────── Component ─────────────────── */
@@ -77,18 +84,51 @@ export default function PreviewStep({
         </div>
       </div>
 
-      {/* Generate Button */}
+      {/* Generate / Async Submit */}
       {!isGenerating && results.length === 0 && !error && (
-        <div className="text-center py-8">
+        <div className="text-center py-8 space-y-4">
+          {/* 同步生成按钮 */}
           <button
             onClick={onGenerate}
-            disabled={isGenerating}
-            className="inline-flex items-center gap-3 px-12 py-4 bg-[#FF6034] text-white rounded-2xl font-bold text-lg hover:bg-[#E8552E] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#FF6034]/25 transition-all hover:shadow-xl hover:shadow-[#FF6034]/30 active:scale-[0.98]"
+            className="inline-flex items-center gap-3 px-12 py-4 bg-[#FF6034] text-white rounded-2xl font-bold text-lg hover:bg-[#E8552E] shadow-lg shadow-[#FF6034]/25 transition-all hover:shadow-xl hover:shadow-[#FF6034]/30 active:scale-[0.98]"
           >
             <FiZap size={22} />
-            开始生成
+            开始生成（等待完成）
           </button>
-          <p className="mt-3 text-sm text-gray-400">AI将自动完成文案、翻译、配音、合成全流程</p>
+          <p className="text-sm text-gray-400">AI将自动完成文案、翻译、配音、合成全流程</p>
+
+          {onAsyncSubmit && (
+            <>
+              <div className="flex items-center gap-3 justify-center text-sm text-gray-400">
+                <span className="h-px w-16 bg-gray-200" />
+                <span>或</span>
+                <span className="h-px w-16 bg-gray-200" />
+              </div>
+              <button
+                onClick={onAsyncSubmit}
+                className="inline-flex items-center gap-2 px-8 py-3 bg-white text-gray-700 rounded-xl font-semibold border-2 border-gray-200 hover:border-[#FF6034]/40 hover:text-[#FF6034] transition-all"
+              >
+                异步提交（提交后关页面走人）
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* 异步任务状态 */}
+      {isGenerating && taskId && (
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center space-y-4">
+          <div className="w-16 h-16 mx-auto rounded-full bg-brand-50 flex items-center justify-center">
+            <FiLoader size={28} className="text-[#FF6034] animate-spin" />
+          </div>
+          <p className="font-semibold text-gray-800">{taskStatus}</p>
+          {taskProgress > 0 && (
+            <div className="w-full max-w-xs mx-auto bg-gray-100 rounded-full h-2 overflow-hidden">
+              <div className="h-full bg-[#FF6034] rounded-full transition-all duration-500" style={{ width: `${taskProgress}%` }} />
+            </div>
+          )}
+          <p className="text-xs text-gray-400 font-mono">任务ID: {taskId}</p>
+          <p className="text-xs text-gray-400">您可以关掉页面，稍后回来查看进度</p>
         </div>
       )}
 

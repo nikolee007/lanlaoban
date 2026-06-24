@@ -28,14 +28,14 @@ interface AgnesRequestBody {
   [key: string]: unknown
 }
 
-async function agnesFetch(endpoint: string, body: AgnesRequestBody) {
+async function agnesFetch(endpoint: string, body?: AgnesRequestBody, method = 'POST') {
   const res = await fetch(`${AGNES_BASE}${endpoint}`, {
-    method: 'POST',
+    method,
     headers: {
       Authorization: `Bearer ${AGNES_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
+    ...(body ? { body: JSON.stringify(body) } : {}),
   })
   if (!res.ok) {
     const errText = await res.text()
@@ -72,7 +72,7 @@ export async function generateVideo(prompt: string, imageUrl?: string, duration 
 }
 
 export async function queryVideoTask(taskId: string): Promise<AgnesTaskStatus> {
-  const data = await agnesFetch(`/video/generations/${taskId}`, {})
+  const data = await agnesFetch(`/video/generations/${taskId}`, undefined, 'GET')
   return {
     status: data.status || 'unknown',
     progress: data.progress || 0,

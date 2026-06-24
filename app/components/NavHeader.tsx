@@ -32,15 +32,28 @@ type UserProfile = {
   phone: string
 }
 
-/** 导航分组 — 聚焦核心功能 */
+/** 导航分组 — 核心功能已开放，其他即将上线 */
+type NavItem = { key: string; href: string; isAI: boolean; comingSoon?: boolean; eta?: string }
+
 const NAV_GROUPS: Array<{
   color: 'orange' | 'emerald' | 'blue' | 'gray'
-  items: Array<{ key: string; href: string; isAI: boolean }>
+  label: string
+  items: NavItem[]
 }> = [
-  // 🎬 核心功能 — IP创作 + 产品可视化
-  { color: 'orange', items: [
+  { color: 'orange', label: 'AI创作', items: [
     { key: 'nav.oneClickIP', href: '/persona', isAI: true },
     { key: 'nav.oneClickBrand', href: '/brand-promotion', isAI: true },
+    { key: 'content.avatar', href: '/digital-human', isAI: false, comingSoon: true, eta: '2026.07' },
+  ]},
+  { color: 'emerald', label: '供应链', items: [
+    { key: 'nav.supply', href: '/global-supply', isAI: false, comingSoon: true, eta: '2026.07' },
+  ]},
+  { color: 'blue', label: 'AI工具', items: [
+    { key: 'nav.aiSite', href: '/global-supply/ai-assistant', isAI: true, comingSoon: true, eta: '2026.08' },
+    { key: 'nav.crossBorder', href: '/cross-border', isAI: true, comingSoon: true, eta: '2026.08' },
+  ]},
+  { color: 'gray', label: '更多', items: [
+    { key: 'nav.pricing', href: '/pricing', isAI: false, comingSoon: true, eta: '2026.08' },
   ]},
 ]
 
@@ -144,27 +157,29 @@ export default function NavHeader() {
           </div>
         </Link>
 
-        {/* Desktop Nav — 紧凑分组导航 */}
+        {/* Desktop Nav — 已开放 + 即将上线 */}
         <div className="hidden sm:flex items-center" ref={navRef}>
           {NAV_GROUPS.map((group, gi) => (
             <React.Fragment key={gi}>
-              {/* 分组间用小圆点分隔 */}
               {gi > 0 && (
                 <span className="mx-1 text-gray-300 select-none text-[10px]">·</span>
               )}
-              {/* 每个分组内的导航项 */}
               {group.items.map((item) => (
                 <Link
                   key={item.key}
-                  href={item.href}
+                  href={item.comingSoon ? '/coming-soon' : item.href}
                   className={`flex items-center gap-1 px-1.5 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
-                    isActive(item.href) ? groupActiveClasses[group.color].active : `text-gray-600 ${groupActiveClasses[group.color].hover}`
+                    item.comingSoon
+                      ? 'text-gray-400 hover:text-gray-500 cursor-pointer'
+                      : isActive(item.href) ? groupActiveClasses[group.color].active : `text-gray-600 ${groupActiveClasses[group.color].hover}`
                   }`}
                 >
                   {t(item.key, locale)}
-                  {item.isAI && (
+                  {item.comingSoon ? (
+                    <span className="ml-0.5 inline-flex items-center rounded bg-gray-200 text-gray-500 px-[3px] py-[1px] text-[7px] font-medium leading-none whitespace-nowrap">{item.eta || '即将上线'}</span>
+                  ) : item.isAI ? (
                     <span className="inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-[3px] py-[1px] text-[8px] font-bold text-white leading-none">AI</span>
-                  )}
+                  ) : null}
                 </Link>
               ))}
             </React.Fragment>
@@ -310,26 +325,30 @@ export default function NavHeader() {
         >
           {NAV_GROUPS.map((group, gi) => (
             <React.Fragment key={gi}>
-              {/* 移动端分组标签 */}
               {gi > 0 && <hr className="my-2 border-gray-100" />}
+              <div className="px-3 pb-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{group.label}</div>
               {group.items.map((item) => (
                 <Link
                   key={item.key}
-                  href={item.href}
+                  href={item.comingSoon ? '/coming-soon' : item.href}
                   className={`flex items-center gap-1 px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
-                    isActive(item.href)
-                      ? group.color === 'orange' ? 'text-brand-400 bg-brand-50'
-                        : group.color === 'emerald' ? 'text-emerald-600 bg-emerald-50'
-                        : group.color === 'blue' ? 'text-blue-600 bg-blue-50'
-                        : 'text-gray-700 bg-gray-100'
-                      : 'text-gray-700 hover:bg-gray-50'
+                    item.comingSoon
+                      ? 'text-gray-400'
+                      : isActive(item.href)
+                        ? group.color === 'orange' ? 'text-brand-400 bg-brand-50'
+                          : group.color === 'emerald' ? 'text-emerald-600 bg-emerald-50'
+                          : group.color === 'blue' ? 'text-blue-600 bg-blue-50'
+                          : 'text-gray-700 bg-gray-100'
+                        : 'text-gray-700 hover:bg-gray-50'
                   }`}
                   onClick={closeMobileMenu}
                 >
                   {t(item.key, locale)}
-                  {item.isAI && (
+                  {item.comingSoon ? (
+                    <span className="ml-1 inline-flex items-center rounded bg-gray-200 text-gray-400 px-1.5 py-0.5 text-[8px] font-medium">{item.eta || '即将上线'}</span>
+                  ) : item.isAI ? (
                     <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
-                  )}
+                  ) : null}
                 </Link>
               ))}
             </React.Fragment>

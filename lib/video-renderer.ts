@@ -13,6 +13,11 @@ export interface RenderPromotionVideoOptions {
   language?: string        // Language code for font selection
 }
 
+export interface RenderResult {
+  videoBlob: Blob
+  audioBlob?: Blob
+}
+
 /* ─────────────────── Constants ─────────────────── */
 
 const WIDTH = 1080
@@ -325,7 +330,7 @@ function drawDigitalHuman(
 export async function renderPromotionVideo(
   options: RenderPromotionVideoOptions,
   onProgress?: (frame: number, totalFrames: number) => void,
-): Promise<Blob> {
+): Promise<RenderResult> {
   const {
     photos,
     audioUrl,
@@ -398,9 +403,13 @@ export async function renderPromotionVideo(
     })
   }
 
-  // Pick best codec
+  // Pick best codec — prefer MP4, fallback to WebM
   let mimeType = 'video/webm'
-  if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+  if (MediaRecorder.isTypeSupported('video/mp4')) {
+    mimeType = 'video/mp4'
+  } else if (MediaRecorder.isTypeSupported('video/mp4;codecs=avc1.42E01E')) {
+    mimeType = 'video/mp4;codecs=avc1.42E01E'
+  } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
     mimeType = 'video/webm;codecs=vp9'
   } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
     mimeType = 'video/webm;codecs=vp8'
@@ -550,7 +559,17 @@ export async function renderPromotionVideo(
     requestAnimationFrame(renderFrame)
   })
 
-  // ── Return blob ──
-  const blob = new Blob(chunks, { type: mimeType })
-  return blob
+  // ── Return blobs ──
+  const videoBlob = new Blob(chunks, { type: mimeType })
+
+  // Also fetch audio as a separate MP3 blob for dual-format download
+  let audioBlob: Blob | undefined
+  try {
+    const audioResponse = await fetch(audioUrl)
+    audioBlob = await audioResponse.blob()
+  } catch {
+    // Audio fetch failed — video still has audio track embedded
+  }
+
+  return { videoBlob, audioBlob }
 }

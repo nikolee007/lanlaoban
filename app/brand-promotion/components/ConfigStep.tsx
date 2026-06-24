@@ -34,7 +34,7 @@ export const LANGUAGES: { key: string; flagCode: string; label: string }[] = [
 export const DIGITAL_HUMAN_MODES: { key: DigitalHumanMode; label: string; desc: string; image: string }[] = [
   { key: 'none', label: '无数字人', desc: '纯产品展示 + AI配音，适合快速出片', image: '/images/brand-promotion/dh-none.jpg' },
   { key: 'pip', label: '画中画口播', desc: '数字人站姿讲解，产品以画中画形式展示', image: '/images/brand-promotion/dh-pip.jpg' },
-  { key: 'handhold', label: '手持产品讲解', desc: '数字人手持产品展示讲解（需额外服务）', image: '/images/brand-promotion/dh-handhold.jpg' },
+  { key: 'handhold', label: '手持产品讲解', desc: '数字人画中画讲解（当前为画中画模式）', image: '/images/brand-promotion/dh-handhold.jpg' },
 ]
 
 export const DURATIONS = [60, 90, 120]

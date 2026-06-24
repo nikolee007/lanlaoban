@@ -5,6 +5,7 @@ import NavHeader from '../components/NavHeader'
 import Breadcrumb from '../components/Breadcrumb'
 import { useToast } from '../contexts/ToastContext'
 import { renderPromotionVideo } from '@/lib/video-renderer'
+import type { RenderResult } from '@/lib/video-renderer'
 import { FiCheck } from 'react-icons/fi'
 import type { UploadedFile, GenerationResult, Style, DigitalHumanMode, DigitalHumanGender } from './components/types'
 import UploadStep from './components/UploadStep'
@@ -40,6 +41,7 @@ export default function BrandPromotionPage() {
   const [activeLangIdx, setActiveLangIdx] = useState(0)
   const [error, setError] = useState('')
   const [renderedVideo, setRenderedVideo] = useState<string | null>(null) // Blob URL
+  const [digitalHumanVideoUrl, setDigitalHumanVideoUrl] = useState<string | null>(null) // Agnes API result
   const [isDownloading, setIsDownloading] = useState(false)
 
   // Refs
@@ -79,6 +81,7 @@ export default function BrandPromotionPage() {
     return () => {
       files.forEach(f => URL.revokeObjectURL(f.preview))
       if (renderedVideo) URL.revokeObjectURL(renderedVideo)
+      if (digitalHumanVideoUrl) URL.revokeObjectURL(digitalHumanVideoUrl)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -125,9 +128,10 @@ export default function BrandPromotionPage() {
       URL.revokeObjectURL(renderedVideo)
       setRenderedVideo(null)
     }
+    setDigitalHumanVideoUrl(null)
 
     try {
-      // Step 1 — Upload files
+      // Step 1 — Upload files (serial dependency)
       setProgressStep(0)
       const formData = new FormData()
       files.forEach(f => {
@@ -141,7 +145,7 @@ export default function BrandPromotionPage() {
       if (!uploadRes.ok) throw new Error('上传失败')
       const uploadData = await uploadRes.json()
 
-      // Step 2 — Generate scripts
+      // Step 2 — Generate scripts (serial dependency)
       setProgressStep(1)
       const scriptRes = await fetch('/api/brand-promotion/script', {
         method: 'POST',
@@ -157,10 +161,13 @@ export default function BrandPromotionPage() {
       if (!scriptRes.ok) throw new Error('文案生成失败')
       const scriptData = await scriptRes.json()
 
-      // Step 3 — TTS for each language
+      // Step 3 — TTS (all languages in parallel) + Digital human (parallel)
+      // Both can start simultaneously since they only depend on script data
       setProgressStep(2)
+
+      // ── TTS: all languages simultaneously ──
       const ttsResults: Record<string, string> = {} // audio blob URLs
-      for (const lang of selectedLanguages) {
+      const ttsPromises = selectedLanguages.map(async (lang) => {
         const ttsRes = await fetch('/api/brand-promotion/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -172,32 +179,82 @@ export default function BrandPromotionPage() {
         })
         if (ttsRes.ok) {
           const ttsData = await ttsRes.json()
-          // Convert base64 to blob URL if audioData present, or use url if present
           if (ttsData.audioData) {
             const byteChars = atob(ttsData.audioData)
             const byteNums = new Uint8Array(byteChars.length)
             for (let i = 0; i < byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i)
             const audioBlob = new Blob([byteNums], { type: 'audio/mp3' })
-            ttsResults[lang] = URL.createObjectURL(audioBlob)
+            return { lang, url: URL.createObjectURL(audioBlob) }
           } else if (ttsData.audioUrl) {
-            ttsResults[lang] = ttsData.audioUrl
+            return { lang, url: ttsData.audioUrl }
           }
         }
+        return { lang, url: null as string | null }
+      })
+
+      // ── Digital human: call Agnes API (parallel with TTS) ──
+      const needsDigitalHuman = digitalHumanMode !== 'none'
+      const dhPromise = needsDigitalHuman
+        ? (async (): Promise<string | null> => {
+            try {
+              const mainScript = scriptData.scripts[selectedLanguages[0]] || ''
+              const dhFormData = new FormData()
+              dhFormData.append('scene', 'product')
+              dhFormData.append('script', mainScript)
+
+              const dhRes = await fetch('/api/digital-human', { method: 'POST', body: dhFormData })
+              if (!dhRes.ok) return null
+              const dhData = await dhRes.json()
+              if (!dhData.success || !dhData.data?.taskId) return null
+
+              const taskId: string = dhData.data.taskId
+
+              // Poll for completion (max 5 minutes, 5s interval)
+              const startTime = Date.now()
+              const maxWait = 5 * 60 * 1000
+              while (Date.now() - startTime < maxWait) {
+                await new Promise(r => setTimeout(r, 5000))
+                const statusRes = await fetch(`/api/digital-human/status?taskId=${encodeURIComponent(taskId)}`)
+                if (!statusRes.ok) continue
+                const statusData = await statusRes.json()
+                const s = statusData.data?.status
+                if (s === 'completed' || s === 'succeeded') {
+                  return statusData.data?.output?.url || statusData.data?.video_url || null
+                }
+                if (s === 'failed' || s === 'error') return null
+                // Otherwise still processing — continue polling
+              }
+              return null // Timed out
+            } catch {
+              return null // Graceful degradation — digital human failure doesn't block the pipeline
+            }
+          })()
+        : Promise.resolve(null)
+
+      // Wait for TTS + digital human together
+      const [ttsResultsArray, dhVideoUrl] = await Promise.all([
+        Promise.all(ttsPromises),
+        dhPromise,
+      ])
+
+      for (const { lang, url } of ttsResultsArray) {
+        if (url) ttsResults[lang] = url
+      }
+      if (dhVideoUrl) {
+        setDigitalHumanVideoUrl(dhVideoUrl)
       }
 
-      // Step 4 — Prepare preview data (RemotionPreview handles real-time display)
+      // Step 4 — Prepare preview data
       setProgressStep(3)
 
       const mainLang = selectedLanguages[0]
-
-      // Extract slogans from the generated script text
       const mainScript = scriptData.scripts[mainLang] || ''
       const sloganLines = splitIntoSlogans(mainScript)
 
       // Store slogans globally for RemotionPreview to access
       ;(window as Window & { __lastSlogans?: string[] }).__lastSlogans = sloganLines
 
-      // Build results — each language uses TTS audio URL (RemotionPreview + server render handle video)
+      // Build results — each language uses TTS audio URL
       const genResults: GenerationResult[] = selectedLanguages.map(lang => ({
         language: lang,
         languageLabel: langLabel(lang),
@@ -206,11 +263,8 @@ export default function BrandPromotionPage() {
       }))
       setResults(genResults)
 
-      // Step 5 — Digital human (if enabled)
-      if (digitalHumanMode !== 'none') {
+      if (dhVideoUrl) {
         setProgressStep(4)
-        // Digital human integration placeholder — would call Agnes API
-        await new Promise(r => setTimeout(r, 500))
       }
 
       setProgressStep(-1)
@@ -239,8 +293,8 @@ export default function BrandPromotionPage() {
         throw new Error('没有可用的产品照片')
       }
 
-      // Use Canvas-based renderer for download (produces WebM, client-side)
-      const videoBlob = await renderPromotionVideo({
+      // Use Canvas-based renderer (returns video + audio blobs)
+      const result: RenderResult = await renderPromotionVideo({
         photos: photoUrls,
         audioUrl: audioUrl || '',
         productName: productName || 'Product',
@@ -248,15 +302,29 @@ export default function BrandPromotionPage() {
         duration,
         logoUrl: logos[0]?.preview,
         language: results[activeLangIdx]?.language || 'zh',
+        digitalHumanVideoUrl: digitalHumanVideoUrl || undefined,
       })
 
-      // Trigger download
-      const url = URL.createObjectURL(videoBlob)
+      const langCode = results[activeLangIdx]?.language || 'zh'
+
+      // Trigger video download (.mp4)
+      const videoUrl = URL.createObjectURL(result.videoBlob)
       const a = document.createElement('a')
-      a.href = url
-      a.download = `brand-promotion-${results[activeLangIdx]?.language || 'zh'}.webm`
+      a.href = videoUrl
+      a.download = `brand-promotion-${langCode}.mp4`
       a.click()
-      URL.revokeObjectURL(url)
+      URL.revokeObjectURL(videoUrl)
+
+      // Trigger audio download (.mp3) if available
+      if (result.audioBlob) {
+        const audioDownloadUrl = URL.createObjectURL(result.audioBlob)
+        const a2 = document.createElement('a')
+        a2.href = audioDownloadUrl
+        a2.download = `brand-promotion-${langCode}.mp3`
+        a2.click()
+        URL.revokeObjectURL(audioDownloadUrl)
+      }
+
       toast?.showToast('视频下载已开始！', 'success')
     } catch (downloadErr: unknown) {
       const msg = downloadErr instanceof Error ? downloadErr.message : '下载失败'

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@/lib/openai'
+import { getEngineClient } from '@/lib/openai'
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,13 +46,18 @@ export async function POST(request: NextRequest) {
 
 请根据以上信息，生成符合${coachName}风格的实体老板人设方案。`
 
-    const response = await getClient().chat.completions.create({
-      model: 'deepseek-chat',
+    const client = getEngineClient('zhipu')
+
+    const response = await client.chat.completions.create({
+      model: 'glm-5.2',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.7,
+      max_tokens: 8192,
+      // @ts-expect-error thinking is a Zhipu-specific parameter not in OpenAI types
+      thinking: { type: 'enabled' },
     })
 
     const content = response.choices[0]?.message?.content
@@ -68,12 +73,6 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : '生成人设失败'
-    if (errorMessage.includes('API') || errorMessage.includes('OPENAI')) {
-      return NextResponse.json(
-        { error: 'AI 服务配置异常，请检查 OPENAI_API_KEY 是否有效' },
-        { status: 500 }
-      )
-    }
     return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }

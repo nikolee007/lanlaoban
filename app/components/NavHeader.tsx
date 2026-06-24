@@ -32,29 +32,15 @@ type UserProfile = {
   phone: string
 }
 
-/** 导航分组定义：每组一个颜色主题，品类一目了然 */
+/** 导航分组 — 聚焦核心功能 */
 const NAV_GROUPS: Array<{
   color: 'orange' | 'emerald' | 'blue' | 'gray'
   items: Array<{ key: string; href: string; isAI: boolean }>
 }> = [
-  // 📹 IP/内容创作 — 品牌橙色
+  // 🎬 核心功能 — IP创作 + 产品可视化
   { color: 'orange', items: [
     { key: 'nav.oneClickIP', href: '/persona', isAI: true },
     { key: 'nav.oneClickBrand', href: '/brand-promotion', isAI: true },
-    { key: 'content.avatar', href: '/digital-human', isAI: false },
-  ]},
-  // 🌐 全球供应链 — 翡翠绿
-  { color: 'emerald', items: [
-    { key: 'nav.supply', href: '/global-supply', isAI: false },
-  ]},
-  // 🤖 AI 工具 — 天空蓝
-  { color: 'blue', items: [
-    { key: 'nav.aiSite', href: '/global-supply/ai-assistant', isAI: true },
-    { key: 'nav.crossBorder', href: '/cross-border', isAI: true },
-  ]},
-  // 💰 定价 — 中性灰
-  { color: 'gray', items: [
-    { key: 'nav.pricing', href: '/pricing', isAI: false },
   ]},
 ]
 

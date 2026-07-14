@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getEngineClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,18 +46,17 @@ export async function POST(request: NextRequest) {
 
 请根据以上信息，生成符合${coachName}风格的实体老板人设方案。`
 
-    const client = getEngineClient('zhipu')
+    const client = getClient()
+    const model = getDefaultModel()
 
     const response = await client.chat.completions.create({
-      model: 'glm-5.2',
+      model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.7,
       max_tokens: 8192,
-      // @ts-expect-error thinking is a Zhipu-specific parameter not in OpenAI types
-      thinking: { type: 'enabled' },
     })
 
     const content = response.choices[0]?.message?.content

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 import { getPainPointsForIndustry, getOralPhrases } from '@/lib/knowledge'
 import { checkForbidden } from '@/lib/compliance'
 
@@ -163,7 +163,7 @@ ${painSection}${oralSection}
     const userPrompt = `行业：${industry}\n产品：${product}\n目标客户：${targetCustomer}\n年限：${years}\n教练：${coach}\n${personaInfo}请严格按${coach}风格生成6条60-120秒长视频脚本。每条含完整7段式结构和分镜标注。`
 
     const response = await getClient().chat.completions.create({
-      model: 'deepseek-chat',
+      model: getDefaultModel(),
       messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
       temperature: 0.7,
       max_tokens: 32000,

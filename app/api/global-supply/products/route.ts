@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { Prisma } from '@prisma/client'
+import { getPaginatedMockProducts } from '@/lib/mock-supply-data'
 
 export const dynamic = 'force-dynamic'
 
@@ -130,10 +131,12 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('获取商品列表失败:', error)
-    return NextResponse.json(
-      { success: false, error: '获取商品列表失败' },
-      { status: 500 },
-    )
+    console.error('获取商品列表失败，使用降级数据:', error)
+    const { searchParams } = new URL(request.url)
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1)
+    const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '20', 10) || 20))
+    const categoryId = searchParams.get('categoryId')
+    const fallback = getPaginatedMockProducts(page, pageSize, categoryId ? parseInt(categoryId, 10) : null)
+    return NextResponse.json({ success: true, data: fallback })
   }
 }

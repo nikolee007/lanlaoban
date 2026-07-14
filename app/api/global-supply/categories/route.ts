@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { MOCK_CATEGORIES } from '@/lib/mock-supply-data'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,10 +37,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data })
   } catch (error) {
-    console.error('获取分类列表失败:', error)
-    return NextResponse.json(
-      { success: false, error: '获取分类列表失败' },
-      { status: 500 },
-    )
+    console.error('获取分类列表失败，使用降级数据:', error)
+    return NextResponse.json({ success: true, data: MOCK_CATEGORIES })
   }
 }

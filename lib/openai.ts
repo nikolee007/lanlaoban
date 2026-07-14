@@ -13,8 +13,10 @@ export interface OpenAIChatBody {
   max_tokens?: number
 }
 
+let _defaultClient: OpenAI | null = null
 let _deepseekClient: OpenAI | null = null
 let _zhipuClient: OpenAI | null = null
+let _agnesClient: OpenAI | null = null
 
 const PLACEHOLDER_KEYS = [
   'sk-your-key-here',
@@ -30,8 +32,55 @@ function getApiKey(envVar: string): string {
   return apiKey
 }
 
-/** DeepSeek 客户端（默认） */
+/** 安全获取 key，不存在不抛错 */
+function tryGetKey(envVar: string): string | null {
+  try {
+    return getApiKey(envVar)
+  } catch {
+    return null
+  }
+}
+
+/** 获取各 AI 客户端（自动降级链：DeepSeek → Agnes → Zhipu） */
 export function getClient(): OpenAI {
+  if (!_defaultClient) {
+    // 1. 首选 DeepSeek
+    const dk = tryGetKey('OPENAI_API_KEY')
+    if (dk) {
+      _defaultClient = new OpenAI({
+        apiKey: dk,
+        baseURL: 'https://api.deepseek.com',
+      })
+      return _defaultClient
+    }
+
+    // 2. 降级到 Agnes API
+    const ak = tryGetKey('AGNES_API_KEY')
+    if (ak) {
+      _defaultClient = new OpenAI({
+        apiKey: ak,
+        baseURL: 'https://apihub.agnes-ai.com/v1',
+      })
+      return _defaultClient
+    }
+
+    // 3. 最后降级到 Zhipu
+    const zk = tryGetKey('ZHIPU_API_KEY')
+    if (zk) {
+      _defaultClient = new OpenAI({
+        apiKey: zk,
+        baseURL: 'https://open.bigmodel.cn/api/paas/v4',
+      })
+      return _defaultClient
+    }
+
+    throw new Error('无可用的 AI 服务配置，请先设置 OPENAI_API_KEY 或 AGNES_API_KEY')
+  }
+  return _defaultClient
+}
+
+/** DeepSeek 专用客户端 */
+export function getDeepSeekClient(): OpenAI {
   if (!_deepseekClient) {
     _deepseekClient = new OpenAI({
       apiKey: getApiKey('OPENAI_API_KEY'),
@@ -53,11 +102,37 @@ export function getZhipuClient(): OpenAI {
   return _zhipuClient
 }
 
-export type AiEngine = 'deepseek' | 'zhipu'
+/** Agnes API 客户端 */
+export function getAgnesClient(): OpenAI {
+  if (!_agnesClient) {
+    _agnesClient = new OpenAI({
+      apiKey: getApiKey('AGNES_API_KEY'),
+      baseURL: 'https://apihub.agnes-ai.com/v1',
+    })
+  }
+  return _agnesClient
+}
+
+export type AiEngine = 'deepseek' | 'zhipu' | 'agnes'
 
 /** 获取指定引擎的客户端 */
 export function getEngineClient(engine: AiEngine = 'deepseek'): OpenAI {
-  return engine === 'zhipu' ? getZhipuClient() : getClient()
+  switch (engine) {
+    case 'zhipu':
+      return getZhipuClient()
+    case 'agnes':
+      return getAgnesClient()
+    default:
+      return getDeepSeekClient()
+  }
+}
+
+/** 自动获取最佳可用模型名 */
+export function getDefaultModel(): string {
+  // DeepSeek → agnes-1.5-flash → glm-5.2
+  if (tryGetKey('OPENAI_API_KEY')) return 'deepseek-chat'
+  if (tryGetKey('AGNES_API_KEY')) return 'agnes-1.5-flash'
+  return 'glm-5.2'
 }
 
 /** 使用指定引擎生成内容 */
@@ -67,7 +142,12 @@ export async function generateContent(
   engine: AiEngine = 'deepseek',
 ): Promise<string> {
   const client = getEngineClient(engine)
-  const model = engine === 'zhipu' ? 'glm-5.2' : 'deepseek-chat'
+  const modelMap: Record<AiEngine, string> = {
+    deepseek: 'deepseek-chat',
+    zhipu: 'glm-5.2',
+    agnes: 'agnes-1.5-flash',
+  }
+  const model = modelMap[engine]
 
   const body: OpenAIChatBody = {
     model,
@@ -87,6 +167,34 @@ export async function generateContent(
   if (engine === 'zhipu') {
     body.thinking = { type: 'enabled' }
     body.max_tokens = 65536
+  }
+
+  const response = await client.chat.completions.create(
+    body as unknown as OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming
+  )
+  return response.choices[0]?.message?.content || ''
+}
+
+/** 使用自动降级默认客户端生成内容 */
+export async function generateContentWithFallback(
+  prompt: string,
+  systemPrompt?: string,
+): Promise<string> {
+  const client = getClient()
+  const model = getDefaultModel()
+
+  const body: OpenAIChatBody = {
+    model,
+    messages: [
+      {
+        role: 'system',
+        content:
+          systemPrompt ||
+          '你是一个专业的实体老板IP策划师，擅长为实体老板打造个人IP内容。',
+      },
+      { role: 'user', content: prompt },
+    ],
+    temperature: 0.7,
   }
 
   const response = await client.chat.completions.create(

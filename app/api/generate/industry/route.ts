@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 
 // 行业特征提取引擎 — 根据已有行业模式推断新行业特征
 const INDUSTRY_ARCHETYPES: Record<string, { coach: string; scene: string; template: string }> = {
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 { "industry": "${industry}", "archetype": "${archetype.template}", "coach": "${archetype.coach}", "titles": { "反问痛点": ["..."], "内幕揭秘": ["..."], "避坑干货": ["..."], "案例成果": ["..."] }, "painPoints": { "provider": ["...", ...25条], "consumer": ["...", ...25条] }, "tags": ["#...", "#...", "#...", "#...", "#..."], "pinned": { "bio": "一句话人设", "intro": "完整自我介绍", "strength": "实力展示文案", "lead": "引流福利文案" }, "seasonal": ["选题1", "选题2", "选题3", "选题4", "选题5"] }`
 
     const response = await getClient().chat.completions.create({
-      model: 'deepseek-chat',
+      model: getDefaultModel(),
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `为新行业"${industry}"生成完整内容数据包。产品：${product || '未指定'}，目标客户：${targetCustomer || '未指定'}。` },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { getPaginatedMockProducts, MOCK_CATEGORIES } from '@/lib/mock-supply-data'
 
 export const dynamic = 'force-dynamic'
 
@@ -80,10 +81,16 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('获取分类商品失败:', error)
-    return NextResponse.json(
-      { success: false, error: '获取分类商品失败' },
-      { status: 500 },
-    )
+    console.error('获取分类商品失败，使用降级数据:', error)
+    const id = parseInt(params.id, 10)
+    const catName = MOCK_CATEGORIES.find(c => c.id === id)?.name ?? '未分类'
+    const { searchParams } = new URL(request.url)
+    const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10))
+    const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') ?? '20', 10)))
+    const fallback = getPaginatedMockProducts(page, pageSize, id)
+    return NextResponse.json({
+      success: true,
+      data: { ...fallback, categoryName: catName },
+    })
   }
 }

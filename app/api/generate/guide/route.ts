@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,7 +61,7 @@ ${scriptContent}
 请根据以上脚本，生成3个导演式引导问题和拍摄建议，帮助老板自然地表达出脚本内容。`
 
     const response = await getClient().chat.completions.create({
-      model: 'deepseek-chat',
+      model: getDefaultModel(),
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 
 const COACH_SCENES: Record<string, { character: string[], business: string[] }> = {
   libazi: {
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 }`
 
     const response = await getClient().chat.completions.create({
-      model: 'deepseek-chat',
+      model: getDefaultModel(),
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `行业：${industry}，产品：${product}，教练风格：${coachKey}。请适配场景方案。` },

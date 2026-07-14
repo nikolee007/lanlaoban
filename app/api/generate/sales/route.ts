@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
 请根据以上信息，生成成交话术系统。`
 
     const response = await getClient().chat.completions.create({
-      model: 'deepseek-chat',
+      model: getDefaultModel(),
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 import { getPainPointsForIndustry, getOralPhrases, getTitleFormulas } from '@/lib/knowledge'
 import { checkForbidden } from '@/lib/compliance'
 
@@ -112,7 +112,7 @@ ID：a1-a6, b1-b6, c1-c6, d1-d6, e1-e6`
     const userPrompt = `行业：${industry}\n产品：${product}\n目标客户：${targetCustomer}\n年限：${years}\n教练：${coach}${personaInfo}\n请严格按${coach}风格生成30条脚本。`
 
     const response = await getClient().chat.completions.create({
-      model: 'deepseek-chat',
+      model: getDefaultModel(),
       messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
       temperature: 0.7,
       max_tokens: 16384,

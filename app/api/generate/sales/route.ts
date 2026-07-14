@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient, getDefaultModel } from '@/lib/openai'
+import { getClient, getDefaultModel, extractJsonFromResponse } from '@/lib/openai'
 
 export async function POST(request: NextRequest) {
   try {
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const data = JSON.parse(content)
+    const data = JSON.parse(extractJsonFromResponse(content))
     return NextResponse.json(data)
   } catch (error: unknown) {
     const errorMessage =

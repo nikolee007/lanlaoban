@@ -175,6 +175,13 @@ export async function generateContent(
   return response.choices[0]?.message?.content || ''
 }
 
+/** 从 AI 响应中提取 JSON（去掉可能包裹的 markdown 代码块） */
+export function extractJsonFromResponse(content: string): string {
+  const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/)
+  if (jsonMatch) return jsonMatch[1].trim()
+  return content.trim()
+}
+
 /** 使用自动降级默认客户端生成内容 */
 export async function generateContentWithFallback(
   prompt: string,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient, getDefaultModel } from '@/lib/openai'
+import { getClient, getDefaultModel, extractJsonFromResponse } from '@/lib/openai'
 
 // 行业特征提取引擎 — 根据已有行业模式推断新行业特征
 const INDUSTRY_ARCHETYPES: Record<string, { coach: string; scene: string; template: string }> = {
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     // 尝试解析，如果失败则用结构化的默认返回
     try {
-      const data = JSON.parse(content)
+      const data = JSON.parse(extractJsonFromResponse(content))
       return NextResponse.json({ ...data, inferred: true, archetype: archetype.template })
     } catch {
       return NextResponse.json({

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient, getDefaultModel } from '@/lib/openai'
+import { getClient, getDefaultModel, extractJsonFromResponse } from '@/lib/openai'
 
 const COACH_SCENES: Record<string, { character: string[], business: string[] }> = {
   libazi: {

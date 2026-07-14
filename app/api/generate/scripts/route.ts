@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient, getDefaultModel } from '@/lib/openai'
+import { getClient, getDefaultModel, extractJsonFromResponse } from '@/lib/openai'
 import { getPainPointsForIndustry, getOralPhrases, getTitleFormulas } from '@/lib/knowledge'
 import { checkForbidden } from '@/lib/compliance'
 
@@ -121,7 +121,7 @@ ID：a1-a6, b1-b6, c1-c6, d1-d6, e1-e6`
     const content = response.choices[0]?.message?.content
     if (!content) return NextResponse.json({ error: 'AI 返回为空' }, { status: 500 })
 
-    const data = JSON.parse(content)
+    const data = JSON.parse(extractJsonFromResponse(content))
     if (!data.scripts || !Array.isArray(data.scripts)) {
       return NextResponse.json({ error: '格式异常' }, { status: 500 })
     }

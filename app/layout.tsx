@@ -81,7 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             defaultOpen={false}
             labels={{
               title: '懒老板 AI 助手',
-              initial: '你好！我是懒老板 AI 助手，可以帮你：\n\n🎬 生成老板IP人设方案\n📱 制作产品宣传视频\n💡 回答懒老板平台使用问题\n\n有什么可以帮你的？',
+              initial: '你好！我是懒老板 AI 助手，可以帮你：\n\n- 生成老板IP人设方案\n- 制作产品宣传视频\n- 回答懒老板平台使用问题\n\n有什么可以帮你的？',
             }}
           />
           </CopilotKit>

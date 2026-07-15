@@ -6,7 +6,6 @@ import { useLocale } from '../contexts/LocaleContext'
 import { useTheme } from '../contexts/ThemeContext'
 import { t } from '@/lib/i18n'
 import type { Locale } from '@/lib/i18n'
-import DemoButton from './DemoButton'
 import LocaleSwitch from './LocaleSwitch'
 import NotificationBell from './NotificationBell'
 import {
@@ -214,9 +213,8 @@ export default function NavHeader() {
             {theme === 'dark' ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
           </button>
 
-          <div className="hidden sm:block">
-            <DemoButton />
-          </div>
+          <div className="hidden sm:block" />
+
           {user && (
             <div className="hidden sm:flex">
               <NotificationBell />
@@ -369,9 +367,7 @@ export default function NavHeader() {
             </Link>
           )}
 
-          <div className="pt-3 px-3">
-            <DemoButton />
-          </div>
+          <div className="pt-3 px-3" />
 
           {user ? (
             <>

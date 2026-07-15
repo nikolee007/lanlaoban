@@ -142,16 +142,16 @@ export default function NavHeader() {
   const isAdminActive = pathname === '/admin'
 
   return (
-    <nav className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-50" role="navigation" aria-label={mobileMenuOpen ? t('menu.label', locale) : t('menu.label', locale)}>
+    <nav className="border-b border-[#E5E7EB]/50 bg-white/90 backdrop-blur-xl sticky top-0 z-50" role="navigation" aria-label={mobileMenuOpen ? t('menu.label', locale) : t('menu.label', locale)}>
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <div className="w-8 h-8 bg-brand-400 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+          <div className="w-9 h-9 bg-gradient-to-br from-[#FF6034] to-[#FF8A66] rounded-xl flex items-center justify-center text-white font-bold text-base shadow-lg shadow-[#FF6034]/20">
             懒
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-gray-900">懒老板</span>
-            <span className="hidden sm:inline-flex text-[11px] leading-none px-1.5 py-0.5 rounded-full bg-brand-50 text-brand-400 font-medium border border-brand-100/60">
+            <span className="text-xl font-bold text-[#0A0A0B] tracking-tight">懒老板</span>
+            <span className="hidden sm:inline-flex text-[10px] leading-none px-2 py-1 rounded-full bg-gradient-to-r from-[#FF6034]/10 to-[#FF8A66]/10 text-[#FF6034] font-medium border border-[#FF6034]/15 tracking-wide">
               {t('eco.platform', locale)}
             </span>
           </div>
@@ -301,7 +301,7 @@ export default function NavHeader() {
           ) : (
             <Link
               href="/login"
-              className="hidden sm:inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white rounded-lg bg-brand-400 hover:bg-brand-500 transition-colors"
+              className="hidden sm:inline-flex items-center justify-center px-5 py-2 text-sm font-semibold text-white rounded-full bg-gradient-to-r from-[#FF6034] to-[#FF8A66] hover:shadow-lg hover:shadow-[#FF6034]/20 transition-all"
             >
               {t('nav.login', locale)}
             </Link>

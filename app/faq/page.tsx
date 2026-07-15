@@ -1,141 +1,99 @@
 'use client'
-import { useState } from 'react'
 import Link from 'next/link'
 import NavHeader from '@/app/components/NavHeader'
+import { FiHelpCircle, FiArrowRight } from 'react-icons/fi'
 
 const faqs = [
   {
     q: '懒老板是什么？',
-    a: '懒老板是专为实体老板打造的一站式生意平台。我们提供AI内容生成（短视频脚本、口播、拍摄方案）、全球供应链资源对接、门店经营智能盘点等服务，帮老板从繁琐事务中解放出来，把精力放在真正重要的事情上。',
+    a: '懒老板是一个AI IP操盘和产品可视化平台。两条产品线：AI IP操盘手帮老板做个人IP（AI采访→人设策略→内容生产），AI 产品导演帮商家做产品宣传视频（上传产品图→选风格→生成短片+广告图）。',
   },
   {
-    q: '全球供应链怎么用？',
-    a: '您可以在"全球供应链"板块搜索商品或供应商，按品类、产地、价格等条件筛选对比，找到合适的货源后可以直接收藏或联系供应商。平台收录了数千家经过认证的全球供应商，覆盖多个热门品类。',
+    q: '我不会做短视频，能用人设IP功能吗？',
+    a: '完全不需要。AI会像记者一样采访你，自动挖出你的故事和价值观，然后出人设策略、写脚本、生成口播视频。你只需要回答问题，剩下的交给AI。',
   },
   {
-    q: '货源靠谱吗？',
-    a: '我们对入驻供应商进行资质审核，包括企业营业执照、生产资质、历史交易记录等。同时，平台提供用户评价和评分系统，帮助您判断供应商的可靠性。但建议您在与供应商合作前，自行进行必要的尽职调查。',
+    q: 'IP操盘手每月真的能出30-60条？',
+    a: '是的。标准版月30条脚本+10条口播视频，至尊版60条脚本+30条口播。AI自动批量生成，不需要你动手。素材通过邮箱交付，在线预览和下载。',
   },
   {
-    q: '怎么联系供应商？',
-    a: '在商品详情页点击"联系供应商"按钮，填写您的需求和联系方式，系统会将您的询盘信息发送给供应商。您也可以在"我的资源库"中管理已收藏或联系过的供应商，方便后续跟进。',
+    q: '产品导演支持什么格式的视频？',
+    a: '母片40-60s精品短片，支持9:16竖屏、1:1方屏、16:9横屏。基于母片可用算力衍生多语种（中/英/日/韩等）和多画幅版本。',
   },
   {
-    q: '可以免费使用吗？',
-    a: '懒老板提供免费的基础服务，包括浏览商品、搜索供应商、AI内容生成体验等功能。部分高级功能（如深度AI内容生成、供应链高级筛选、门店经营深度分析等）可能需要付费订阅。具体定价请参考"定价"页面。',
+    q: '我不懂片子，怎么选风格？',
+    a: '三种方式：1）有参考视频→上传，AI分析后生成同类风格；2）见过类似效果→看图选模板；3）不知道选什么→上传产品图，AI推荐最佳风格并出3个样片预览。',
   },
   {
-    q: '一件代发是什么？',
-    a: '一件代发（Dropshipping）是一种电商模式：您接单后，由供应商直接发货给您的客户，您无需囤货。懒老板平台上标注"支持一件代发"的供应商均支持此模式，适合想要低风险启动电商业务的用户。',
+    q: '一条产品母片包含什么？',
+    a: '40-60s精品短片（1种画幅+1门基础语种）+ 配套AI广告图片 + 1轮免费基础微调 + 商用版权。',
   },
   {
-    q: '怎么收藏商品？',
-    a: '在商品或供应商卡片上点击爱心图标即可收藏。所有收藏的内容会保存在"我的资源库"中，方便您随时查看和对比。您也可以在资源库中对收藏项进行备注和分类管理。',
+    q: '成片后还想修改怎么办？',
+    a: '小幅优化（画面微调、文案替换）消耗算力点。如果需要重构叙事、全新脚本或整体换风格，需新建母片。',
   },
   {
-    q: '商品信息多久更新？',
-    a: '供应商的商品信息会定期同步更新，通常每24小时刷新一次。部分热门品类的价格和库存可能会有实时变动，建议您与供应商直接沟通确认最新信息。',
+    q: '项目包里的多条母片必须一次性做完吗？',
+    a: '不需要。项目包有效期12个月，你可以根据产品上新节奏分批提交制作需求。',
   },
   {
-    q: '我能在手机上用吗？',
-    a: '可以。懒老板是响应式设计，在手机浏览器上即可正常使用所有功能。您也可以将懒老板添加到手机主屏幕，获得类似App的使用体验。iOS用户通过Safari分享菜单选择"添加到主屏幕"，Android用户通过Chrome菜单选择"添加到主屏幕"。',
+    q: '怎么收费的？',
+    a: 'IP操盘手按月订阅（¥599起），产品导演按项目包（¥4,299起）+可选会员+算力充值。体验包¥99起，具体见定价页面。',
   },
   {
-    q: '怎么反馈意见？',
-    a: '您可以通过平台内的反馈入口提交意见和建议。您的每条反馈我们都会认真对待，帮助我们不断改进产品。如果您遇到问题或需要帮助，也可以通过帮助中心查找常见问题解答。',
+    q: '可以免费试用吗？',
+    a: '可以。¥99体验IP操盘手（3条脚本+2条口播），¥1,299体验产品小样（精简样片+效果图）。体验包产出支持商用。',
   },
 ]
 
 export default function FAQPage() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null)
-
-  const toggle = (index: number) => {
-    setOpenIndex((prev) => (prev === index ? null : index))
-  }
-
   return (
-    <div className="min-h-screen bg-[#f5f5f7]">
+    <div className="min-h-screen bg-white text-[#0A0A0B]">
       <NavHeader />
 
-      {/* Header */}
-      <section className="mx-auto max-w-3xl px-6 pt-24 pb-10 text-center">
-        <h1 className="section-title">
-          常见问题
-        </h1>
-        <p className="section-subtitle mt-4">
-          关于懒老板的常见疑问，这里都有答案
-        </p>
+      <section className="relative pt-28 pb-20 overflow-hidden">
+        <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-radial from-[#FF6034]/5 to-transparent blur-3xl" />
+        <div className="relative mx-auto max-w-3xl px-6 text-center">
+          <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3">FAQ</p>
+          <h1 className="text-5xl sm:text-6xl font-bold tracking-tight mb-4">常见问题</h1>
+          <p className="text-lg text-[#6B7280]">关于懒老板，这里都有答案</p>
+        </div>
       </section>
 
-      {/* FAQ List */}
       <section className="mx-auto max-w-3xl px-6 pb-20">
         <div className="space-y-3">
-          {faqs.map((faq, i) => {
-            const isOpen = openIndex === i
-            return (
-              <div
-                key={i}
-                className="card overflow-hidden !p-0 transition-all hover:shadow-apple-md"
-              >
-                <button
-                  onClick={() => toggle(i)}
-                  className="w-full flex items-center justify-between px-6 py-4 text-left text-gray-900 font-medium transition-colors hover:bg-gray-50"
-                >
-                  <span className="pr-4">Q: {faq.q}</span>
-                  <svg
-                    className={`w-4 h-4 shrink-0 text-gray-400 transition-transform duration-200 ${
-                      isOpen ? 'rotate-180' : ''
-                    }`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-                {isOpen && (
-                  <div className="px-6 pb-4 pt-0 text-sm text-gray-600 leading-relaxed border-t border-gray-50">
-                    <div className="pt-3">
-                      {faq.a}
-                    </div>
-                  </div>
-                )}
+          {faqs.map((faq, i) => (
+            <details key={i} className="group rounded-2xl border border-[#E5E7EB] transition-all duration-200 open:border-[#FF6034]/20 open:bg-[#FFF8F5]/50 hover:border-[#FF6034]/10">
+              <summary className="flex items-center justify-between cursor-pointer px-6 py-5 text-sm font-medium text-[#0A0A0B] list-none">
+                <span>{faq.q}</span>
+                <FiHelpCircle className="w-5 h-5 text-[#6B7280] group-open:text-[#FF6034] shrink-0 ml-4 transition-colors" />
+              </summary>
+              <div className="px-6 pb-5 pt-0 text-sm text-[#6B7280] leading-relaxed border-t border-[#FF6034]/10">
+                <div className="pt-4">{faq.a}</div>
               </div>
-            )
-          })}
+            </details>
+          ))}
         </div>
       </section>
 
-      {/* Still have questions */}
-      <section className="border-t border-gray-100 bg-gray-50/50">
-        <div className="mx-auto max-w-xl px-6 py-14 text-center">
-          <h2 className="text-lg font-bold text-gray-900">还有问题？</h2>
-          <p className="mt-2 text-sm text-gray-500">
-            没找到想要的答案？去帮助中心查看更多指南
-          </p>
-          <div className="mt-6">
-            <Link
-              href="/help"
-              className="inline-flex items-center justify-center rounded-lg px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:brightness-110"
-              style={{ backgroundColor: '#FF6034' }}
-            >
-              查看使用指南
-            </Link>
-          </div>
+      <section className="bg-[#FAFAFA]">
+        <div className="mx-auto max-w-xl px-6 py-16 text-center">
+          <h2 className="text-2xl font-bold mb-2">还有问题？</h2>
+          <p className="text-sm text-[#6B7280] mb-6">没找到想要的答案？联系我们</p>
+          <Link href="/pricing" className="inline-flex items-center gap-2 rounded-full bg-[#FF6034] text-white px-6 py-3 text-sm font-semibold hover:shadow-lg transition-all">
+            查看定价 <FiArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-100 bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-8 text-center text-sm text-gray-400">
-          <div className="flex items-center justify-center gap-4 mb-2">
-            <Link href="/about" className="hover:text-gray-600 transition-colors">关于我们</Link>
-            <Link href="/terms" className="hover:text-gray-600 transition-colors">服务条款</Link>
-            <Link href="/privacy" className="hover:text-gray-600 transition-colors">隐私政策</Link>
-          </div>
-          懒老板 — 实体老板一站式生意平台
+      <footer className="bg-[#0A0A0B] text-white/50 py-12 px-6 text-sm text-center">
+        <div className="flex items-center justify-center gap-6 mb-4 flex-wrap">
+          <Link href="/about" className="hover:text-white transition-colors">关于我们</Link>
+          <Link href="/pricing" className="hover:text-white transition-colors">定价</Link>
+          <Link href="/terms" className="hover:text-white transition-colors">服务条款</Link>
+          <Link href="/privacy" className="hover:text-white transition-colors">隐私政策</Link>
         </div>
+        <p>© 2026 懒老板 — AI IP操盘手 & AI 产品导演</p>
       </footer>
     </div>
   )

@@ -133,7 +133,7 @@ export async function GET() {
 }
 
 function getDefaultEmotion(i: number): string {
-  return ['😯 被吸引', '😌 产生共鸣', '🤔 觉得有用', '😲 被说服', '🤝 想行动'][i % 5]
+  return ['被吸引', '产生共鸣', '觉得有用', '被说服', '想行动'][i % 5]
 }
 
 function getDefaultShotType(i: number): string {

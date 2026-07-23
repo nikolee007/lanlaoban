@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { generateImage, generateVideo } from '@/lib/agnes-api'
+import { getClient } from '@/lib/openai'
 
 interface CrossBorderProduct {
   name?: string
@@ -89,8 +90,10 @@ Generate the following in ${lang}:
 Output format - JSON only:
 { "title": "...", "sellPoints": ["...", "..."], "description": "...", "keywords": "..." }`
 
-      const chatRes = await agnesFetch('/chat/completions', {
-        model: 'agnes-1.5-flash',
+      // 使用自动降级链生成卖点文案
+      const client = getClient()
+      const chatRes = await client.chat.completions.create({
+        model: 'deepseek-chat',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
       })

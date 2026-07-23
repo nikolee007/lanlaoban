@@ -62,7 +62,17 @@ export async function POST(req: Request) {
       exp: Math.floor(Date.now() / 1000) + 86400 * 7,
     })
 
-    return NextResponse.json({ token })
+    // 设置 cookie 以便 middleware 路由守卫使用
+    const response = NextResponse.json({ token })
+    response.cookies.set('lanlaoban_token', token, {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 86400 * 7,
+      path: '/',
+    })
+
+    return response
   } catch (err: unknown) {
     console.error(err)
     return NextResponse.json({ error: '注册失败' }, { status: 500 })

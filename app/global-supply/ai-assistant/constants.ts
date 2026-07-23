@@ -4,6 +4,7 @@ import type { IpProfileData } from './types'
 export const CONVERSATIONS_KEY = 'lanlaoban_ip_conversations'
 export const ACTIVE_CONV_KEY = 'lanlaoban_ip_active_id'
 export const IP_PROFILE_KEY = 'lanlaoban_ip_profile'
+export const ANONYMOUS_COUNT_KEY = 'lanlaoban_anonymous_chat_count'
 
 export const FOLLOW_UP_QUESTIONS = [
   '最近生意怎么样？有没有什么新鲜事想分享？',

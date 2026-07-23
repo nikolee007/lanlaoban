@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { FiArrowRight, FiUser, FiCamera, FiTrendingUp, FiPackage, FiAward, FiPlay, FiCheck, FiStar, FiShield, FiZap } from 'react-icons/fi'
+import { FiArrowRight, FiUser, FiCamera, FiTrendingUp, FiPackage, FiAward, FiPlay, FiCheck, FiStar, FiShield, FiZap, FiGlobe } from 'react-icons/fi'
 import NavHeader from './components/NavHeader'
 
 export default function HomePage() {
@@ -148,7 +148,75 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── How it Works ── */}
+            {/* ── Showcase ── */}
+      <section className="relative py-28 overflow-hidden bg-[#FAFAFA]" id="showcase">
+        <div className="mx-auto max-w-7xl px-6">
+          <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3 text-center">SHOWCASE</p>
+          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-center mb-4">看看懒老板能做什么</h2>
+          <p className="text-[#6B7280] text-center max-w-lg mx-auto mb-12">以下是懒老板生成的真实案例</p>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Card 1: IP Script */}
+            <div className="rounded-2xl border border-[#E5E7EB] bg-white overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-500">
+              <div className="aspect-[4/3] bg-gradient-to-br from-[#FF6034]/10 to-[#FF8A66]/5 flex items-center justify-center relative overflow-hidden">
+                <div className="text-center p-6">
+                  <div className="w-8 h-8 mx-auto mb-3 rounded-lg bg-[#FF6034]/10 flex items-center justify-center">
+                    <span className="text-[#FF6034] font-bold text-xs">IP</span>
+                  </div>
+                  <p className="text-sm text-[#6B7280] leading-relaxed">"入行10年餐饮老板
+3天完成IP定位
+首月播放破30万"</p>
+                </div>
+              </div>
+              <div className="p-5">
+                <h4 className="font-bold mb-1">IP人设 + 内容矩阵</h4>
+                <p className="text-xs text-[#6B7280] mb-3">AI采访 → 人设策略 → 30条脚本/月</p>
+                <Link href="/persona" className="text-xs text-[#FF6034] font-semibold hover:underline">体验IP操盘 →</Link>
+              </div>
+            </div>
+
+            {/* Card 2: Product Video */}
+            <div className="rounded-2xl border border-[#E5E7EB] bg-white overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-500">
+              <div className="aspect-[4/3] bg-gradient-to-br from-[#2563EB]/10 to-[#60A5FA]/5 flex items-center justify-center relative overflow-hidden">
+                <div className="text-center p-6">
+                  <div className="w-8 h-8 mx-auto mb-3 rounded-lg bg-[#2563EB]/10 flex items-center justify-center">
+                    <FiPlay className="w-4 h-4 text-[#2563EB]" />
+                  </div>
+                  <p className="text-sm text-[#6B7280] leading-relaxed">智能家居产品
+30秒精品宣传片
+覆盖5国市场</p>
+                </div>
+              </div>
+              <div className="p-5">
+                <h4 className="font-bold mb-1">产品宣传视频</h4>
+                <p className="text-xs text-[#6B7280] mb-3">上传产品图 → AI自动生成30s+精品短片</p>
+                <Link href="/brand-promotion" className="text-xs text-[#2563EB] font-semibold hover:underline">体验产品导演 →</Link>
+              </div>
+            </div>
+
+            {/* Card 3: Cross-border */}
+            <div className="rounded-2xl border border-[#E5E7EB] bg-white overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-500">
+              <div className="aspect-[4/3] bg-gradient-to-br from-[#10B981]/10 to-[#34D399]/5 flex items-center justify-center relative overflow-hidden">
+                <div className="text-center p-6">
+                  <div className="w-8 h-8 mx-auto mb-3 rounded-lg bg-[#10B981]/10 flex items-center justify-center">
+                    <FiGlobe className="w-4 h-4 text-[#10B981]" />
+                  </div>
+                  <p className="text-sm text-[#6B7280] leading-relaxed">工厂老板IP+产品
+双管齐下
+询盘量翻3倍</p>
+                </div>
+              </div>
+              <div className="p-5">
+                <h4 className="font-bold mb-1">IP + 供应链双驱动</h4>
+                <p className="text-xs text-[#6B7280] mb-3">IP内容引流 → 全球供应链资源对接</p>
+                <Link href="/global-supply" className="text-xs text-[#10B981] font-semibold hover:underline">探索供应链 →</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+{/* ── How it Works ── */}
       <section className="relative py-28 bg-[#0A0A0B] text-white overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-gradient-radial from-[#FF6034]/5 to-transparent blur-3xl pointer-events-none" />
 

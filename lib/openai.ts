@@ -129,9 +129,9 @@ export function getEngineClient(engine: AiEngine = 'deepseek'): OpenAI {
 
 /** 自动获取最佳可用模型名 */
 export function getDefaultModel(): string {
-  // DeepSeek → agnes-1.5-flash → glm-5.2
+  // DeepSeek → agnes-2.0-flash → glm-5.2 (2026-07 agnes-1.5-flash 已下线)
   if (tryGetKey('OPENAI_API_KEY')) return 'deepseek-chat'
-  if (tryGetKey('AGNES_API_KEY')) return 'agnes-1.5-flash'
+  if (tryGetKey('AGNES_API_KEY')) return 'agnes-2.0-flash'
   return 'glm-5.2'
 }
 
@@ -145,7 +145,7 @@ export async function generateContent(
   const modelMap: Record<AiEngine, string> = {
     deepseek: 'deepseek-chat',
     zhipu: 'glm-5.2',
-    agnes: 'agnes-1.5-flash',
+    agnes: 'agnes-2.0-flash',
   }
   const model = modelMap[engine]
 

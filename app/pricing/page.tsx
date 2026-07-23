@@ -4,17 +4,17 @@ import { FiCheck, FiArrowRight, FiUser, FiCamera, FiZap, FiStar, FiShield, FiHel
 import NavHeader from '../components/NavHeader'
 
 const ipPlans = [
-  { name: '体验包', price: '¥99', period: '一次性', desc: '试试水', features: ['AI采访1次', '脚本3条', '口播视频2条（即将上线）', '素材邮箱交付'], popular: false, highlight: false },
-  { name: '标准版', price: '¥599', period: '/月', yearly: '¥4,680/年', desc: '稳定更新', features: ['AI深度采访+人设策略', '月30条短视频脚本', '数字人口播×10（即将上线）', '邮箱自动交付'], popular: true, highlight: false },
-  { name: '专业版', price: '¥1,499', period: '/月', yearly: '¥11,680/年', desc: '全面增长', features: ['完整IP增长策略+竞品分析', '月45条脚本+口播×20', '内容数据追踪', '任务优先处理'], popular: false, highlight: false },
-  { name: '至尊版', price: '¥3,999', period: '/月', yearly: '¥26,800/年', desc: '全链路操盘', features: ['全链路IP操盘方案', '月60条脚本+口播×30', '账号评论管理+月度数据复盘', '7×12h优先客服'], popular: false, highlight: true },
+  { name: '体验包', price: '¥99', period: '一次性', desc: '试试水', target: '想低成本体验AI做IP效果的新手老板', features: ['AI采访1次', '脚本3条', '口播视频2条（即将上线）', '素材邮箱交付'], popular: false, highlight: false },
+  { name: '标准版', price: '¥599', period: '/月', yearly: '¥4,680/年', desc: '稳定更新', target: '刚起步的老板，需要持续输出内容积累粉丝', features: ['AI深度采访+人设策略', '月30条短视频脚本', '数字人口播×10（即将上线）', '邮箱自动交付'], popular: true, highlight: false },
+  { name: '专业版', price: '¥1,499', period: '/月', yearly: '¥11,680/年', desc: '全面增长', target: '已有基础流量，想加速内容产出和粉丝增长', features: ['完整IP增长策略+竞品分析', '月45条脚本+口播×20', '内容数据追踪', '任务优先处理'], popular: false, highlight: false },
+  { name: '至尊版', price: '¥3,999', period: '/月', yearly: '¥26,800/年', desc: '全链路操盘', target: '需要品牌化全链路运营的成熟IP', features: ['全链路IP操盘方案', '月60条脚本+口播×30', '账号评论管理+月度数据复盘', '7×12h优先客服'], popular: false, highlight: true },
 ]
 
 const productPackages = [
-  { name: '单条零售', price: '¥4,299', desc: '试水成片品质', features: ['40-60s精品母片×1', '配套AI广告图', '1轮免费微调', '商用版权'] },
-  { name: 'A包·轻量精品', price: '¥8,999', desc: '均价¥3,000/条', features: ['40-60s精品母片×3', '配套AI广告图', '1轮免费微调', '12个月有效'] },
-  { name: 'B包·进阶精品', price: '¥12,999', desc: '3-5条', features: ['40-60s精品母片×3-5', '配套AI广告图', '1轮免费微调', '12个月有效'] },
-  { name: 'C包·批量精品', price: '¥23,999', desc: '10条', features: ['40-60s精品母片×10', '配套AI广告图', '1轮免费微调', '12个月有效'] },
+  { name: '单条零售', price: '¥4,299', desc: '试水成片品质', target: '想先看一条成片效果再决定批量制作的老板', features: ['40-60s精品母片×1', '配套AI广告图', '1轮免费微调', '商用版权'] },
+  { name: 'A包·轻量精品', price: '¥8,999', desc: '均价¥3,000/条', target: '季度新品上市，3条视频覆盖多渠道', features: ['40-60s精品母片×3', '配套AI广告图', '1轮免费微调', '12个月有效'] },
+  { name: 'B包·进阶精品', price: '¥12,999', desc: '3-5条', target: '多产品线同步推广，丰富品牌素材库', features: ['40-60s精品母片×3-5', '配套AI广告图', '1轮免费微调', '12个月有效'] },
+  { name: 'C包·批量精品', price: '¥23,999', desc: '10条', target: '年度品牌视觉体系搭建，一次性储备全年素材', features: ['40-60s精品母片×10', '配套AI广告图', '1轮免费微调', '12个月有效'] },
 ]
 
 const productMemberships = [
@@ -30,11 +30,16 @@ const computePacks = [
 ]
 
 const faqs = [
-  { q: '一条40-60s母片包含横竖屏、中英文版本吗？配套广告图有多少？', a: '母片标准交付：1种画幅+1门基础语种。制作母片自动生成成套配套AI广告图片。多语种、多画幅衍生版本需消耗算力渲染。' },
+  { q: 'IP操盘手的体验包¥99包含什么？之后怎么续？', a: '体验包包含AI采访1次、脚本3条、口播视频2条，一次性交付不含后续。满意后可订阅标准版/专业版/至尊版，按月自动续费。' },
+  { q: 'IP操盘手一个月能出多少条内容？质量怎么样？', a: '标准版月30条脚本+口播×10，专业版45+20，至尊版60+30。内容风格基于你的IP人设定制，AI生成+人工审核，确保不脱离你的真实风格。' },
+  { q: '产品导演一条40-60s母片包含横竖屏、中英文版本吗？', a: '母片标准交付：1种画幅+1门基础语种。制作母片自动生成成套配套AI广告图片。多语种、多画幅衍生版本需消耗算力渲染。' },
   { q: '成片交付后想持续微调画面怎么收费？', a: '小幅画面优化、素材替换重渲染消耗算力点。如需重构叙事、全新脚本，需新增精品母片。' },
   { q: '项目包内多条母片必须一次性制作吗？', a: '无需一次性排期，项目包有效期12个月，可根据上新节奏分批提交。' },
   { q: '不开会员可以买母片项目包、充值算力吗？', a: '可以。会员仅提供折扣与月赠算力，不限制基础功能。' },
-  { q: '连续包月可以随时暂停吗？', a: '支持随时关闭自动续费。' },
+  { q: '连续包月可以随时暂停吗？', a: '支持随时关闭自动续费。暂停后续费保留原有权益和数据。' },
+  { q: '我没有视频制作经验，能直接用产品导演吗？', a: '完全不需要。你只需上传产品图和基本素材，AI自动生成脚本、画面和配音。三步完成：上传→设置→生成。' },
+  { q: 'IP操盘手和产品导演能一起用吗？', a: '可以。两个产品独立订阅，互不冲突。同时订阅有组合优惠，详询客服。' },
+  { q: '什么情况可以退款？', a: '体验包购买后7天内未使用可退款。月付订阅首次使用后7天内不满意可取消并退款。包年和项目包一经开通不退款。' },
 ]
 
 export default function PricingPage() {
@@ -76,7 +81,10 @@ export default function PricingPage() {
                 </div>
               )}
               <h3 className="text-lg font-bold mb-1">{p.name}</h3>
-              <p className="text-sm text-[#6B7280] mb-4">{p.desc}</p>
+              <p className="text-sm text-[#6B7280] mb-1.5">{p.desc}</p>
+              <p className="text-xs text-[#FF6034]/80 bg-[#FF6034]/5 rounded-lg px-2.5 py-1.5 mb-3 leading-relaxed">
+                🎯 {p.target}
+              </p>
               <div className="mb-4">
                 <span className="text-3xl sm:text-4xl font-bold">{p.price}</span>
                 <span className="text-sm text-[#6B7280]">{p.period}</span>
@@ -90,7 +98,7 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href={p.name === '体验包' ? '#' : '/interview'} className={`block text-center rounded-full py-3 text-sm font-semibold transition-all ${
+              <Link href={p.name === '体验包' ? '/interview' : '/login'} className={`block text-center rounded-full py-3 text-sm font-semibold transition-all ${
                 p.popular ? 'bg-[#FF6034] text-white hover:shadow-lg hover:shadow-[#FF6034]/20' :
                 'border border-[#E5E7EB] text-[#0A0A0B] hover:border-[#FF6034]/30 hover:text-[#FF6034]'
               }`}>
@@ -100,6 +108,39 @@ export default function PricingPage() {
           ))}
         </div>
         <p className="text-xs text-[#6B7280] mt-4 text-center">追加脚本 ¥15/条 · 追人口播 ¥69/条（即将上线）</p>
+      </section>
+
+      {/* 场景选择指南 */}
+      <section className="mx-auto max-w-7xl px-6 pb-20">
+        <div className="rounded-2xl border border-[#FF6034]/10 bg-gradient-to-br from-[#FFF8F5] to-white p-8">
+          <h2 className="text-xl font-bold mb-1">不知道怎么选？</h2>
+          <p className="text-sm text-[#6B7280] mb-6">根据你的情况对照选择</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[#E5E7EB]">
+                  <th className="text-left py-3 pr-4 font-semibold text-[#0A0A0B]">你的情况</th>
+                  <th className="text-left py-3 px-4 font-semibold text-[#0A0A0B]">推荐方案</th>
+                  <th className="text-left py-3 px-4 font-semibold text-[#0A0A0B] hidden sm:table-cell">理由</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { who: "刚起步，想试试AI做IP效果", plan: "体验包 ¥99", why: "低成本验证，觉得好再续" },
+                  { who: "已有账号，需要稳定更新", plan: "标准版 ¥599/月", why: "月30条脚本稳定输出，适合持续涨粉" },
+                  { who: "账号有起色，想加速增长", plan: "专业版 ¥1,499/月", why: "更多内容+数据追踪，按效果优化" },
+                  { who: "成熟IP，品牌化运营", plan: "至尊版 ¥3,999/月", why: "全链路操盘，7x12h客服" },
+                ].map((row, i) => (
+                  <tr key={i} className="border-b border-[#E5E7EB]/60 last:border-0">
+                    <td className="py-3 pr-4 text-[#0A0A0B] font-medium">{row.who}</td>
+                    <td className="py-3 px-4 text-[#FF6034] font-semibold">{row.plan}</td>
+                    <td className="py-3 px-4 text-[#6B7280] hidden sm:table-cell">{row.why}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
       {/* ── 产品导演 ── */}
@@ -122,7 +163,8 @@ export default function PricingPage() {
             {productPackages.map(p => (
               <div key={p.name} className="rounded-2xl border border-[#E5E7EB] bg-white p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                 <h4 className="text-lg font-bold mb-1">{p.name}</h4>
-                <p className="text-sm text-[#6B7280] mb-4">{p.desc}</p>
+                <p className="text-sm text-[#6B7280] mb-1.5">{p.desc}</p>
+                <p className="text-xs text-[#2563EB]/80 bg-[#2563EB]/5 rounded-lg px-2.5 py-1.5 mb-3 leading-relaxed">🎯 {p.target}</p>
                 <p className="text-3xl sm:text-4xl font-bold mb-4">{p.price}</p>
                 <ul className="space-y-2 mb-6">
                   {p.features.map(f => (
@@ -132,8 +174,8 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/brand-promotion" className="block text-center rounded-full border border-[#E5E7EB] py-3 text-sm font-semibold hover:border-[#2563EB]/30 hover:text-[#2563EB] transition-all">
-                  了解详情
+                <Link href="/login" className="block text-center rounded-full border border-[#E5E7EB] py-3 text-sm font-semibold hover:border-[#2563EB]/30 hover:text-[#2563EB] transition-all">
+                  注册购买
                 </Link>
               </div>
             ))}
@@ -160,8 +202,8 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="#" className="block text-center rounded-full border border-[#E5E7EB] py-3 text-sm font-semibold hover:border-[#2563EB]/30 hover:text-[#2563EB] transition-all">
-                  订阅
+                <Link href="/login" className="block text-center rounded-full border border-[#E5E7EB] py-3 text-sm font-semibold hover:border-[#2563EB]/30 hover:text-[#2563EB] transition-all">
+                  登录订阅
                 </Link>
               </div>
             ))}
@@ -198,7 +240,7 @@ export default function PricingPage() {
         <div className="relative mx-auto max-w-3xl px-6 text-center text-white">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">先试试，再决定</h2>
           <p className="text-white/80 max-w-md mx-auto mb-8">¥99体验IP操盘手 · ¥1,299体验产品小样</p>
-          <Link href="#" className="inline-flex items-center gap-2 rounded-full bg-white text-[#0A0A0B] px-8 py-4 text-base font-semibold hover:shadow-xl transition-all">
+          <Link href="/interview" className="inline-flex items-center gap-2 rounded-full bg-white text-[#0A0A0B] px-8 py-4 text-base font-semibold hover:shadow-xl transition-all">
             <FiZap className="w-4 h-4" /> 立即体验
           </Link>
           <div className="flex items-center justify-center gap-6 mt-8 text-sm text-white/60">

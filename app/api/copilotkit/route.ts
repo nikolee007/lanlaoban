@@ -5,6 +5,7 @@ import {
   OpenAIAdapter,
   copilotRuntimeNextJSAppRouterEndpoint,
 } from '@copilotkit/runtime'
+import { getAuthUserId } from '@/lib/auth'
 
 // 优先用 DeepSeek，降级到 Agnes
 const DEEPSEEK_KEY = process.env.OPENAI_API_KEY
@@ -18,12 +19,20 @@ const openai = new OpenAI(
       : { apiKey: '', baseURL: 'https://open.bigmodel.cn/api/paas/v4' },
 )
 
-const model = DEEPSEEK_KEY ? 'deepseek-chat' : AGNES_KEY ? 'agnes-1.5-flash' : 'glm-5.2'
+const model = DEEPSEEK_KEY ? 'deepseek-chat' : AGNES_KEY ? 'agnes-2.0-flash' : 'glm-5.2'
 
 const runtime = new CopilotRuntime()
 const serviceAdapter = new OpenAIAdapter({ openai, model })
 
 export async function POST(req: NextRequest) {
+  const userId = getAuthUserId(req.headers)
+  if (!userId) {
+    return new Response(JSON.stringify({ error: '请先登录后再使用AI助手', needsAuth: true }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
     runtime,
     serviceAdapter,

@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
+import { getAuthUserId } from '@/lib/auth'
 
 interface ProductWithSupplier {
   id: number
@@ -69,7 +70,12 @@ function formatImageUrl(url: string): string {
   return '/' + url
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const userId = getAuthUserId(req.headers)
+  if (!userId) {
+    return NextResponse.json({ success: false, error: '请先登录后再生成店铺' }, { status: 401 })
+  }
+
   try {
     const { industry, brandName, productName, sellPoints, story, name } = await req.json()
 
@@ -159,7 +165,12 @@ export async function POST(req: Request) {
 }
 
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const userId = getAuthUserId(req.headers)
+  if (!userId) {
+    return NextResponse.json({ success: false, error: '请先登录' }, { status: 401 })
+  }
+
   const url = new URL(req.url)
   const id = url.searchParams.get('id')
   if (!id) {

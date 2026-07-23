@@ -59,7 +59,17 @@ export async function POST(request: NextRequest) {
       exp: Math.floor(Date.now() / 1000) + 86400 * 7,
     })
 
-    return NextResponse.json({ token })
+    // 设置 cookie 以便 middleware 路由守卫使用
+    const response = NextResponse.json({ token })
+    response.cookies.set('lanlaoban_token', token, {
+      httpOnly: false, // 前端也需要读
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 86400 * 7,
+      path: '/',
+    })
+
+    return response
   } catch {
     return NextResponse.json({ error: '邮箱或密码错误' }, { status: 401 })
   }

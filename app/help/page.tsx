@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import NavHeader from '@/app/components/NavHeader'
+import VideoPlayer from '@/app/components/VideoPlayer'
+import { FiZap, FiCamera, FiGlobe, FiPlay, FiChevronRight } from 'react-icons/fi'
 
 const steps = [
   {
@@ -29,10 +31,12 @@ const steps = [
 ]
 
 const quickLinks = [
-  { label: 'AI内容生成', href: '/launch', desc: '短视频脚本·口播·拍摄方案' },
-  { label: '全球供应链', href: '/global-supply', desc: '找工厂·找商品·找渠道' },
-  { label: '我的资源库', href: '/global-supply/my-resources', desc: '收藏商品·管理供应商' },
-  { label: '定价方案', href: '/pricing', desc: '免费版·专业版·企业版' },
+  { label: 'IP操盘人设', href: '/persona', desc: 'AI采访·人设定位·内容策略' },
+  { label: '品牌宣传视频', href: '/brand-promotion', desc: '产品图→30s精品短片' },
+  { label: '供应链资源', href: '/global-supply', desc: '找工厂·找商品·找渠道' },
+  { label: 'AI聊天助手', href: '/global-supply/ai-assistant', desc: '生意顾问·IP策划' },
+  { label: '定价方案', href: '/pricing', desc: '体验包·标准版·专业版' },
+  { label: '常见问题', href: '/faq', desc: '使用疑问·计费说明' },
 ]
 
 export default function HelpPage() {
@@ -50,24 +54,61 @@ export default function HelpPage() {
         </p>
       </section>
 
+      {/* ── Product Overview ── */}
+      <section className="mx-auto max-w-5xl px-6 pb-16">
+        <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">懒老板两大核心产品</h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* IP操盘手 */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-8 hover:shadow-lg transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF6034]/10 to-[#FF6034]/5 flex items-center justify-center mb-4 border border-[#FF6034]/10">
+              <FiZap className="w-6 h-6 text-[#FF6034]" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">AI IP 操盘手</h3>
+            <p className="text-sm text-gray-500 mb-4">帮老板做IP，持续获客</p>
+            <ol className="space-y-2 text-sm text-gray-600">
+              <li className="flex items-start gap-2"><span className="w-5 h-5 rounded-full bg-[#FF6034]/10 text-[#FF6034] text-xs font-bold flex items-center justify-center mt-0.5 shrink-0">1</span>AI采访挖掘你的创业故事和个人特点</li>
+              <li className="flex items-start gap-2"><span className="w-5 h-5 rounded-full bg-[#FF6034]/10 text-[#FF6034] text-xs font-bold flex items-center justify-center mt-0.5 shrink-0">2</span>AI生成你的专属人设定位和内容策略</li>
+              <li className="flex items-start gap-2"><span className="w-5 h-5 rounded-full bg-[#FF6034]/10 text-[#FF6034] text-xs font-bold flex items-center justify-center mt-0.5 shrink-0">3</span>每月30-60条脚本+口播视频自动生成</li>
+              <li className="flex items-start gap-2"><span className="w-5 h-5 rounded-full bg-[#FF6034]/10 text-[#FF6034] text-xs font-bold flex items-center justify-center mt-0.5 shrink-0">4</span>内容邮箱自动交付，持续更新账号</li>
+            </ol>
+            <Link href="/persona" className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-[#FF6034] hover:underline">
+              了解详情 <FiChevronRight className="w-3 h-3" />
+            </Link>
+          </div>
+
+          {/* 产品导演 */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-8 hover:shadow-lg transition-all">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#2563EB]/10 to-[#2563EB]/5 flex items-center justify-center mb-4 border border-[#2563EB]/10">
+              <FiCamera className="w-6 h-6 text-[#2563EB]" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">AI 产品导演</h3>
+            <p className="text-sm text-gray-500 mb-4">拍产品，全球投放</p>
+            <ol className="space-y-2 text-sm text-gray-600">
+              <li className="flex items-start gap-2"><span className="w-5 h-5 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-xs font-bold flex items-center justify-center mt-0.5 shrink-0">1</span>上传产品图和基本素材</li>
+              <li className="flex items-start gap-2"><span className="w-5 h-5 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-xs font-bold flex items-center justify-center mt-0.5 shrink-0">2</span>选择风格模板或AI生成脚本</li>
+              <li className="flex items-start gap-2"><span className="w-5 h-5 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-xs font-bold flex items-center justify-center mt-0.5 shrink-0">3</span>AI自动生成30s+精品宣传短片</li>
+              <li className="flex items-start gap-2"><span className="w-5 h-5 rounded-full bg-[#2563EB]/10 text-[#2563EB] text-xs font-bold flex items-center justify-center mt-0.5 shrink-0">4</span>可衍生多语言、多画幅版本和广告配图</li>
+            </ol>
+            <Link href="/brand-promotion" className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-[#2563EB] hover:underline">
+              了解详情 <FiChevronRight className="w-3 h-3" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Steps */}
       <section>
         <div className="mx-auto max-w-4xl px-6 pb-16">
           <div className="space-y-16">
             {steps.map((step, i) => (
               <div key={step.number} className={`flex flex-col ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} gap-8 md:gap-12 items-center`}>
-                {/* Image placeholder */}
+                {/* Video/Screenshot placeholder */}
                 <div className="w-full md:w-1/2">
-                  <div
-                    className="aspect-video rounded-2xl flex items-center justify-center"
-                    style={{ backgroundColor: '#FFF0ED' }}
-                  >
-                    <div className="text-center">
-                      <span className="text-5xl font-bold" style={{ color: '#FF6034' }}>
-                        {step.number}
-                      </span>
-                    </div>
-                  </div>
+                  <VideoPlayer
+                    title={step.title}
+                    description={step.desc.slice(0, 60) + '...'}
+                    placeholder
+                  />
                 </div>
 
                 {/* Text */}

@@ -1,0 +1,19 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,PingFang SC,42,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,0,0,0,0,100,100,0,0,1,2,0,2,60,60,130,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00,0:00:05,Default,,0,0,0,,大家好，我是王师傅，在后厨摸了20年炒勺。
+Dialogue: 0,0:00:05,0:00:10,Default,,0,0,0,,人家都说我是老顽固，因为我坚持每锅汤熬够四小时。
+Dialogue: 0,0:00:10,0:00:14,Default,,0,0,0,,这年头大家都图快，料理包预制菜五分钟出锅。
+Dialogue: 0,0:00:14,0:00:18,Default,,0,0,0,,但我说，做菜跟做人一个道理——快不得。
+Dialogue: 0,0:00:18,0:00:21,Default,,0,0,0,,你偷的每一分钟，客人全都吃得出来。
+Dialogue: 0,0:00:21,0:00:27,Default,,0,0,0,,20年了，从街边小摊到这家店，靠的就是四个字：真材实料。
+Dialogue: 0,0:00:27,0:00:34,Default,,0,0,0,,我是王师傅，只做良心菜。私信我，留个位置。

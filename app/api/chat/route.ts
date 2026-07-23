@@ -1,7 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getClient } from '@/lib/openai'
+import { getAuthUserId } from '@/lib/auth'
+
+const ANONYMOUS_LIMIT = 3
 
 export async function POST(request: NextRequest) {
+  const userId = getAuthUserId(request.headers)
+  const anonymousCount = parseInt(request.headers.get('x-anonymous-count') || '0', 10)
+
+  // Free trial limit for unauthenticated users
+  if (!userId && anonymousCount >= ANONYMOUS_LIMIT) {
+    return NextResponse.json({
+      error: 'free_limit',
+      message: '你已经体验了3次免费对话，注册懒老板即可无限使用所有AI功能',
+      needsAuth: true,
+    }, { status: 401 })
+  }
+
   try {
     const { messages } = await request.json()
     if (!messages || !Array.isArray(messages)) {
@@ -71,6 +86,8 @@ progress：已获取信息的百分比（0-100），根据已填字段数量估�
     return NextResponse.json({
       reply: cleanContent,
       extract: extracted,
+      remainingQuota: userId ? -1 : (ANONYMOUS_LIMIT - anonymousCount - 1),
+      needsAuth: !userId,
     })
   } catch {
     return NextResponse.json({ reply: '聊得正起劲呢，刚才你说到哪了？' })

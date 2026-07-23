@@ -1,6 +1,24 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getClient } from '@/lib/openai'
+import { getAuthUserId } from '@/lib/auth'
+import type OpenAI from 'openai'
 
-export async function POST(req: Request) {
+const ANONYMOUS_LIMIT = 3
+
+export async function POST(req: NextRequest) {
+  const userId = getAuthUserId(req.headers)
+  const anonymousCount = parseInt(req.headers.get('x-anonymous-count') || '0', 10)
+
+  // Free trial limit for unauthenticated users
+  if (!userId && anonymousCount >= ANONYMOUS_LIMIT) {
+    return NextResponse.json({
+      error: 'free_limit',
+      message: '你已经体验了3次免费对话，注册懒老板即可无限使用所有AI功能',
+      needsAuth: true,
+      remainingQuota: 0,
+    }, { status: 401 })
+  }
+
   const { message, history, context } = await req.json()
 
   const systemPrompt = `你是一个全能生意顾问+IP打造专家，名叫"懒老板"。你的用户是正在创业或做生意的老板。
@@ -58,7 +76,7 @@ ${context || ''}
 
 用中文回答。`
 
-  const messages = [{ role: 'system', content: systemPrompt }]
+  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [{ role: 'system', content: systemPrompt }]
 
   if (Array.isArray(history)) {
     for (const msg of history) {
@@ -69,17 +87,22 @@ ${context || ''}
   messages.push({ role: 'user', content: message })
 
   try {
-    const res = await fetch('https://apihub.agnes-ai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${process.env.AGNES_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ model: 'agnes-1.5-flash', messages }),
+    // 使用自动降级链：DeepSeek → Agnes → Zhipu
+    const client = getClient()
+    const completion = await client.chat.completions.create({
+      model: 'deepseek-chat',
+      messages,
+      temperature: 0.8,
+      max_tokens: 2048,
     })
-    const data = await res.json()
-    const reply = data.choices?.[0]?.message?.content
-    return NextResponse.json({ success: true, data: { reply: reply || '抱歉，我现在有点卡壳，换个问题再试试？' } })
+    const reply = completion.choices?.[0]?.message?.content
+    const remaining = userId ? -1 : (ANONYMOUS_LIMIT - anonymousCount - 1)
+    return NextResponse.json({
+      success: true,
+      data: { reply: reply || '抱歉，我现在有点卡壳，换个问题再试试？' },
+      remainingQuota: remaining,
+      needsAuth: !userId,
+    })
   } catch {
     return NextResponse.json({ success: true, data: { reply: '网络开小差了，请稍后重试' } })
   }

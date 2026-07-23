@@ -130,7 +130,10 @@ export default function NavHeader() {
   }
 
   const handleLogout = () => {
-    try { localStorage.removeItem('lanlaoban_token') } catch {} // eslint-disable-line no-empty
+    try {
+      localStorage.removeItem('lanlaoban_token')
+      document.cookie = 'lanlaoban_token=;path=/;max-age=0'
+    } catch {} // eslint-disable-line no-empty
     setUser(null)
     setUserMenuOpen(false)
     router.push('/')

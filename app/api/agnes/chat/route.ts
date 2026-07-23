@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 
 const AGNES_API_URL = 'https://apihub.agnes-ai.com/v1/chat/completions'
 const AGNES_API_KEY = process.env.AGNES_API_KEY || ''
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     // 方案二：降级到 getClient() 自动降级链（DeepSeek → Agnes → Zhipu）
     const client = getClient()
     const openaiResponse = await client.chat.completions.create({
-      model: 'deepseek-chat',
+      model: getDefaultModel(),
       messages: [{ role: 'user', content: prompt }],
     })
 

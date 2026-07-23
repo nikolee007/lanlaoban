@@ -1,11 +1,11 @@
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 import type OpenAI from 'openai'
 
 export async function aiChat(messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]): Promise<string> {
   try {
     const client = getClient()
     const completion = await client.chat.completions.create({
-      model: 'deepseek-chat',
+      model: getDefaultModel(),
       messages: [
         { role: 'system', content: '你是一个跨境电商选品助手。回答简洁实用，推荐具体产品。' },
         ...messages,

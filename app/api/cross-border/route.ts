@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { generateImage, generateVideo } from '@/lib/agnes-api'
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 
 interface CrossBorderProduct {
   name?: string
@@ -93,7 +93,7 @@ Output format - JSON only:
       // 使用自动降级链生成卖点文案
       const client = getClient()
       const chatRes = await client.chat.completions.create({
-        model: 'deepseek-chat',
+        model: getDefaultModel(),
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
       })

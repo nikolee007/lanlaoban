@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 import { getAuthUserId } from '@/lib/auth'
 import type OpenAI from 'openai'
 
@@ -90,7 +90,7 @@ ${context || ''}
     // 使用自动降级链：DeepSeek → Agnes → Zhipu
     const client = getClient()
     const completion = await client.chat.completions.create({
-      model: 'deepseek-chat',
+      model: getDefaultModel(),
       messages,
       temperature: 0.8,
       max_tokens: 2048,

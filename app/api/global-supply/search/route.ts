@@ -106,31 +106,53 @@ export async function GET(request: NextRequest) {
         productOrderBy = { priceMin: 'desc' }
       }
 
-      const [items, count] = await Promise.all([
-        db.product.findMany({
-          where: productWhere,
-          include: {
-            supplier: {
-              select: {
-                id: true,
-                nameZh: true,
-                nameEn: true,
-                location: true,
-                rating: true,
+      try {
+        const [items, count] = await Promise.all([
+          db.product.findMany({
+            where: productWhere,
+            include: {
+              supplier: {
+                select: {
+                  id: true,
+                  nameZh: true,
+                  nameEn: true,
+                  location: true,
+                  rating: true,
+                },
+              },
+              category: {
+                select: { id: true, name: true },
               },
             },
-            category: {
-              select: { id: true, name: true },
+            orderBy: productOrderBy,
+            skip,
+            take: pageSize,
+          }),
+          db.product.count({ where: productWhere }),
+        ])
+        products = items
+        total += count
+      } catch (e) {
+        // Prisma SQLite 在 serverless 可能不支持 contains+include
+        // 降级为全量查回 + 内存过滤
+        console.error('[search] Prisma query failed, falling back:', e)
+        try {
+          const all = await db.product.findMany({
+            include: {
+              supplier: { select: { id: true, nameZh: true, nameEn: true, location: true, rating: true } },
+              category: { select: { id: true, name: true } },
             },
-          },
-          orderBy: productOrderBy,
-          skip,
-          take: pageSize,
-        }),
-        db.product.count({ where: productWhere }),
-      ])
-      products = items
-      total += count
+          })
+          const filtered = all.filter(p =>
+            !q || p.name.toLowerCase().includes(q.toLowerCase()) ||
+            (p.description && p.description.toLowerCase().includes(q.toLowerCase()))
+          )
+          products = filtered.slice(skip, skip + pageSize)
+          total += filtered.length
+        } catch (e2) {
+          console.error('[search] Fallback also failed:', e2)
+        }
+      }
     }
 
     // -- Build supplier where clause -------------------------------------------
@@ -175,17 +197,32 @@ export async function GET(request: NextRequest) {
       const supplierWhere: Prisma.SupplierWhereInput =
         supplierAndConditions.length > 0 ? { AND: supplierAndConditions } : {}
 
-      const [items, count] = await Promise.all([
-        db.supplier.findMany({
-          where: supplierWhere,
-          orderBy: { rating: 'desc' },
-          skip,
-          take: pageSize,
-        }),
-        db.supplier.count({ where: supplierWhere }),
-      ])
-      suppliers = items
-      total += count
+      try {
+        const [items, count] = await Promise.all([
+          db.supplier.findMany({
+            where: supplierWhere,
+            orderBy: { rating: 'desc' },
+            skip,
+            take: pageSize,
+          }),
+          db.supplier.count({ where: supplierWhere }),
+        ])
+        suppliers = items
+        total += count
+      } catch (e) {
+        console.error('[search] Supplier query failed, falling back:', e)
+        try {
+          const all = await db.supplier.findMany()
+          const filtered = all.filter(s =>
+            !q || s.nameZh?.toLowerCase().includes(q.toLowerCase()) ||
+            s.nameEn?.toLowerCase().includes(q.toLowerCase())
+          )
+          suppliers = filtered.slice(skip, skip + pageSize)
+          total += filtered.length
+        } catch (e2) {
+          console.error('[search] Supplier fallback failed:', e2)
+        }
+      }
     }
 
     return NextResponse.json({

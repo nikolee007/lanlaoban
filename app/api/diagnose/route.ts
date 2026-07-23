@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 
 function seededRandom(seed: string): number {
   let hash = 0;
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 }`
 
       const response = await getClient().chat.completions.create({
-        model: 'deepseek-chat',
+        model: getDefaultModel(),
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
         max_tokens: 1024,

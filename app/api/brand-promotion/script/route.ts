@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getEngineClient } from '@/lib/openai'
-import type { OpenAIChatBody } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
+import type OpenAI from 'openai'
 
 const STYLE_PROFILES: Record<string, string> = {
   professional: '正式专业的商务风格，用词严谨、数据说话、体现行业权威感。适合B2B企业宣传片。',
@@ -105,17 +105,16 @@ ${styleDesc}
 
 请根据以上信息，生成多语言宣传视频旁白脚本。`
 
-    const client = getEngineClient('deepseek')
-    const requestBody: OpenAIChatBody = {
-      model: 'deepseek-chat',
+    const client = getClient()
+    const response = await client.chat.completions.create({
+      model: getDefaultModel(),
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.8,
       max_tokens: 8192,
-    }
-    const response = await client.chat.completions.create(requestBody)
+    } as OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming)
 
     const content = response.choices[0]?.message?.content
     if (!content) {

@@ -1,18 +1,5 @@
 import OpenAI from 'openai'
 
-interface OpenAIChatMessage {
-  role: 'system' | 'user' | 'assistant'
-  content: string
-}
-
-export interface OpenAIChatBody {
-  model: string
-  messages: OpenAIChatMessage[]
-  temperature: number
-  thinking?: { type: string }
-  max_tokens?: number
-}
-
 let _defaultClient: OpenAI | null = null
 let _deepseekClient: OpenAI | null = null
 let _zhipuClient: OpenAI | null = null
@@ -135,21 +122,16 @@ export function getDefaultModel(): string {
   return 'glm-5.2'
 }
 
-/** 使用指定引擎生成内容 */
+/** 使用自动降级链生成内容（DeepSeek → Agnes → Zhipu） */
 export async function generateContent(
   prompt: string,
   systemPrompt?: string,
-  engine: AiEngine = 'deepseek',
+  _engine: AiEngine = 'deepseek',
 ): Promise<string> {
-  const client = getEngineClient(engine)
-  const modelMap: Record<AiEngine, string> = {
-    deepseek: 'deepseek-chat',
-    zhipu: 'glm-5.2',
-    agnes: 'agnes-2.0-flash',
-  }
-  const model = modelMap[engine]
+  const client = getClient()
+  const model = getDefaultModel()
 
-  const body: OpenAIChatBody = {
+  const response = await client.chat.completions.create({
     model,
     messages: [
       {
@@ -161,17 +143,8 @@ export async function generateContent(
       { role: 'user', content: prompt },
     ],
     temperature: 0.7,
-  }
-
-  // 智谱支持深度思考
-  if (engine === 'zhipu') {
-    body.thinking = { type: 'enabled' }
-    body.max_tokens = 65536
-  }
-
-  const response = await client.chat.completions.create(
-    body as unknown as OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming
-  )
+    max_tokens: _engine === 'zhipu' ? 65536 : undefined,
+  } as OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming)
   return response.choices[0]?.message?.content || ''
 }
 
@@ -180,32 +153,4 @@ export function extractJsonFromResponse(content: string): string {
   const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/)
   if (jsonMatch) return jsonMatch[1].trim()
   return content.trim()
-}
-
-/** 使用自动降级默认客户端生成内容 */
-export async function generateContentWithFallback(
-  prompt: string,
-  systemPrompt?: string,
-): Promise<string> {
-  const client = getClient()
-  const model = getDefaultModel()
-
-  const body: OpenAIChatBody = {
-    model,
-    messages: [
-      {
-        role: 'system',
-        content:
-          systemPrompt ||
-          '你是一个专业的实体老板IP策划师，擅长为实体老板打造个人IP内容。',
-      },
-      { role: 'user', content: prompt },
-    ],
-    temperature: 0.7,
-  }
-
-  const response = await client.chat.completions.create(
-    body as unknown as OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming
-  )
-  return response.choices[0]?.message?.content || ''
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient } from '@/lib/openai'
+import { getClient, getDefaultModel } from '@/lib/openai'
 import { getAuthUserId } from '@/lib/auth'
 
 const ANONYMOUS_LIMIT = 3
@@ -62,7 +62,7 @@ progress：已获取信息的百分比（0-100），根据已填字段数量估�
 只填明确提到的信息，没提到的留空字符串""。这条规则请严格遵守。`
 
     const response = await getClient().chat.completions.create({
-      model: 'deepseek-chat',
+      model: getDefaultModel(),
       messages: [
         { role: 'system', content: systemPrompt },
         ...messages.slice(-20),

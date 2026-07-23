@@ -11,36 +11,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 1,
     },
-    // Global supply pages
+    // IP tool pages
     {
-      url: `${BASE_URL}/global-supply`,
+      url: `${BASE_URL}/persona`,
       lastModified: new Date(),
-      changeFrequency: 'hourly',
+      changeFrequency: 'weekly',
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/global-supply/search`,
+      url: `${BASE_URL}/brand-promotion`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
+      changeFrequency: 'weekly',
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/global-supply/categories`,
+      url: `${BASE_URL}/digital-human`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,
-    },
-    {
-      url: `${BASE_URL}/global-supply/categories/electronics`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${BASE_URL}/global-supply/my-resources`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.5,
     },
     // Product
     {

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import {
-  FiCopy, FiPlay, FiClock, FiCamera, FiUser, FiStar, FiGlobe,
+  FiCopy, FiPlay, FiClock, FiCamera, FiUser, FiStar,
   FiEdit3, FiRefreshCw, FiCheck, FiMonitor, FiSmartphone,
   FiCheckSquare, FiArrowRight, FiZap,
 } from 'react-icons/fi'
@@ -159,9 +159,9 @@ export default function VideoResult({
           </div>
 
           <div className="rounded-2xl p-6 text-center" style={{ background: 'linear-gradient(135deg, #FFF5F0, #FFE4D6, #F0EBFF)' }}>
-            <p className="text-sm font-semibold text-gray-900">拍完了？去全球供应链找更多好货来拍！</p>
+            <p className="text-sm font-semibold text-gray-900">拍完了？去品牌推广中心！</p>
             <p className="text-xs text-gray-500 mt-1">每个商品都可以用AI一键生成短视频脚本</p>
-            <Link href="/global-supply" className="mt-3 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
+            <Link href="/brand-promotion" className="mt-3 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
               style={{ backgroundColor: '#FF6034' }}>去找货源 <FiArrowRight className="h-4 w-4" /></Link>
             <button onClick={onCopyAll} className="mt-3 ml-3 inline-flex items-center gap-2 rounded-lg border-2 px-5 py-2.5 text-sm font-semibold"
               style={{ borderColor: '#FF6034', color: '#FF6034' }}><FiCopy className="h-4 w-4" /> 复制脚本</button>
@@ -364,7 +364,7 @@ export default function VideoResult({
       {/* Bottom CTA */}
       <div className="mt-8 rounded-2xl p-6 text-center" style={{ background: 'linear-gradient(135deg, #FFF5F0, #FFE4D6, #F0EBFF)' }}>
         <p className="text-sm font-semibold text-gray-900">拿到脚本了？现在就去拍第一条视频</p>
-        <p className="text-xs text-gray-500 mt-1">拍完去全球供应链找更多好货来创作</p>
+        <p className="text-xs text-gray-500 mt-1">拍完去品牌推广中心创作更多内容</p>
         <div className="mt-4 flex items-center justify-center gap-3 flex-wrap">
           <button onClick={onCopyAll} className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
             style={{ backgroundColor: '#FF6034' }}><FiCopy className="h-4 w-4" /> 复制脚本</button>
@@ -372,8 +372,8 @@ export default function VideoResult({
             style={{ borderColor: '#FF6034', color: '#FF6034' }}><FiZap className="h-4 w-4" /> 再做一个</button>
           <Link href="/digital-human" className="inline-flex items-center gap-2 rounded-lg border-2 px-5 py-2.5 text-sm font-semibold"
             style={{ borderColor: '#8B5CF6', color: '#8B5CF6' }}><FiUser className="h-4 w-4" /> 数字人口播</Link>
-          <Link href="/cross-border" className="inline-flex items-center gap-2 rounded-lg border-2 px-5 py-2.5 text-sm font-semibold"
-            style={{ borderColor: '#059669', color: '#059669' }}><FiGlobe className="h-4 w-4" /> 跨境AI工具</Link>
+          <Link href="/brand-promotion" className="inline-flex items-center gap-2 rounded-lg border-2 px-5 py-2.5 text-sm font-semibold"
+            style={{ borderColor: '#059669', color: '#059669' }}><FiCamera className="h-4 w-4" /> 产品可视化</Link>
         </div>
       </div>
     </div>

@@ -56,7 +56,7 @@ export default function ProgressPanel({
               <div className="flex gap-2 flex-wrap">
                 <Link href="/" className="rounded-lg bg-white border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50">回首页</Link>
                 <Link href="/ai-video" className="rounded-lg bg-white border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50">去一键短视频</Link>
-                <Link href="/global-supply" className="rounded-lg bg-white border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50">去全球资源</Link>
+                <Link href="/persona" className="rounded-lg bg-white border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50">去IP操盘</Link>
               </div>
             </div>
           </div>

@@ -84,7 +84,7 @@ export default function NewUserGuide() {
     }
     setVisible(false)
     setDismissed(true)
-    router.push('/global-supply/hot')
+    router.push('/persona')
   }
 
   if (!visible || dismissed) return null

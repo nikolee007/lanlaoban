@@ -16,8 +16,6 @@ import {
   FiX,
   FiSun,
   FiMoon,
-  FiShoppingCart,
-  FiInbox,
   FiFileText,
   FiPackage,
 } from 'react-icons/fi'
@@ -31,38 +29,31 @@ type UserProfile = {
   phone: string
 }
 
-/** 导航分组 — 核心功能已开放，其他即将上线 */
+/** 导航分组 */
 type NavItem = { key: string; href: string; isAI: boolean; comingSoon?: boolean; eta?: string }
 
 const NAV_GROUPS: Array<{
-  color: 'orange' | 'emerald' | 'blue' | 'gray'
+  color: 'orange' | 'gray'
   label: string
   items: NavItem[]
 }> = [
   { color: 'orange', label: 'AI创作', items: [
     { key: 'nav.oneClickIP', href: '/persona', isAI: true },
     { key: 'nav.oneClickBrand', href: '/brand-promotion', isAI: true },
-    { key: 'content.avatar', href: '/digital-human', isAI: false, comingSoon: true, eta: '2026.07' },
-  ]},
-  { color: 'emerald', label: '供应链', items: [
-    { key: 'nav.supply', href: '/global-supply', isAI: false, comingSoon: true, eta: '2026.07' },
-  ]},
-  { color: 'blue', label: 'AI工具', items: [
-    { key: 'nav.aiSite', href: '/global-supply/ai-assistant', isAI: true, comingSoon: true, eta: '2026.08' },
-    { key: 'nav.crossBorder', href: '/cross-border', isAI: true, comingSoon: true, eta: '2026.08' },
+    { key: 'content.avatar', href: '/digital-human', isAI: true },
+    { key: 'nav.scripts', href: '/scripts', isAI: true },
+    { key: 'nav.storyboard', href: '/storyboard', isAI: true },
   ]},
   { color: 'gray', label: '更多', items: [
-    { key: 'nav.pricing', href: '/pricing', isAI: false, comingSoon: true, eta: '2026.08' },
+    { key: 'nav.pricing', href: '/pricing', isAI: false },
   ]},
 ]
 
-type GroupColor = 'orange' | 'emerald' | 'blue' | 'gray'
+type GroupColor = 'orange' | 'gray'
 
 /** 根据分组颜色获取 hover/active 的 Tailwind 类名 */
 const groupActiveClasses: Record<GroupColor, { active: string; hover: string }> = {
   orange: { active: 'text-brand-400 bg-brand-50', hover: 'hover:text-brand-500 hover:bg-orange-50' },
-  emerald: { active: 'text-emerald-600 bg-emerald-50', hover: 'hover:text-emerald-600 hover:bg-emerald-50' },
-  blue: { active: 'text-blue-600 bg-blue-50', hover: 'hover:text-blue-600 hover:bg-blue-50' },
   gray: { active: 'text-gray-700 bg-gray-100', hover: 'hover:text-gray-700 hover:bg-gray-100' },
 }
 
@@ -124,8 +115,6 @@ export default function NavHeader() {
 
   const isActive = (href: string) => {
     if (href === '/pricing') return pathname === '/pricing'
-    if (href === '/global-supply/ai-assistant') return pathname.startsWith('/global-supply/ai-assistant')
-    if (href === '/global-supply') return pathname === '/global-supply' || (pathname.startsWith('/global-supply/') && !pathname.startsWith('/global-supply/ai-assistant'))
     return pathname.startsWith(href)
   }
 
@@ -250,36 +239,20 @@ export default function NavHeader() {
                     <p className="text-xs text-gray-400 truncate">{user.email}</p>
                   </div>
                   <Link
-                    href="/global-supply/my-resources"
+                    href="/persona"
                     className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     onClick={() => setUserMenuOpen(false)}
                   >
                     <FiPackage className="w-4 h-4 text-gray-400" />
-                    {t('content.resources', locale)}
+                    IP 操盘
                   </Link>
                   <Link
-                    href="/global-supply/cart"
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    onClick={() => setUserMenuOpen(false)}
-                  >
-                    <FiShoppingCart className="w-4 h-4 text-gray-400" />
-                    {t('nav.cart', locale)}
-                  </Link>
-                  <Link
-                    href="/global-supply/orders"
+                    href="/brand-promotion"
                     className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                     onClick={() => setUserMenuOpen(false)}
                   >
                     <FiFileText className="w-4 h-4 text-gray-400" />
-                    我的订单
-                  </Link>
-                  <Link
-                    href="/global-supply/inquiries"
-                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    onClick={() => setUserMenuOpen(false)}
-                  >
-                    <FiInbox className="w-4 h-4 text-gray-400" />
-                    {t('nav.inquiries', locale)}
+                    产品可视化
                   </Link>
                   <Link
                     href="/settings"
@@ -337,8 +310,6 @@ export default function NavHeader() {
                       ? 'text-gray-400'
                       : isActive(item.href)
                         ? group.color === 'orange' ? 'text-brand-400 bg-brand-50'
-                          : group.color === 'emerald' ? 'text-emerald-600 bg-emerald-50'
-                          : group.color === 'blue' ? 'text-blue-600 bg-blue-50'
                           : 'text-gray-700 bg-gray-100'
                         : 'text-gray-700 hover:bg-gray-50'
                   }`}

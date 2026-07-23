@@ -822,10 +822,10 @@ export function getCategoryInfo(name: string): { category: string; color: string
 export async function loadProductImageMap(): Promise<Record<string, string>> {
   try {
     const [imgRes, kwRes] = await Promise.all([
-      fetch('/api/global-supply/product-images'),
+      fetch('/api/global-supply/product-images').catch(() => new Response()),
       fetch('/api/baidu-product-images'),
     ])
-    const imgJson = await imgRes.json()
+    const imgJson = imgRes.ok ? await imgRes.json() : {}
     const kwJson = await kwRes.json()
     _keywordImageMap = kwJson?.data || kwJson || {}
     return imgJson?.data || imgJson || {}

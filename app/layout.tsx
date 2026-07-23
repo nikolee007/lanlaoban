@@ -12,26 +12,25 @@ import '@copilotkit/react-ui/styles.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://lanlaoban.com'),
-  title: '懒老板 — 老板一站式服务平台 | IP内容 · 门店盘点 · 全球供应链',
-  description: 'AI帮你生成IP内容、盘点门店经营、对接全球资源',
+  title: '懒老板 — AI IP操盘手 · 产品可视化',
+  description: 'AI帮你从IP定位到视频出片，一条龙交付。做IP还是拍产品，懒老板全搞定。',
   keywords: [
-    '懒老板','全球供应链','工厂对接','货源采购','跨境物流',
-    'OEM代工','一件代发','供应链管理','跨境电商',
-    '找工厂','找货源','找渠道','AI内容生成','门店经营',
+    '懒老板','AI操盘手','IP打造','短视频','数字人','产品可视化',
+    'AI视频','品牌推广','内容创作','实体老板IP',
   ],
   authors: [{ name: '懒老板团队' }],
   robots: { index: true, follow: true },
   openGraph: {
-    title: '懒老板 — 老板一站式服务平台 | IP内容 · 门店盘点 · 全球供应链',
-    description: 'AI帮你生成IP内容、盘点门店经营、对接全球资源',
+    title: '懒老板 — AI IP操盘手 · 产品可视化',
+    description: 'AI帮你从IP定位到视频出片，一条龙交付。',
     type: 'website',
     locale: 'zh_CN',
     siteName: '懒老板',
   },
   twitter: {
     card: 'summary_large_image',
-    title: '懒老板 — 老板一站式服务平台',
-    description: 'AI帮你生成IP内容、盘点门店经营、对接全球资源',
+    title: '懒老板 — AI IP操盘手 · 产品可视化',
+    description: 'AI帮你从IP定位到视频出片，一条龙交付。',
   },
 }
 
@@ -44,15 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           data={{
             name: '懒老板',
             url: 'https://lanlaoban.com',
-            description: 'AI帮你生成IP内容、盘点门店经营、对接全球资源',
-            potentialAction: {
-              '@type': 'SearchAction',
-              target: {
-                '@type': 'EntryPoint',
-                urlTemplate: 'https://lanlaoban.com/global-supply/search?q={search_term_string}',
-              },
-              'query-input': 'required name=search_term_string',
-            },
+            description: 'AI帮你从IP定位到视频出片，一条龙交付。',
           }}
         />
         <script dangerouslySetInnerHTML={{

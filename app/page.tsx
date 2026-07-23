@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { FiArrowRight, FiUser, FiCamera, FiTrendingUp, FiPackage, FiAward, FiPlay, FiCheck, FiStar, FiShield, FiZap, FiGlobe } from 'react-icons/fi'
+import { FiArrowRight, FiUser, FiCamera, FiTrendingUp, FiPackage, FiAward, FiPlay, FiCheck, FiStar, FiShield, FiZap } from 'react-icons/fi'
 import NavHeader from './components/NavHeader'
 
 export default function HomePage() {
@@ -194,22 +194,22 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Card 3: Cross-border */}
+            {/* Card 3: Digital Human */}
             <div className="rounded-2xl border border-[#E5E7EB] bg-white overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-500">
-              <div className="aspect-[4/3] bg-gradient-to-br from-[#10B981]/10 to-[#34D399]/5 flex items-center justify-center relative overflow-hidden">
+              <div className="aspect-[4/3] bg-gradient-to-br from-[#8B5CF6]/10 to-[#A78BFA]/5 flex items-center justify-center relative overflow-hidden">
                 <div className="text-center p-6">
-                  <div className="w-8 h-8 mx-auto mb-3 rounded-lg bg-[#10B981]/10 flex items-center justify-center">
-                    <FiGlobe className="w-4 h-4 text-[#10B981]" />
+                  <div className="w-8 h-8 mx-auto mb-3 rounded-lg bg-[#8B5CF6]/10 flex items-center justify-center">
+                    <FiUser className="w-4 h-4 text-[#8B5CF6]" />
                   </div>
-                  <p className="text-sm text-[#6B7280] leading-relaxed">工厂老板IP+产品
-双管齐下
-询盘量翻3倍</p>
+                  <p className="text-sm text-[#6B7280] leading-relaxed">上传照片
+AI生成数字人口播
+无需出镜也能做IP</p>
                 </div>
               </div>
               <div className="p-5">
-                <h4 className="font-bold mb-1">IP + 供应链双驱动</h4>
-                <p className="text-xs text-[#6B7280] mb-3">IP内容引流 → 全球供应链资源对接</p>
-                <Link href="/global-supply" className="text-xs text-[#10B981] font-semibold hover:underline">探索供应链 →</Link>
+                <h4 className="font-bold mb-1">AI 数字人口播</h4>
+                <p className="text-xs text-[#6B7280] mb-3">上传照片 → AI 生成真人形象口播视频</p>
+                <Link href="/digital-human" className="text-xs text-[#8B5CF6] font-semibold hover:underline">体验数字人 →</Link>
               </div>
             </div>
           </div>

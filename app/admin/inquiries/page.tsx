@@ -32,7 +32,7 @@ export default function AdminInquiriesPage() {
 	        if (t) h_['Authorization'] = 'Bearer ' + t
         const res = await fetch(`/api/global-supply/collections${params}`, {
           headers: h_,
-        })
+        }).catch(() => new Response())
         const json = await res.json()
         if (json.success) {
           setCollections(json.data)

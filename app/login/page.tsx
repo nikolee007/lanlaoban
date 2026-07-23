@@ -85,7 +85,7 @@ export default function LoginPage() {
       const data = await res.json()
       if (res.ok && data.token) {
         localStorage.setItem('lanlaoban_token', data.token)
-        window.location.href = '/global-supply'
+        window.location.href = '/persona'
       } else {
         setError(data.error || t('login.error.credentials', locale))
       }

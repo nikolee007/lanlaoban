@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import NavHeader from '@/app/components/NavHeader'
 import VideoPlayer from '@/app/components/VideoPlayer'
-import { FiZap, FiCamera, FiGlobe, FiPlay, FiChevronRight } from 'react-icons/fi'
+import { FiZap, FiCamera, FiPlay, FiChevronRight } from 'react-icons/fi'
 
 const steps = [
   {
@@ -33,8 +33,8 @@ const steps = [
 const quickLinks = [
   { label: 'IP操盘人设', href: '/persona', desc: 'AI采访·人设定位·内容策略' },
   { label: '品牌宣传视频', href: '/brand-promotion', desc: '产品图→30s精品短片' },
-  { label: '供应链资源', href: '/global-supply', desc: '找工厂·找商品·找渠道' },
-  { label: 'AI聊天助手', href: '/global-supply/ai-assistant', desc: '生意顾问·IP策划' },
+  { label: 'IP操盘', href: '/persona', desc: 'AI采访·人设定位·内容策略' },
+  { label: 'AI聊天助手', href: '/ai-assistant', desc: '生意顾问·IP策划' },
   { label: '定价方案', href: '/pricing', desc: '体验包·标准版·专业版' },
   { label: '常见问题', href: '/faq', desc: '使用疑问·计费说明' },
 ]

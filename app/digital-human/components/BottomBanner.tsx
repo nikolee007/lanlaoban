@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { FiCamera, FiGlobe } from 'react-icons/fi'
+import { FiCamera } from 'react-icons/fi'
 
 export default function BottomBanner() {
   return (
@@ -12,8 +12,8 @@ export default function BottomBanner() {
         <Link href="/ai-video" className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50">
           <FiCamera className="h-3 w-3" /> 一键短视频
         </Link>
-        <Link href="/cross-border" className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50">
-          <FiGlobe className="h-3 w-3" /> 跨境AI工具
+        <Link href="/brand-promotion" className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50">
+          <FiCamera className="h-3 w-3" /> 产品可视化
         </Link>
       </div>
     </div>

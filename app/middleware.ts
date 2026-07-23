@@ -3,23 +3,16 @@ import type { NextRequest } from 'next/server'
 
 /** 需要登录才能访问的路由 */
 const PROTECTED_PATHS = [
-  '/global-supply/cart',
-  '/global-supply/orders',
-  '/global-supply/inquiries',
-  '/global-supply/my-resources',
-  '/global-supply/checkout',
   '/interview',
   '/brand-promotion',
-  '/myshop',
-  '/profile',
-  '/settings',
   '/persona',
   '/digital-human',
+  '/profile',
+  '/settings',
   '/admin',
   '/api/ai-assistant',
   '/api/chat',
   '/api/copilotkit',
-  '/api/shop/generate',
   '/api/admin',
 ]
 
@@ -33,10 +26,8 @@ const PUBLIC_PATHS = [
   '/terms',
   '/privacy',
   '/coming-soon',
-  '/global-supply/ai-assistant',
   '/api/auth/login',
   '/api/auth/register',
-  '/api/global-supply',
 ]
 
 export function middleware(request: NextRequest) {

@@ -184,7 +184,7 @@ export default function NotificationsPage() {
             <FiInbox className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-400 text-sm">暂无通知</p>
             <Link
-              href="/global-supply"
+              href="/persona"
               className="inline-block mt-4 text-sm font-medium text-brand-400 hover:text-brand-500"
             >
               去逛逛

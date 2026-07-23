@@ -1,5 +1,5 @@
 import {
-  FiCamera, FiUser, FiStar, FiShoppingBag, FiEdit3, FiGlobe,
+  FiCamera, FiUser, FiStar, FiShoppingBag, FiEdit3, FiZap,
   FiSmartphone, FiMonitor, FiMove, FiImage,
 } from 'react-icons/fi'
 import type { IconType } from 'react-icons'
@@ -47,12 +47,12 @@ export const INFO: Record<VideoType, VideoTypeInfo> = {
   },
   knowledge: {
     icon: FiEdit3, title: '知识口播·专家IP', desc: '知识博主输出价值',
-    color: '#D97706', bg: '#FFFBEB', demo: '跨境电商课程',
-    brand: '老李跨境说', sell: '10年经验,月销百万实操,0基础可学',
+    color: '#D97706', bg: '#FFFBEB', demo: '创业IP课程',
+    brand: '老李IP说', sell: '10年经验,从0到百万IP实操,0基础可学',
   },
   crossborder: {
-    icon: FiGlobe, title: '跨境电商 · 带货种草',
-    desc: '适合跨境电商卖家、TikTok Shop商家、独立站运营',
+    icon: FiZap, title: '好物测评 · 带货种草',
+    desc: '适合带货达人、产品推广、品牌种草',
     color: '#0EA5E9', bg: '#F0F9FF', demo: '便携式榨汁机 USB-C充电',
     brand: 'FreshBlend Pro',
     sell: 'USB-C充电便携、30秒鲜榨、304不锈钢刀片',

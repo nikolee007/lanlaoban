@@ -44,13 +44,18 @@ async function agnesFetch(endpoint: string, body?: AgnesRequestBody, method = 'P
   return res.json()
 }
 
-export async function generateImage(prompt: string, size = '1024x1024'): Promise<AgnesImageResult> {
-  const data = await agnesFetch('/images/generations', {
+export async function generateImage(prompt: string, size = '1024x1024', referenceImage?: string): Promise<AgnesImageResult> {
+  const body: Record<string, unknown> = {
     model: 'agnes-image-2.1-flash',
     prompt,
     n: 1,
     size,
-  })
+  }
+  // 传入参考图（用户照片）作为 image_url 参数
+  if (referenceImage) {
+    body.image_url = referenceImage
+  }
+  const data = await agnesFetch('/images/generations', body)
   return { url: data.data?.[0]?.url || '' }
 }
 

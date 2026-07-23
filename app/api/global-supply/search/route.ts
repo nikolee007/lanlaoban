@@ -137,18 +137,18 @@ export async function GET(request: NextRequest) {
         // 降级为全量查回 + 内存过滤
         console.error('[search] Prisma query failed, falling back:', e)
         try {
-          const all = await db.product.findMany({
-            include: {
-              supplier: { select: { id: true, nameZh: true, nameEn: true, location: true, rating: true } },
-              category: { select: { id: true, name: true } },
-            },
-          })
+          const all = await db.product.findMany()
+          const allSuppliers = await db.supplier.findMany()
           const filtered = all.filter(p =>
             !q || p.name.toLowerCase().includes(q.toLowerCase()) ||
             (p.description && p.description.toLowerCase().includes(q.toLowerCase()))
           )
           products = filtered.slice(skip, skip + pageSize)
           total += filtered.length
+          suppliers = allSuppliers.filter(s =>
+            !q || s.nameZh?.toLowerCase().includes(q.toLowerCase()) ||
+            s.nameEn?.toLowerCase().includes(q.toLowerCase())
+          )
         } catch (e2) {
           console.error('[search] Fallback also failed:', e2)
         }
@@ -157,71 +157,28 @@ export async function GET(request: NextRequest) {
 
     // -- Build supplier where clause -------------------------------------------
     if (type === 'supplier' || type === 'all') {
-      const supplierOrConditions: Prisma.SupplierWhereInput[] = []
-
-      if (q) {
-        supplierOrConditions.push(
-          { nameZh: { contains: q } },
-          { nameEn: { contains: q } },
-          { businessTags: { contains: q } },
-        )
-      }
-
-      if (keyword) {
-        const keywords = keyword.split(',').filter(Boolean)
-        keywords.forEach(k => {
-          supplierOrConditions.push({ businessTags: { contains: k } })
-        })
-      }
-
-      const supplierAndConditions: Prisma.SupplierWhereInput[] = []
-      if (supplierOrConditions.length > 0) {
-        supplierAndConditions.push({ OR: supplierOrConditions })
-      }
-
-      if (region) {
-        supplierAndConditions.push({ location: { contains: region } })
-      }
-
-      if (certification) {
-        supplierAndConditions.push({ certifications: { contains: certification } })
-      }
-
-      if (minRating) {
-        const rating = parseFloat(minRating)
-        if (!isNaN(rating)) {
-          supplierAndConditions.push({ rating: { gte: rating } })
-        }
-      }
-
-      const supplierWhere: Prisma.SupplierWhereInput =
-        supplierAndConditions.length > 0 ? { AND: supplierAndConditions } : {}
-
       try {
+        const supplierOrConditions: Prisma.SupplierWhereInput[] = []
+        if (q) {
+          supplierOrConditions.push({ nameZh: { contains: q } }, { nameEn: { contains: q } }, { businessTags: { contains: q } })
+        }
+        if (keyword) {
+          keyword.split(',').filter(Boolean).forEach(k => supplierOrConditions.push({ businessTags: { contains: k } }))
+        }
+        const supplierAndConditions: Prisma.SupplierWhereInput[] = []
+        if (supplierOrConditions.length > 0) supplierAndConditions.push({ OR: supplierOrConditions })
+        if (region) supplierAndConditions.push({ location: { contains: region } })
+        if (certification) supplierAndConditions.push({ certifications: { contains: certification } })
+        if (minRating) { const r = parseFloat(minRating); if (!isNaN(r)) supplierAndConditions.push({ rating: { gte: r } }) }
+        const sw = supplierAndConditions.length > 0 ? { AND: supplierAndConditions } : {}
         const [items, count] = await Promise.all([
-          db.supplier.findMany({
-            where: supplierWhere,
-            orderBy: { rating: 'desc' },
-            skip,
-            take: pageSize,
-          }),
-          db.supplier.count({ where: supplierWhere }),
+          db.supplier.findMany({ where: sw, orderBy: { rating: 'desc' }, skip, take: pageSize }),
+          db.supplier.count({ where: sw }),
         ])
         suppliers = items
         total += count
-      } catch (e) {
-        console.error('[search] Supplier query failed, falling back:', e)
-        try {
-          const all = await db.supplier.findMany()
-          const filtered = all.filter(s =>
-            !q || s.nameZh?.toLowerCase().includes(q.toLowerCase()) ||
-            s.nameEn?.toLowerCase().includes(q.toLowerCase())
-          )
-          suppliers = filtered.slice(skip, skip + pageSize)
-          total += filtered.length
-        } catch (e2) {
-          console.error('[search] Supplier fallback failed:', e2)
-        }
+      } catch {
+        console.error('[search] Supplier query failed, using product-fallback suppliers')
       }
     }
 

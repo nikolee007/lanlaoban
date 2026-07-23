@@ -92,6 +92,16 @@ export const tursoDb = {
     } catch (e) { console.error('[turso] findUserByEmail:', e); return null }
   },
 
+  async findUserById(id: number): Promise<TursoUser | null> {
+    const c = getClient()
+    if (!c) return null
+    await ensureSchema()
+    try {
+      const r = await c.execute({ sql: 'SELECT * FROM "User" WHERE "id" = ?', args: [id] })
+      return (r.rows[0] as unknown as TursoUser) || null
+    } catch (e) { console.error('[turso] findUserById:', e); return null }
+  },
+
   async createUser(email: string, password: string, name?: string): Promise<TursoUser | null> {
     const c = getClient()
     if (!c) return null

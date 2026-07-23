@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { tursoDb } from '@/lib/turso'
 import { getAuthUserId } from '@/lib/auth'
+
+const TURSO_ENABLED = !!process.env.TURSO_DATABASE_URL
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,9 +15,28 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const user = await db.user.findUnique({
-      where: { id: userId },
-    })
+    let user = null
+    if (TURSO_ENABLED) {
+      // Vercel 生产环境 — 用户数据在 Turso
+      const tursoUser = await tursoDb.findUserById(userId)
+      if (tursoUser) {
+        user = {
+          id: tursoUser.id,
+          email: tursoUser.email,
+          name: tursoUser.name,
+          avatar: null,
+          company: null,
+          phone: null,
+          createdAt: tursoUser.createdAt,
+          updatedAt: tursoUser.updatedAt,
+        }
+      }
+    } else {
+      // 本地开发 — 使用 Prisma SQLite
+      user = await db.user.findUnique({
+        where: { id: userId },
+      })
+    }
 
     if (!user) {
       return NextResponse.json(

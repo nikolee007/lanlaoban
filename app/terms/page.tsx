@@ -11,7 +11,7 @@ export default function TermsPage() {
           <h1 className="section-title">
             服务条款
           </h1>
-          <p className="section-subtitle">最后更新：2025年1月</p>
+          <p className="section-subtitle">最后更新：2026年7月</p>
         </div>
 
         <div className="card p-6 sm:p-8 prose prose-gray max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 prose-p:text-gray-600 prose-p:leading-relaxed prose-ul:text-gray-600 prose-li:leading-relaxed">
@@ -25,10 +25,10 @@ export default function TermsPage() {
             懒老板是一个为实体老板提供一站式服务的平台，包括但不限于：
           </p>
           <ul>
-            <li>AI内容生成（短视频脚本、口播、场景方案等）</li>
-            <li>全球供应链资源对接</li>
-            <li>门店经营智能盘点与分析</li>
-            <li>其他相关增值服务</li>
+            <li>AI IP 操盘（短视频脚本、口播文案、拍摄方案、场景策划等）</li>
+            <li>AI 产品导演（产品宣传片脚本、多语言配音、视频合成）</li>
+            <li>AI 数字人口播视频生成</li>
+            <li>多语言 TTS 配音服务</li>
           </ul>
 
           <h2>3. 用户责任</h2>

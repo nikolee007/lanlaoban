@@ -67,9 +67,10 @@ export default function ScenesPage() {
         <NavHeader />
         <main className="max-w-4xl mx-auto px-4 py-20 text-center">
           <FiCamera className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">还没有生成内容</h2>
-          <p className="text-gray-500 mb-6">先去生成脚本，再来查看拍摄场景</p>
-          <Link href="/generate" className="btn-primary">去生成脚本</Link>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">拍摄场景方案</h2>
+          <p className="text-gray-500 mb-4">完成 IP 采访后，AI 自动生成 5 个人设场景 + 10 个商业场景</p>
+          <p className="text-gray-400 text-sm mb-8 max-w-md mx-auto">覆盖近景口播、纪实行走、产品特写等拍摄类型，直接用于拍摄执行</p>
+          <Link href="/persona" className="btn-primary">去做IP采访</Link>
         </main>
       </div>
     )

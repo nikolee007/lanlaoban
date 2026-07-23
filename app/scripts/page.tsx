@@ -72,19 +72,24 @@ export default function ScriptsPage() {
   if (scripts.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <header className="border-b bg-white">
-          <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-brand-400 rounded-lg flex items-center justify-center text-white font-bold text-sm">懒</div>
-              <span className="text-xl font-bold">懒老板</span>
-            </Link>
-          </div>
-        </header>
+        <NavHeader />
         <main className="max-w-4xl mx-auto px-4 py-20 text-center">
           <FiRefreshCw className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">还没有生成脚本</h2>
-          <p className="text-gray-500 mb-6">先去AI生成页面创建你的专属内容</p>
-          <Link href="/generate" className="btn-primary">去生成脚本</Link>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">脚本库</h2>
+          <p className="text-gray-500 mb-4">完成IP采访后，AI 会自动生成 30-60 条专属脚本</p>
+          <p className="text-gray-400 text-sm mb-8 max-w-md mx-auto">支持按人设篇/干货篇/展示篇/引流篇分类查看，一键复制或导出全部脚本</p>
+          <Link href="/persona" className="btn-primary inline-flex items-center gap-2">
+            去做IP采访
+          </Link>
+          <div className="mt-8 flex items-center justify-center gap-4 text-sm text-gray-400">
+            <span>✅ AI 采访</span>
+            <span>→</span>
+            <span>📝 脚本生成</span>
+            <span>→</span>
+            <span>🎬 拍摄方案</span>
+            <span>→</span>
+            <span>🤖 数字人</span>
+          </div>
         </main>
       </div>
     )
@@ -106,7 +111,7 @@ export default function ScriptsPage() {
           <div className="flex gap-2">
             <button onClick={handleExport} className="btn-outline text-sm"><FiDownload className="w-3 h-3 mr-1" />导出</button>
             <button onClick={handleCopyAll} className="btn-outline text-sm"><FiFileText className="w-3 h-3 mr-1" />复制</button>
-            <Link href="/generate" className="btn-primary text-sm"><FiRefreshCw className="w-3 h-3 mr-1" />重新生成</Link>
+            <Link href="/persona" className="btn-primary text-sm"><FiRefreshCw className="w-3 h-3 mr-1" />重新生成</Link>
           </div>
         </div>
 

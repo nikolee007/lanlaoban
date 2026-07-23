@@ -72,9 +72,10 @@ export default function StoryboardPage() {
         <NavHeader />
         <main className="max-w-4xl mx-auto px-4 py-20 text-center">
           <FiCamera className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-2">还没有生成脚本</h2>
-          <p className="text-gray-500 mb-6">先去生成内容，再来制作数字人故事板</p>
-          <Link href="/generate" className="btn-primary">去生成脚本</Link>
+          <h2 className="text-xl font-bold mb-2">拍摄方案</h2>
+          <p className="text-gray-500 mb-4">完成 IP 采访后，AI 自动为每条脚本生成逐镜拍摄方案</p>
+          <p className="text-gray-400 text-sm mb-8 max-w-md mx-auto">包含镜头类型、拍摄背景、机位指导、姿势参考，支持上传真人照片匹配</p>
+          <Link href="/persona" className="btn-primary">去做IP采访</Link>
         </main>
       </div>
     )

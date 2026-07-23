@@ -11,7 +11,7 @@ export default function PrivacyPage() {
           <h1 className="section-title">
             隐私政策
           </h1>
-          <p className="section-subtitle">最后更新：2025年1月</p>
+          <p className="section-subtitle">最后更新：2026年7月</p>
         </div>
 
         <div className="card p-6 sm:p-8 prose prose-gray max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 prose-p:text-gray-600 prose-p:leading-relaxed prose-ul:text-gray-600 prose-li:leading-relaxed">

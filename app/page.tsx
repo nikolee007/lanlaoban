@@ -386,7 +386,7 @@ AI生成数字人口播
             ¥99体验IP操盘手 | ¥1,299体验产品小样。觉得好再续，不满意随时停。
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Link href="#" className="inline-flex items-center gap-2 rounded-full bg-white text-[#0A0A0B] px-8 py-4 text-base font-semibold hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+            <Link href="/persona" className="inline-flex items-center gap-2 rounded-full bg-white text-[#0A0A0B] px-8 py-4 text-base font-semibold hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
               <FiZap className="w-4 h-4" />
               立即体验
             </Link>

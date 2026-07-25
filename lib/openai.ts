@@ -29,20 +29,10 @@ function tryGetKey(envVar: string): string | null {
   }
 }
 
-/** 获取各 AI 客户端（自动降级链：Kimi K3 → DeepSeek → Agnes → Zhipu） */
+/** 获取各 AI 客户端（自动降级链：DeepSeek → Agnes → Zhipu） */
 export function getClient(): OpenAI {
   if (!_defaultClient) {
-    // 1. 首选 Kimi K3
-    const kk = tryGetKey('KIMI_API_KEY')
-    if (kk) {
-      _defaultClient = new OpenAI({
-        apiKey: kk,
-        baseURL: 'https://api.moonshot.cn/v1',
-      })
-      return _defaultClient
-    }
-
-    // 2. 降级到 DeepSeek
+    // 1. 首选 DeepSeek
     const dk = tryGetKey('OPENAI_API_KEY')
     if (dk) {
       _defaultClient = new OpenAI({
@@ -52,7 +42,7 @@ export function getClient(): OpenAI {
       return _defaultClient
     }
 
-    // 3. 降级到 Agnes API
+    // 2. 降级到 Agnes API
     const ak = tryGetKey('AGNES_API_KEY')
     if (ak) {
       _defaultClient = new OpenAI({
@@ -62,7 +52,7 @@ export function getClient(): OpenAI {
       return _defaultClient
     }
 
-    // 4. 最后降级到 Zhipu
+    // 3. 最后降级到 Zhipu
     const zk = tryGetKey('ZHIPU_API_KEY')
     if (zk) {
       _defaultClient = new OpenAI({
@@ -72,12 +62,16 @@ export function getClient(): OpenAI {
       return _defaultClient
     }
 
-    throw new Error('无可用的 AI 服务配置，请先设置 KIMI_API_KEY、OPENAI_API_KEY 或 AGNES_API_KEY')
+    throw new Error('无可用的 AI 服务配置，请先设置 OPENAI_API_KEY 或 AGNES_API_KEY')
   }
   return _defaultClient
 }
 
-/** Kimi K3 客户端 */
+/**
+ * Kimi K3 客户端
+ * 仅供本地开发/调试使用，不上生产环境降级链
+ * 调用方式: getEngineClient('kimi')
+ */
 export function getKimiClient(): OpenAI {
   if (!_kimiClient) {
     _kimiClient = new OpenAI({
@@ -140,14 +134,13 @@ export function getEngineClient(engine: AiEngine = 'deepseek'): OpenAI {
 
 /** 自动获取最佳可用模型名 */
 export function getDefaultModel(): string {
-  // Kimi K3 → deepseek-chat → agnes-2.0-flash → glm-5.2
-  if (tryGetKey('KIMI_API_KEY')) return 'kimi-k3'
+  // deepseek-chat → agnes-2.0-flash → glm-5.2
   if (tryGetKey('OPENAI_API_KEY')) return 'deepseek-chat'
   if (tryGetKey('AGNES_API_KEY')) return 'agnes-2.0-flash'
   return 'glm-5.2'
 }
 
-/** 使用自动降级链生成内容（Kimi K3 → DeepSeek → Agnes → Zhipu） */
+/** 使用自动降级链生成内容（DeepSeek → Agnes → Zhipu） */
 export async function generateContent(
   prompt: string,
   systemPrompt?: string,

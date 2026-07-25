@@ -1,6 +1,7 @@
 import OpenAI from 'openai'
 
 let _defaultClient: OpenAI | null = null
+let _kimiClient: OpenAI | null = null
 let _deepseekClient: OpenAI | null = null
 let _zhipuClient: OpenAI | null = null
 let _agnesClient: OpenAI | null = null
@@ -28,10 +29,20 @@ function tryGetKey(envVar: string): string | null {
   }
 }
 
-/** 获取各 AI 客户端（自动降级链：DeepSeek → Agnes → Zhipu） */
+/** 获取各 AI 客户端（自动降级链：Kimi K3 → DeepSeek → Agnes → Zhipu） */
 export function getClient(): OpenAI {
   if (!_defaultClient) {
-    // 1. 首选 DeepSeek
+    // 1. 首选 Kimi K3
+    const kk = tryGetKey('KIMI_API_KEY')
+    if (kk) {
+      _defaultClient = new OpenAI({
+        apiKey: kk,
+        baseURL: 'https://api.moonshot.cn/v1',
+      })
+      return _defaultClient
+    }
+
+    // 2. 降级到 DeepSeek
     const dk = tryGetKey('OPENAI_API_KEY')
     if (dk) {
       _defaultClient = new OpenAI({
@@ -41,7 +52,7 @@ export function getClient(): OpenAI {
       return _defaultClient
     }
 
-    // 2. 降级到 Agnes API
+    // 3. 降级到 Agnes API
     const ak = tryGetKey('AGNES_API_KEY')
     if (ak) {
       _defaultClient = new OpenAI({
@@ -51,7 +62,7 @@ export function getClient(): OpenAI {
       return _defaultClient
     }
 
-    // 3. 最后降级到 Zhipu
+    // 4. 最后降级到 Zhipu
     const zk = tryGetKey('ZHIPU_API_KEY')
     if (zk) {
       _defaultClient = new OpenAI({
@@ -61,9 +72,20 @@ export function getClient(): OpenAI {
       return _defaultClient
     }
 
-    throw new Error('无可用的 AI 服务配置，请先设置 OPENAI_API_KEY 或 AGNES_API_KEY')
+    throw new Error('无可用的 AI 服务配置，请先设置 KIMI_API_KEY、OPENAI_API_KEY 或 AGNES_API_KEY')
   }
   return _defaultClient
+}
+
+/** Kimi K3 客户端 */
+export function getKimiClient(): OpenAI {
+  if (!_kimiClient) {
+    _kimiClient = new OpenAI({
+      apiKey: getApiKey('KIMI_API_KEY'),
+      baseURL: 'https://api.moonshot.cn/v1',
+    })
+  }
+  return _kimiClient
 }
 
 /** DeepSeek 专用客户端 */
@@ -100,11 +122,13 @@ export function getAgnesClient(): OpenAI {
   return _agnesClient
 }
 
-export type AiEngine = 'deepseek' | 'zhipu' | 'agnes'
+export type AiEngine = 'kimi' | 'deepseek' | 'zhipu' | 'agnes'
 
 /** 获取指定引擎的客户端 */
 export function getEngineClient(engine: AiEngine = 'deepseek'): OpenAI {
   switch (engine) {
+    case 'kimi':
+      return getKimiClient()
     case 'zhipu':
       return getZhipuClient()
     case 'agnes':
@@ -116,17 +140,18 @@ export function getEngineClient(engine: AiEngine = 'deepseek'): OpenAI {
 
 /** 自动获取最佳可用模型名 */
 export function getDefaultModel(): string {
-  // DeepSeek → agnes-2.0-flash → glm-5.2 (2026-07 agnes-1.5-flash 已下线)
+  // Kimi K3 → deepseek-chat → agnes-2.0-flash → glm-5.2
+  if (tryGetKey('KIMI_API_KEY')) return 'kimi-k3'
   if (tryGetKey('OPENAI_API_KEY')) return 'deepseek-chat'
   if (tryGetKey('AGNES_API_KEY')) return 'agnes-2.0-flash'
   return 'glm-5.2'
 }
 
-/** 使用自动降级链生成内容（DeepSeek → Agnes → Zhipu） */
+/** 使用自动降级链生成内容（Kimi K3 → DeepSeek → Agnes → Zhipu） */
 export async function generateContent(
   prompt: string,
   systemPrompt?: string,
-  _engine: AiEngine = 'deepseek',
+  _engine?: AiEngine,
 ): Promise<string> {
   const client = getClient()
   const model = getDefaultModel()

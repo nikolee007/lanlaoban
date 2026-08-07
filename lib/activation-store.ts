@@ -19,14 +19,31 @@ export interface ActivationCodeRow {
   activatedAt: Date | string | null
 }
 
-export async function getCodeByCode(code: string) {
-  if (TURSO_ENABLED) return tursoActivation.getCodeByCode(code)
-  return db.activationCode.findUnique({ where: { code } })
+/** 把 Prisma 或 Turso 的结果统一成 ActivationCodeRow */
+function toRow(r: unknown): ActivationCodeRow | null {
+  if (!r || typeof r !== 'object') return null
+  const o = r as Record<string, unknown>
+  return {
+    id: Number(o.id),
+    code: String(o.code),
+    cid: String(o.cid),
+    expiresAt: (o.expiresAt as Date | string) ?? '',
+    maxDevices: Number(o.maxDevices ?? 1),
+    status: String(o.status ?? 'unused'),
+    createdBy: o.createdBy == null ? null : Number(o.createdBy),
+    createdAt: (o.createdAt as Date | string) ?? new Date(),
+    activatedAt: o.activatedAt == null ? null : (o.activatedAt as Date | string),
+  }
 }
 
-export async function getCodeByCid(cid: string) {
-  if (TURSO_ENABLED) return tursoActivation.getCodeByCid(cid)
-  return db.activationCode.findUnique({ where: { cid } })
+export async function getCodeByCode(code: string): Promise<ActivationCodeRow | null> {
+  if (TURSO_ENABLED) return toRow(await tursoActivation.getCodeByCode(code))
+  return toRow(await db.activationCode.findUnique({ where: { code } }))
+}
+
+export async function getCodeByCid(cid: string): Promise<ActivationCodeRow | null> {
+  if (TURSO_ENABLED) return toRow(await tursoActivation.getCodeByCid(cid))
+  return toRow(await db.activationCode.findUnique({ where: { cid } }))
 }
 
 export async function insertCode(code: string, cid: string, expiresAt: Date, maxDevices: number, createdBy: number | null) {
@@ -39,11 +56,39 @@ export async function updateCodeStatus(cid: string, status: string, activatedAt?
   return db.activationCode.update({ where: { cid }, data: { status, activatedAt: activatedAt ?? null } })
 }
 
-export async function getActivation(codeId: number, fp: string) {
-  if (TURSO_ENABLED) return tursoActivation.getActivation(codeId, fp)
-  return db.activation.findUnique({
-    where: { codeId_deviceFingerprint: { codeId, deviceFingerprint: fp } },
-  })
+export interface ActivationRow {
+  id: number
+  codeId: number
+  deviceFingerprint: string
+  token: string | null
+  validUntil: Date | string | null
+  lastHeartbeatAt: Date | string | null
+  status: string
+  createdAt: Date | string
+}
+
+function toActivationRow(r: unknown): ActivationRow | null {
+  if (!r || typeof r !== 'object') return null
+  const o = r as Record<string, unknown>
+  return {
+    id: Number(o.id),
+    codeId: Number(o.codeId),
+    deviceFingerprint: String(o.deviceFingerprint),
+    token: o.token == null ? null : String(o.token),
+    validUntil: o.validUntil == null ? null : (o.validUntil as Date | string),
+    lastHeartbeatAt: o.lastHeartbeatAt == null ? null : (o.lastHeartbeatAt as Date | string),
+    status: String(o.status ?? 'active'),
+    createdAt: (o.createdAt as Date | string) ?? new Date(),
+  }
+}
+
+export async function getActivation(codeId: number, fp: string): Promise<ActivationRow | null> {
+  if (TURSO_ENABLED) return toActivationRow(await tursoActivation.getActivation(codeId, fp))
+  return toActivationRow(
+    await db.activation.findUnique({
+      where: { codeId_deviceFingerprint: { codeId, deviceFingerprint: fp } },
+    }),
+  )
 }
 
 export async function insertActivation(codeId: number, fp: string, token: string, validUntil: Date) {

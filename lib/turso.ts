@@ -67,6 +67,29 @@ async function ensureSchema() {
           for (const stmt of sql.split(';').filter(s => s.trim())) {
             await client.execute(stmt.trim() + ';')
           }
+        } else {
+          // 已有 User 表（生产 Turso 已初始化过）→ 补建洋葱激活新表（缺失时）
+          const r2 = await client.execute("SELECT count(*) as cnt FROM sqlite_master WHERE type='table' AND name='ActivationCode'")
+          const row2 = r2.rows?.[0] as unknown as SqliteMasterRow | undefined
+          if (row2 && Number(row2.cnt) === 0) {
+            await client.execute(`CREATE TABLE IF NOT EXISTS "ActivationCode" (
+              "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+              "code" TEXT NOT NULL, "cid" TEXT NOT NULL, "expiresAt" DATETIME NOT NULL,
+              "maxDevices" INTEGER NOT NULL DEFAULT 1, "status" TEXT NOT NULL DEFAULT 'unused',
+              "createdBy" INTEGER, "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, "activatedAt" DATETIME,
+              CONSTRAINT "ActivationCode_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+            )`)
+            await client.execute(`CREATE TABLE IF NOT EXISTS "Activation" (
+              "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+              "codeId" INTEGER NOT NULL, "deviceFingerprint" TEXT NOT NULL, "token" TEXT,
+              "validUntil" DATETIME, "lastHeartbeatAt" DATETIME, "status" TEXT NOT NULL DEFAULT 'active',
+              "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              CONSTRAINT "Activation_codeId_fkey" FOREIGN KEY ("codeId") REFERENCES "ActivationCode" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+            )`)
+            await client.execute('CREATE UNIQUE INDEX IF NOT EXISTS "ActivationCode_code_key" ON "ActivationCode"("code")')
+            await client.execute('CREATE UNIQUE INDEX IF NOT EXISTS "ActivationCode_cid_key" ON "ActivationCode"("cid")')
+            await client.execute('CREATE UNIQUE INDEX IF NOT EXISTS "Activation_codeId_deviceFingerprint_key" ON "Activation"("codeId", "deviceFingerprint")')
+          }
         }
         _readyFlag = true
       } catch (err) {

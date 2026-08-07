@@ -171,3 +171,106 @@ export const tursoDb = {
     } catch (e) { console.error('[turso] getChats:', e); return [] }
   },
 }
+
+/** 洋葱一键出海 · 激活码存储（Turso 生产环境） */
+export const tursoActivation = {
+  async getCodeByCode(code: string) {
+    const c = getClient()
+    if (!c) return null
+    await ensureSchema()
+    try {
+      const r = await c.execute({ sql: 'SELECT * FROM "ActivationCode" WHERE "code" = ?', args: [code] })
+      return (r.rows[0] as Record<string, unknown>) || null
+    } catch (e) { console.error('[turso] getCodeByCode:', e); return null }
+  },
+
+  async getCodeByCid(cid: string) {
+    const c = getClient()
+    if (!c) return null
+    await ensureSchema()
+    try {
+      const r = await c.execute({ sql: 'SELECT * FROM "ActivationCode" WHERE "cid" = ?', args: [cid] })
+      return (r.rows[0] as Record<string, unknown>) || null
+    } catch (e) { console.error('[turso] getCodeByCid:', e); return null }
+  },
+
+  async insertCode(code: string, cid: string, expiresAt: string, maxDevices: number, createdBy: number | null) {
+    const c = getClient()
+    if (!c) return null
+    await ensureSchema()
+    try {
+      await c.execute({
+        sql: 'INSERT INTO "ActivationCode" ("code","cid","expiresAt","maxDevices","createdBy","createdAt") VALUES (?,?,?,?,?,?)',
+        args: [code, cid, expiresAt, maxDevices, createdBy, new Date().toISOString()],
+      })
+      return this.getCodeByCode(code)
+    } catch (e) { console.error('[turso] insertCode:', e); return null }
+  },
+
+  async updateCodeStatus(cid: string, status: string, activatedAt: string | null) {
+    const c = getClient()
+    if (!c) return
+    await ensureSchema()
+    try {
+      await c.execute({
+        sql: 'UPDATE "ActivationCode" SET "status" = ?, "activatedAt" = ? WHERE "cid" = ?',
+        args: [status, activatedAt, cid],
+      })
+    } catch (e) { console.error('[turso] updateCodeStatus:', e) }
+  },
+
+  async getActivation(codeId: number, fp: string) {
+    const c = getClient()
+    if (!c) return null
+    await ensureSchema()
+    try {
+      const r = await c.execute({
+        sql: 'SELECT * FROM "Activation" WHERE "codeId" = ? AND "deviceFingerprint" = ?',
+        args: [codeId, fp],
+      })
+      return (r.rows[0] as Record<string, unknown>) || null
+    } catch (e) { console.error('[turso] getActivation:', e); return null }
+  },
+
+  async insertActivation(codeId: number, fp: string, token: string, validUntil: string) {
+    const c = getClient()
+    if (!c) return null
+    await ensureSchema()
+    try {
+      await c.execute({
+        sql: 'INSERT INTO "Activation" ("codeId","deviceFingerprint","token","validUntil","createdAt") VALUES (?,?,?,?,?)',
+        args: [codeId, fp, token, validUntil, new Date().toISOString()],
+      })
+      return this.getActivation(codeId, fp)
+    } catch (e) { console.error('[turso] insertActivation:', e); return null }
+  },
+
+  async touchHeartbeat(id: number, time: string) {
+    const c = getClient()
+    if (!c) return
+    await ensureSchema()
+    try {
+      await c.execute({ sql: 'UPDATE "Activation" SET "lastHeartbeatAt" = ? WHERE "id" = ?', args: [time, id] })
+    } catch (e) { console.error('[turso] touchHeartbeat:', e) }
+  },
+
+  async countAct(codeId: number): Promise<number> {
+    const c = getClient()
+    if (!c) return 0
+    await ensureSchema()
+    try {
+      const r = await c.execute({ sql: 'SELECT COUNT(*) as cnt FROM "Activation" WHERE "codeId" = ?', args: [codeId] })
+      return Number((r.rows[0] as Record<string, unknown>)?.cnt || 0)
+    } catch (e) { console.error('[turso] countAct:', e); return 0 }
+  },
+
+  async listCodes(limit = 100) {
+    const c = getClient()
+    if (!c) return []
+    await ensureSchema()
+    try {
+      const r = await c.execute({ sql: 'SELECT * FROM "ActivationCode" ORDER BY "id" DESC LIMIT ?', args: [limit] })
+      return r.rows as unknown as Record<string, unknown>[]
+    } catch (e) { console.error('[turso] listCodes:', e); return [] }
+  },
+}

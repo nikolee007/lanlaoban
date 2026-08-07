@@ -117,13 +117,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  collections    UserCollection[]
-  inquiries      ContactInquiry[]
-  cartItems      PurchaseCart[]
-  purchaseOrders PurchaseOrder[]
-  notifications  Notification[]
-  IpProfile      IpProfile?
-  IpChat         IpChat[]
+  collections             UserCollection[]
+  inquiries               ContactInquiry[]
+  cartItems               PurchaseCart[]
+  purchaseOrders          PurchaseOrder[]
+  notifications           Notification[]
+  IpProfile               IpProfile?
+  IpChat                  IpChat[]
+  createdActivationCodes  ActivationCode[]
 }
 
 // UserCollection (用户收藏)
@@ -278,4 +279,36 @@ model IpChat {
   metadata  String? // JSON: 关联的素材类型、场景等
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
+}
+
+// ─── 洋葱出海通 激活系统 ────────────────────────
+
+model ActivationCode {
+  id          Int         @id @default(autoincrement())
+  code        String      @unique // 完整激活码（ONION-XXX）
+  cid         String      @unique // 激活码签名载荷的随机 ID
+  expiresAt   DateTime // 激活码过期时间
+  maxDevices  Int         @default(1) // 设备数上限
+  status      String      @default("unused") // unused / activated / revoked
+  createdBy   Int? // 生成者用户 ID
+  createdAt   DateTime    @default(now())
+  activatedAt DateTime?
+
+  activations Activation[]
+  user        User?        @relation(fields: [createdBy], references: [id])
+}
+
+model Activation {
+  id                Int      @id @default(autoincrement())
+  codeId            Int
+  deviceFingerprint String // 设备指纹
+  token             String? // license token
+  validUntil        DateTime? // 本次激活有效期
+  lastHeartbeatAt   DateTime?
+  status            String   @default("active") // active / revoked
+  createdAt         DateTime @default(now())
+
+  code ActivationCode @relation(fields: [codeId], references: [id], onDelete: Cascade)
+
+  @@unique([codeId, deviceFingerprint])
 }

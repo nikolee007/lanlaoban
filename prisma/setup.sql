@@ -249,3 +249,39 @@ CREATE UNIQUE INDEX "PurchaseOrder_orderNo_key" ON "PurchaseOrder"("orderNo");
 -- CreateIndex
 CREATE UNIQUE INDEX "IpProfile_userId_key" ON "IpProfile"("userId");
 
+-- CreateTable
+CREATE TABLE "ActivationCode" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "code" TEXT NOT NULL,
+    "cid" TEXT NOT NULL,
+    "expiresAt" DATETIME NOT NULL,
+    "maxDevices" INTEGER NOT NULL DEFAULT 1,
+    "status" TEXT NOT NULL DEFAULT 'unused',
+    "createdBy" INTEGER,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "activatedAt" DATETIME,
+    CONSTRAINT "ActivationCode_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Activation" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "codeId" INTEGER NOT NULL,
+    "deviceFingerprint" TEXT NOT NULL,
+    "token" TEXT,
+    "validUntil" DATETIME,
+    "lastHeartbeatAt" DATETIME,
+    "status" TEXT NOT NULL DEFAULT 'active',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Activation_codeId_fkey" FOREIGN KEY ("codeId") REFERENCES "ActivationCode" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ActivationCode_code_key" ON "ActivationCode"("code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ActivationCode_cid_key" ON "ActivationCode"("cid");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Activation_codeId_deviceFingerprint_key" ON "Activation"("codeId", "deviceFingerprint");
+

@@ -176,6 +176,15 @@ export default function NavHeader() {
             </React.Fragment>
           ))}
 
+          <Link
+            href="/onion"
+            className={`flex items-center gap-1 px-2 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+              isActive('/onion') ? 'text-brand-400 bg-brand-50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            洋葱一键出海
+          </Link>
+
           {user && (
             <Link
               href="/admin"
@@ -325,6 +334,14 @@ export default function NavHeader() {
               ))}
             </React.Fragment>
           ))}
+
+          <Link
+            href="/onion"
+            className="flex items-center gap-2 px-3 min-h-[44px] text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+            onClick={closeMobileMenu}
+          >
+            洋葱一键出海
+          </Link>
 
           {user && (
             <Link

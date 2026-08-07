@@ -124,7 +124,7 @@ export default function BrandPromotionPage() {
 
   /* ─── Async Task Submission ─── */
 
-  const TASK_WORKER_URL = 'https://124.222.200.151/task'
+  const TASK_WORKER_URL = process.env.NEXT_PUBLIC_TASK_WORKER_URL || 'https://124.222.200.151/task'
 
   const handleAsyncSubmit = async () => {
     if (!productName && files.length === 0) {

@@ -9,6 +9,8 @@ interface VideoPlayerProps {
   title?: string
   description?: string
   aspectRatio?: string
+  /** 视频方向：竖屏(portrait)用 3/4 比例，横屏(landscape)用 16/9。传 aspectRatio 时以此为准 */
+  orientation?: 'portrait' | 'landscape'
   /** 当没有视频源时显示占位 */
   placeholder?: boolean
 }
@@ -18,7 +20,8 @@ export default function VideoPlayer({
   poster,
   title,
   description,
-  aspectRatio = 'aspect-video',
+  aspectRatio,
+  orientation = 'landscape',
   placeholder = false,
 }: VideoPlayerProps) {
   const [playing, setPlaying] = useState(false)
@@ -26,6 +29,9 @@ export default function VideoPlayer({
   const [showControls, setShowControls] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // 方向自适应：默认竖屏 3/4、横屏 16/9；显式传 aspectRatio 优先
+  const resolvedAspect = aspectRatio || (orientation === 'portrait' ? 'aspect-[3/4]' : 'aspect-video')
 
   const togglePlay = () => {
     if (placeholder) return
@@ -59,7 +65,7 @@ export default function VideoPlayer({
   // Placeholder mode — show CTA card when no video source
   if (placeholder || !src) {
     return (
-      <div className={`relative ${aspectRatio} rounded-2xl bg-gradient-to-br from-[#FF6034]/5 to-[#FF8A66]/5 border border-[#FF6034]/10 flex items-center justify-center overflow-hidden group`}>
+      <div className={`relative ${resolvedAspect} rounded-2xl bg-gradient-to-br from-[#FF6034]/5 to-[#FF8A66]/5 border border-[#FF6034]/10 flex items-center justify-center overflow-hidden group`}>
         <div className="text-center p-8">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#FF6034]/20 to-[#FF6034]/5 flex items-center justify-center border border-[#FF6034]/10">
             <FiPlay className="w-7 h-7 text-[#FF6034] ml-0.5" />
@@ -85,7 +91,7 @@ export default function VideoPlayer({
   return (
     <div
       ref={containerRef}
-      className={`relative ${aspectRatio} rounded-2xl overflow-hidden bg-black group cursor-pointer`}
+      className={`relative ${resolvedAspect} rounded-2xl overflow-hidden bg-black group cursor-pointer`}
       onClick={togglePlay}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => playing && setShowControls(false)}

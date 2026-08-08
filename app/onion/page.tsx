@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import NavHeader from '../components/NavHeader'
-import { FiShield, FiCpu, FiZap, FiCopy, FiCheck, FiLogIn } from 'react-icons/fi'
+import { FiShield, FiZap, FiCopy, FiCheck, FiDownload, FiCreditCard } from 'react-icons/fi'
 
 interface MyCode {
   id: number
@@ -61,7 +61,6 @@ export default function OnionPage() {
       const d = await r.json()
       if (d.success) {
         setQrcode(d.data.qrcode)
-        // 轮询支付结果：支付成功 → 自动发码 → 刷新我的激活码
         const base = myCodes.length
         const iv = setInterval(async () => {
           try {
@@ -98,101 +97,63 @@ export default function OnionPage() {
   return (
     <div className="min-h-screen bg-white">
       <NavHeader />
-      {/* Hero */}
-      <div className="bg-gradient-to-b from-orange-50 to-white">
-        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-orange-100 text-orange-600 text-xs font-semibold">
-            <FiShield className="w-3.5 h-3.5" /> 网络环境自动化部署工具
+
+      {/* Hero · 蓝白科技 */}
+      <div className="bg-gradient-to-b from-blue-50 via-white to-white">
+        <div className="max-w-4xl mx-auto px-4 py-14 text-center">
+          <div className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">
+            <FiShield className="w-3.5 h-3.5" /> 轻出海网络工具
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-[#0A0A0B] tracking-tight mb-4">
-            洋葱<span className="text-[#FF6034]">一键出海</span>
+          <h1 className="text-4xl sm:text-5xl font-bold text-[#1e3a8a] tracking-tight mb-3">
+            洋葱<span className="text-[#2563eb]">一键出海</span>
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            稳定访问 Google、YouTube、海外官网与 SaaS。下载工具、输入激活码、一键接入——
-            国内网站直连、海外走线，全自动分流。
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-2">
+            稳定访问 Google、YouTube、TikTok 与海外 SaaS，国内网站自动直连。
+          </p>
+          <p className="text-sm text-gray-400 mb-8">
+            三步开始：获取激活码 → 下载客户端 → 一键接入
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            {token ? (
-              <button
-                onClick={buy}
-                disabled={buying}
-                className="px-8 py-3 rounded-full bg-gradient-to-r from-[#FF6034] to-[#FF8A66] text-white font-semibold shadow-lg shadow-orange-200 hover:shadow-xl transition-all disabled:opacity-60"
-              >
-                {buying ? '生成中...' : '立即获取激活码'}
-              </button>
-            ) : (
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-[#FF6034] to-[#FF8A66] text-white font-semibold shadow-lg shadow-orange-200 hover:shadow-xl transition-all"
-              >
-                <FiLogIn className="w-4 h-4" /> 登录后获取
-              </Link>
-            )}
-          </div>
-          <p className="mt-3 text-xs text-gray-400">账号与懒老板通用，登录即可获取</p>
-        </div>
-      </div>
-
-      {/* 三步使用 */}
-      <div className="max-w-4xl mx-auto px-4 py-10">
-        <h2 className="text-xl font-bold mb-6 text-center">三步开始使用</h2>
-        <div className="grid sm:grid-cols-3 gap-4">
-          {[
-            { icon: FiCpu, title: '1. 下载工具', desc: '在电脑上运行洋葱出海通客户端（命令行，Mac/Windows 均支持）' },
-            { icon: FiZap, title: '2. 输入激活码', desc: 'onion activate &lt;激活码&gt;，绑定你的设备' },
-            { icon: FiShield, title: '3. 一键接入', desc: 'onion up，国内直连、海外走线，自动分流' },
-          ].map((s) => (
-            <div key={s.title} className="p-6 rounded-2xl border border-gray-100 bg-gray-50/50">
-              <s.icon className="w-6 h-6 text-[#FF6034] mb-3" />
-              <h3 className="font-semibold mb-1">{s.title}</h3>
-              <p className="text-sm text-gray-500">{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 下载客户端 */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        <h2 className="text-xl font-bold mb-6 text-center">下载客户端</h2>
-        <div className="grid sm:grid-cols-3 gap-4">
-          {[
-            { name: 'Mac Intel', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-cli-macos.tar.gz', desc: 'Intel 芯片' },
-            { name: 'Mac Apple Silicon', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-cli-macos-arm64.tar.gz', desc: 'M1 / M2 / M3' },
-            { name: 'Windows 10/11', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-setup.exe', desc: 'Windows 10 / 11 · 一键安装器' },
-          ].map((d) => (
-            <a key={d.name} href={d.url} target="_blank" rel="noopener noreferrer" className="p-6 rounded-2xl border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all text-center">
-              <div className="font-semibold mb-1">{d.name}</div>
-              <div className="text-sm text-gray-500 mb-3">{d.desc}</div>
-              <span className="inline-block px-4 py-1.5 rounded-full bg-[#FF6034] text-white text-sm font-medium">下载</span>
+            <a
+              href="#buy"
+              className="px-8 py-3 rounded-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6] text-white font-semibold shadow-lg shadow-blue-200 hover:shadow-xl transition-all"
+            >
+              获取激活码
             </a>
-          ))}
+            <a
+              href="#download"
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-full border border-blue-200 text-blue-600 font-semibold hover:bg-blue-50 transition-all"
+            >
+              <FiDownload className="w-4 h-4" /> 下载客户端
+            </a>
+          </div>
         </div>
-        <p className="text-center text-xs text-gray-400 mt-3">下载后解压运行安装，然后 onion activate &lt;激活码&gt; 一键翻墙</p>
       </div>
 
-      {/* 购买区 */}
-      <div className="max-w-4xl mx-auto px-4 py-10">
-        <div className="rounded-2xl border border-gray-200 p-6 sm:p-8">
-          <h2 className="text-xl font-bold mb-1">获取激活码</h2>
-          <p className="text-sm text-gray-500 mb-6">选择时长与设备数，生成后复制到客户端即可激活</p>
+      {/* 购买激活码 */}
+      <div id="buy" className="max-w-4xl mx-auto px-4 py-10 scroll-mt-20">
+        <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/50 to-white p-6 sm:p-8">
+          <h2 className="text-xl font-bold mb-1 text-[#1e3a8a]">获取激活码</h2>
+          <p className="text-sm text-gray-500 mb-6">选择时长与设备数，扫码支付后自动发放</p>
 
           {!token ? (
             <div className="text-center py-8 text-gray-400">
-              请先登录后获取激活码 —— <Link href="/login" className="text-[#FF6034] font-medium hover:underline">去登录</Link>
+              请先登录后购买 ——{' '}
+              <Link href="/login" className="text-[#2563eb] font-medium hover:underline">去登录</Link>
             </div>
           ) : (
             <div className="space-y-6">
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500">时长</span>
-                  <select value={days} onChange={(e) => setDays(Number(e.target.value))} className="px-3 py-2 rounded-lg border border-gray-200 text-sm">
-                    <option value={30}>1 个月</option>
-                    <option value={365}>1 年</option>
+                  <select value={days} onChange={(e) => setDays(Number(e.target.value))} className="px-3 py-2 rounded-lg border border-blue-100 text-sm">
+                    <option value={30}>1 个月 · ¥1</option>
+                    <option value={365}>1 年 · ¥9.9</option>
                   </select>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500">设备数</span>
-                  <select value={devices} onChange={(e) => setDevices(Number(e.target.value))} className="px-3 py-2 rounded-lg border border-gray-200 text-sm">
+                  <select value={devices} onChange={(e) => setDevices(Number(e.target.value))} className="px-3 py-2 rounded-lg border border-blue-100 text-sm">
                     <option value={1}>1 台</option>
                     <option value={3}>3 台</option>
                     <option value={5}>5 台</option>
@@ -201,16 +162,16 @@ export default function OnionPage() {
                 <button
                   onClick={buy}
                   disabled={buying}
-                  className="px-6 py-2 rounded-full bg-[#FF6034] text-white text-sm font-semibold hover:bg-orange-500 transition-colors disabled:opacity-60"
+                  className="px-6 py-2 rounded-full bg-[#2563eb] text-white text-sm font-semibold hover:bg-blue-600 transition-colors disabled:opacity-60"
                 >
-                  {buying ? '生成中...' : '生成激活码'}
+                  {buying ? '下单中...' : '立即购买'}
                 </button>
               </div>
 
               {error && <p className="text-sm text-red-500">{error}</p>}
 
               {qrcode && (
-                <div className="text-center p-4 rounded-xl bg-white border border-orange-200">
+                <div className="text-center p-4 rounded-xl bg-white border border-blue-100">
                   <p className="text-sm mb-2">请使用微信 / 支付宝扫码支付</p>
                   <img src={qrcode} alt="支付二维码" className="mx-auto w-44 h-44 object-contain" />
                   <p className="text-xs text-gray-400 mt-2">支付成功后激活码自动发放</p>
@@ -218,11 +179,11 @@ export default function OnionPage() {
               )}
 
               {newCode && (
-                <div className="p-4 rounded-xl bg-orange-50 border border-orange-200">
-                  <p className="text-xs text-orange-600 font-medium mb-2">你的激活码（请妥善保存）</p>
+                <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
+                  <p className="text-xs text-blue-600 font-medium mb-2">你的激活码（请妥善保存）</p>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <code className="text-sm break-all bg-white px-3 py-2 rounded-lg border border-orange-200">{newCode}</code>
-                    <button onClick={copyCode} className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white border border-orange-200 text-sm text-orange-600 hover:bg-orange-100 transition-colors">
+                    <code className="text-sm break-all bg-white px-3 py-2 rounded-lg border border-blue-200">{newCode}</code>
+                    <button onClick={copyCode} className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white border border-blue-200 text-sm text-blue-600 hover:bg-blue-100 transition-colors">
                       {copied ? <FiCheck className="w-4 h-4" /> : <FiCopy className="w-4 h-4" />}
                       {copied ? '已复制' : '复制'}
                     </button>
@@ -231,13 +192,13 @@ export default function OnionPage() {
               )}
 
               <div>
-                <h3 className="font-semibold mb-3">我的激活码</h3>
+                <h3 className="font-semibold mb-3 text-[#1e3a8a]">我的激活码</h3>
                 {myCodes.length === 0 ? (
-                  <p className="text-sm text-gray-400">还没有激活码，点上面的按钮生成一个</p>
+                  <p className="text-sm text-gray-400">还没有激活码，点上面的按钮购买一个</p>
                 ) : (
-                  <div className="overflow-x-auto rounded-xl border border-gray-100">
+                  <div className="overflow-x-auto rounded-xl border border-blue-100">
                     <table className="w-full text-sm">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-blue-50/50">
                         <tr>
                           <th className="text-left px-4 py-3 font-medium text-gray-500">激活码</th>
                           <th className="text-left px-4 py-3 font-medium text-gray-500">状态</th>
@@ -247,10 +208,10 @@ export default function OnionPage() {
                       </thead>
                       <tbody>
                         {myCodes.map((c) => (
-                          <tr key={c.id} className="border-t border-gray-100">
+                          <tr key={c.id} className="border-t border-blue-50">
                             <td className="px-4 py-3 font-mono text-xs text-gray-600">{c.code.slice(0, 30)}...</td>
                             <td className="px-4 py-3">
-                              <span className={`px-2 py-0.5 rounded-full text-xs ${c.status === 'revoked' ? 'bg-red-50 text-red-500' : c.status === 'activated' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
+                              <span className={`px-2 py-0.5 rounded-full text-xs ${c.status === 'revoked' ? 'bg-red-50 text-red-500' : c.status === 'activated' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
                                 {c.status === 'activated' ? '已激活' : c.status === 'revoked' ? '已吊销' : '未使用'}
                               </span>
                             </td>
@@ -268,9 +229,47 @@ export default function OnionPage() {
         </div>
       </div>
 
-      {/* 产品说明 */}
+      {/* 下载客户端 */}
+      <div id="download" className="max-w-4xl mx-auto px-4 py-10 scroll-mt-20">
+        <h2 className="text-xl font-bold mb-6 text-center text-[#1e3a8a]">下载客户端</h2>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {[
+            { name: 'Mac Intel', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-cli-macos.tar.gz', desc: 'Intel 芯片' },
+            { name: 'Mac Apple Silicon', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-cli-macos-arm64.tar.gz', desc: 'M1 / M2 / M3' },
+            { name: 'Windows 10/11', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-setup.exe', desc: '一键安装器' },
+          ].map((d) => (
+            <a key={d.name} href={d.url} target="_blank" rel="noopener noreferrer" className="p-6 rounded-2xl border border-blue-100 hover:border-blue-300 hover:shadow-md transition-all text-center group">
+              <div className="font-semibold mb-1 text-[#1e3a8a]">{d.name}</div>
+              <div className="text-sm text-gray-500 mb-3">{d.desc}</div>
+              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#2563eb] text-white text-sm font-medium group-hover:bg-blue-600 transition-colors">
+                <FiDownload className="w-3.5 h-3.5" /> 下载
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* 三步使用 */}
       <div className="max-w-4xl mx-auto px-4 py-10">
-        <h2 className="text-xl font-bold mb-6 text-center">适用说明</h2>
+        <h2 className="text-xl font-bold mb-6 text-center text-[#1e3a8a]">三步开始使用</h2>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {[
+            { icon: FiCreditCard, title: '1. 获取激活码', desc: '在上方购买并复制激活码' },
+            { icon: FiDownload, title: '2. 下载客户端', desc: '下载对应平台安装包，双击安装' },
+            { icon: FiZap, title: '3. 一键接入', desc: 'onion activate 输入激活码 → onion up 翻墙' },
+          ].map((s) => (
+            <div key={s.title} className="p-6 rounded-2xl border border-blue-50 bg-gradient-to-b from-blue-50/30 to-white">
+              <s.icon className="w-6 h-6 text-[#2563eb] mb-3" />
+              <h3 className="font-semibold mb-1 text-[#1e3a8a]">{s.title}</h3>
+              <p className="text-sm text-gray-500">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 适用说明 */}
+      <div className="max-w-4xl mx-auto px-4 py-10">
+        <h2 className="text-xl font-bold mb-6 text-center text-[#1e3a8a]">适用说明</h2>
         <div className="grid sm:grid-cols-2 gap-4 mb-6">
           <div className="p-5 rounded-2xl border border-green-100 bg-green-50/50">
             <h3 className="font-semibold mb-3 text-green-700">适合什么人</h3>
@@ -290,8 +289,8 @@ export default function OnionPage() {
             </ul>
           </div>
         </div>
-        <div className="p-5 rounded-2xl border border-gray-100 bg-gray-50/50 mb-6">
-          <h3 className="font-semibold mb-2">支持与限制</h3>
+        <div className="p-5 rounded-2xl border border-blue-100 bg-blue-50/30 mb-6">
+          <h3 className="font-semibold mb-2 text-[#1e3a8a]">支持与限制</h3>
           <ul className="text-sm text-gray-600 space-y-1.5">
             <li>✓ 支持系统：Windows 10 / 11、macOS（Intel 与 Apple Silicon）</li>
             <li>✓ 支持：访问 Google、YouTube、TikTok 等主流海外网站，国内网站自动直连</li>
@@ -302,11 +301,6 @@ export default function OnionPage() {
         <div className="text-center text-xs text-gray-400">
           洋葱一键出海定位为「轻出海网络工具」，请确保你的使用符合当地法律法规。
         </div>
-      </div>
-
-      {/* 底部 */}
-      <div className="max-w-4xl mx-auto px-4 pb-16 text-center text-xs text-gray-400">
-        洋葱一键出海 · OnionGo —— 出海企业的网络环境自动化部署工具
       </div>
     </div>
   )

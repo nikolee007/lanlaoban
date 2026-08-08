@@ -158,7 +158,7 @@ export default function OnionPage() {
           {[
             { name: 'Mac Intel', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-cli-macos.tar.gz', desc: 'Intel 芯片' },
             { name: 'Mac Apple Silicon', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-cli-macos-arm64.tar.gz', desc: 'M1 / M2 / M3' },
-            { name: 'Windows 10/11', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-cli-windows.zip', desc: 'Windows 10 / 11' },
+            { name: 'Windows 10/11', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-setup.exe', desc: 'Windows 10 / 11 · 一键安装器' },
           ].map((d) => (
             <a key={d.name} href={d.url} target="_blank" rel="noopener noreferrer" className="p-6 rounded-2xl border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all text-center">
               <div className="font-semibold mb-1">{d.name}</div>

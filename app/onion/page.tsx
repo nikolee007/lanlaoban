@@ -15,6 +15,41 @@ interface MyCode {
   _count?: { activations: number }
 }
 
+// 打字机文字特效（循环输入/删除）
+function Typewriter({ texts }: { texts: string[] }) {
+  const [display, setDisplay] = useState('')
+  const [index, setIndex] = useState(0)
+  const [deleting, setDeleting] = useState(false)
+
+  useEffect(() => {
+    const full = texts[index % texts.length]
+    const timer = setTimeout(() => {
+      if (!deleting) {
+        if (display.length < full.length) {
+          setDisplay(full.slice(0, display.length + 1))
+        } else {
+          setDeleting(true)
+        }
+      } else {
+        if (display.length > 0) {
+          setDisplay(full.slice(0, display.length - 1))
+        } else {
+          setDeleting(false)
+          setIndex((i) => (i + 1) % texts.length)
+        }
+      }
+    }, deleting ? 35 : 90)
+    return () => clearTimeout(timer)
+  }, [display, deleting, index, texts])
+
+  return (
+    <span className="text-[#2563eb]">
+      {display}
+      <span className="inline-block w-[2px] h-[1.1em] bg-[#2563eb] align-middle ml-0.5 animate-pulse" />
+    </span>
+  )
+}
+
 export default function OnionPage() {
   const [token, setToken] = useState<string | null>(null)
   const [user, setUser] = useState<{ name?: string; email?: string } | null>(null)
@@ -107,8 +142,8 @@ export default function OnionPage() {
           <h1 className="text-4xl sm:text-5xl font-bold text-[#1e3a8a] tracking-tight mb-3">
             洋葱<span className="text-[#2563eb]">一键出海</span>
           </h1>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-2">
-            稳定访问 Google、YouTube、TikTok 与海外 SaaS，国内网站自动直连。
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-2 min-h-[1.6em]">
+            <Typewriter texts={['稳定访问 Google、YouTube、TikTok 与海外 SaaS', '国内网站自动直连', '出海团队的轻量网络工具']} />
           </p>
           <p className="text-sm text-gray-400 mb-8">
             三步开始：获取激活码 → 下载客户端 → 一键接入

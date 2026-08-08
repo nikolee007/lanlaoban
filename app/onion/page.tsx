@@ -134,6 +134,25 @@ export default function OnionPage() {
         </div>
       </div>
 
+      {/* 下载客户端 */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        <h2 className="text-xl font-bold mb-6 text-center">下载客户端</h2>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {[
+            { name: 'Mac Intel', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-cli-macos.tar.gz', desc: 'Intel 芯片' },
+            { name: 'Mac Apple Silicon', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-cli-macos-arm64.tar.gz', desc: 'M1 / M2 / M3' },
+            { name: 'Windows 10/11', url: 'https://github.com/nikolee007/onion-overseas/releases/download/v0.1.0/onion-cli-windows.zip', desc: 'Windows 10 / 11' },
+          ].map((d) => (
+            <a key={d.name} href={d.url} target="_blank" rel="noopener noreferrer" className="p-6 rounded-2xl border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all text-center">
+              <div className="font-semibold mb-1">{d.name}</div>
+              <div className="text-sm text-gray-500 mb-3">{d.desc}</div>
+              <span className="inline-block px-4 py-1.5 rounded-full bg-[#FF6034] text-white text-sm font-medium">下载</span>
+            </a>
+          ))}
+        </div>
+        <p className="text-center text-xs text-gray-400 mt-3">下载后解压运行安装，然后 onion activate &lt;激活码&gt; 一键翻墙</p>
+      </div>
+
       {/* 购买区 */}
       <div className="max-w-4xl mx-auto px-4 py-10">
         <div className="rounded-2xl border border-gray-200 p-6 sm:p-8">

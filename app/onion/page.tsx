@@ -21,6 +21,7 @@ export default function OnionPage() {
   const [days, setDays] = useState(365)
   const [devices, setDevices] = useState(1)
   const [buying, setBuying] = useState(false)
+  const [qrcode, setQrcode] = useState<string | null>(null)
   const [newCode, setNewCode] = useState<string | null>(null)
   const [myCodes, setMyCodes] = useState<MyCode[]>([])
   const [copied, setCopied] = useState(false)
@@ -49,20 +50,36 @@ export default function OnionPage() {
     if (!token) return
     setBuying(true)
     setError('')
+    setQrcode(null)
     setNewCode(null)
     try {
-      const r = await fetch('/api/activation/buy', {
+      const r = await fetch('/api/activation/order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ days, devices }),
       })
       const d = await r.json()
       if (d.success) {
-        setNewCode(d.data.code)
-        const list = await fetch('/api/activation/my', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json())
-        if (list.success) setMyCodes(list.data || [])
+        setQrcode(d.data.qrcode)
+        // 轮询支付结果：支付成功 → 自动发码 → 刷新我的激活码
+        const base = myCodes.length
+        const iv = setInterval(async () => {
+          try {
+            const list = await fetch('/api/activation/my', { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json())
+            if (list.success) {
+              const codes = list.data || []
+              setMyCodes(codes)
+              if (codes.length > base) {
+                clearInterval(iv)
+                setQrcode(null)
+                setNewCode(codes[0].code)
+              }
+            }
+          } catch { /* 忽略 */ }
+        }, 5000)
+        setTimeout(() => clearInterval(iv), 600000)
       } else {
-        setError(d.error || '购买失败')
+        setError(d.error || '下单失败')
       }
     } catch {
       setError('网络错误')
@@ -192,6 +209,14 @@ export default function OnionPage() {
 
               {error && <p className="text-sm text-red-500">{error}</p>}
 
+              {qrcode && (
+                <div className="text-center p-4 rounded-xl bg-white border border-orange-200">
+                  <p className="text-sm mb-2">请使用微信 / 支付宝扫码支付</p>
+                  <img src={qrcode} alt="支付二维码" className="mx-auto w-44 h-44 object-contain" />
+                  <p className="text-xs text-gray-400 mt-2">支付成功后激活码自动发放</p>
+                </div>
+              )}
+
               {newCode && (
                 <div className="p-4 rounded-xl bg-orange-50 border border-orange-200">
                   <p className="text-xs text-orange-600 font-medium mb-2">你的激活码（请妥善保存）</p>
@@ -240,6 +265,42 @@ export default function OnionPage() {
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* 产品说明 */}
+      <div className="max-w-4xl mx-auto px-4 py-10">
+        <h2 className="text-xl font-bold mb-6 text-center">适用说明</h2>
+        <div className="grid sm:grid-cols-2 gap-4 mb-6">
+          <div className="p-5 rounded-2xl border border-green-100 bg-green-50/50">
+            <h3 className="font-semibold mb-3 text-green-700">适合什么人</h3>
+            <ul className="text-sm text-gray-600 space-y-1.5">
+              <li>· 出海企业 / 外贸从业者：访问海外官网、SaaS、Google 等</li>
+              <li>· 跨境电商：TikTok 运营、Amazon、独立站</li>
+              <li>· 留学生 / 跨境人群：查阅海外资料与工具</li>
+              <li>· 需要轻量、偶尔访问海外资源的用户</li>
+            </ul>
+          </div>
+          <div className="p-5 rounded-2xl border border-amber-100 bg-amber-50/50">
+            <h3 className="font-semibold mb-3 text-amber-700">不适合什么人</h3>
+            <ul className="text-sm text-gray-600 space-y-1.5">
+              <li>· 需要高速大流量的重度用户（免费 WARP 速度有限）</li>
+              <li>· 需要观看高清视频 / 大量下载的场合</li>
+              <li>· 对稳定性要求极高的企业关键业务</li>
+            </ul>
+          </div>
+        </div>
+        <div className="p-5 rounded-2xl border border-gray-100 bg-gray-50/50 mb-6">
+          <h3 className="font-semibold mb-2">支持与限制</h3>
+          <ul className="text-sm text-gray-600 space-y-1.5">
+            <li>✓ 支持系统：Windows 10 / 11、macOS（Intel 与 Apple Silicon）</li>
+            <li>✓ 支持：访问 Google、YouTube、TikTok 等主流海外网站，国内网站自动直连</li>
+            <li>△ 出口为 Cloudflare 官方免费服务，个别网站偶有波动（客户端自动重连）</li>
+            <li>✗ 本产品不提供任何翻墙线路 / 节点</li>
+          </ul>
+        </div>
+        <div className="text-center text-xs text-gray-400">
+          洋葱一键出海定位为「轻出海网络工具」，请确保你的使用符合当地法律法规。
         </div>
       </div>
 

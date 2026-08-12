@@ -39,6 +39,18 @@ async function saveProfile(extract: Record<string, string>) {
   } catch {}
 }
 
+// 采访完成后自动串联：生成人设 + 脚本 + 开启每日投递（fire-and-forget，不阻塞跳转）
+async function startOnboard() {
+  const token = getToken()
+  if (!token) return
+  try {
+    await fetch('/api/ip-profile/onboard', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+  } catch {}
+}
+
 
 export default function InterviewPage() {
   const router = useRouter()
@@ -162,8 +174,8 @@ export default function InterviewPage() {
   const finishInterview = () => {
     localStorage.setItem('lanlaoban_interview', JSON.stringify(extract))
     localStorage.setItem('lanlaoban_persona_source', JSON.stringify(extract))
-    // 保存到数据库（登录用户）
-    saveProfile(extract)
+    // 保存到数据库（登录用户）→ 落库后再后台串联人设/脚本/每日投递
+    saveProfile(extract).then(startOnboard)
     const kw = (extract.industry || '').toLowerCase()
     let coach = 'libazi'
     if (/餐饮|饭店|火锅|烧烤|奶茶/.test(kw)) coach = 'boge'

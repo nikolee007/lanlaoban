@@ -28,7 +28,7 @@ export async function PUT(request: NextRequest) {
     if (!userId) return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
 
     const body = await request.json()
-    const allowedFields = ['name', 'industry', 'product', 'experience', 'startYear', 'targetAudience', 'targetCustomer', 'originStory', 'keyEvents', 'achievements', 'hardest', 'personality', 'advantage', 'pains', 'goal', 'commitment', 'catchphrase', 'videoScripts', 'contentIdeas']
+    const allowedFields = ['name', 'industry', 'product', 'experience', 'startYear', 'targetAudience', 'targetCustomer', 'originStory', 'keyEvents', 'achievements', 'hardest', 'personality', 'advantage', 'pains', 'goal', 'commitment', 'catchphrase', 'videoScripts', 'contentIdeas', 'persona', 'latestVideoUrl']
 
     const data: Record<string, string> = {}
     for (const field of allowedFields) {

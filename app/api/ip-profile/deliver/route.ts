@@ -11,12 +11,19 @@ interface DeliverScriptEntry {
 }
 
 // POST /api/ip-profile/deliver — 打包最近生成的30条脚本，发送到老板邮箱
+// body 可选: { videoUrl: string } — 嵌入已生成的数字人视频入口
 export async function POST(request: NextRequest) {
   try {
     const userId = getAuthUserId(request.headers)
     if (!userId) {
       return NextResponse.json({ success: false, error: '未登录' }, { status: 401 })
     }
+
+    let bodyVideoUrl = ''
+    try {
+      const body = await request.json()
+      bodyVideoUrl = typeof body?.videoUrl === 'string' ? body.videoUrl : ''
+    } catch {}
 
     const user = await db.user.findUnique({
       where: { id: userId },
@@ -28,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     const profile = await db.ipProfile.findUnique({
       where: { userId },
-      select: { videoScripts: true, followUpCount: true, name: true },
+      select: { videoScripts: true, followUpCount: true, name: true, latestVideoUrl: true },
     })
 
     // 如果没有现有脚本，先生成一批
@@ -83,6 +90,7 @@ export async function POST(request: NextRequest) {
       scriptCount: scripts.length,
       scriptsHtml,
       tipsHtml,
+      videoUrl: bodyVideoUrl || profile?.latestVideoUrl || undefined,
     })
 
     // 发送邮件

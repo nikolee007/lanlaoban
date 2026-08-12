@@ -90,6 +90,18 @@ async function ensureSchema() {
             await client.execute('CREATE UNIQUE INDEX IF NOT EXISTS "ActivationCode_cid_key" ON "ActivationCode"("cid")')
             await client.execute('CREATE UNIQUE INDEX IF NOT EXISTS "Activation_codeId_deviceFingerprint_key" ON "Activation"("codeId", "deviceFingerprint")')
           }
+          // 幂等迁移：IpProfile 每日投递字段（老库补列）
+          try {
+            const cols = await client.execute('PRAGMA table_info("IpProfile")')
+            const has = cols.rows.some((r: any) => r.name === 'dailyDeliveryEnabled')
+            if (!has) {
+              await client.execute(`ALTER TABLE "IpProfile" ADD COLUMN "persona" TEXT`)
+              await client.execute(`ALTER TABLE "IpProfile" ADD COLUMN "dailyDeliveryEnabled" BOOLEAN NOT NULL DEFAULT false`)
+              await client.execute(`ALTER TABLE "IpProfile" ADD COLUMN "deliveryDayCount" INTEGER NOT NULL DEFAULT 0`)
+              await client.execute(`ALTER TABLE "IpProfile" ADD COLUMN "lastDeliveryAt" DATETIME`)
+              await client.execute(`ALTER TABLE "IpProfile" ADD COLUMN "latestVideoUrl" TEXT`)
+            }
+          } catch (e) { console.error('[turso] IpProfile migration:', e) }
         }
         _readyFlag = true
       } catch (err) {
@@ -152,6 +164,33 @@ export const tursoDb = {
     } catch (e) { console.error('[turso] getProfile:', e); return null }
   },
 
+  /** 获取已开启每日投递的 IP 档案（用于每日邮件 cron） */
+  async listDailyDeliveryProfiles(limit = 50): Promise<TursoProfile[]> {
+    const c = getClient()
+    if (!c) return []
+    await ensureSchema()
+    try {
+      const r = await c.execute({
+        sql: 'SELECT * FROM "IpProfile" WHERE "dailyDeliveryEnabled" = 1 ORDER BY "id" ASC LIMIT ?',
+        args: [limit],
+      })
+      return r.rows as unknown as TursoProfile[]
+    } catch (e) { console.error('[turso] listDailyDeliveryProfiles:', e); return [] }
+  },
+
+  /** 每日投递后更新状态（天数自增 + 记录时间） */
+  async markDelivery(userId: number, dayCount: number) {
+    const c = getClient()
+    if (!c) return
+    await ensureSchema()
+    try {
+      await c.execute({
+        sql: 'UPDATE "IpProfile" SET "deliveryDayCount" = ?, "lastDeliveryAt" = ?, "updatedAt" = ? WHERE "userId" = ?',
+        args: [dayCount, new Date().toISOString(), new Date().toISOString(), userId],
+      })
+    } catch (e) { console.error('[turso] markDelivery:', e) }
+  },
+
   async saveProfile(userId: number, data: Record<string, unknown>) {
     const c = getClient()
     if (!c) return
@@ -160,12 +199,13 @@ export const tursoDb = {
       const existing = await c.execute({ sql: 'SELECT id FROM "IpProfile" WHERE "userId" = ?', args: [userId] })
       const fields = Object.keys(data).filter(k => data[k] !== undefined && data[k] !== '')
       const now = new Date().toISOString()
+      const toDb = (v: unknown) => (typeof v === 'boolean' ? (v ? 1 : 0) : String(v))
       if (existing.rows.length > 0) {
         const setClause = fields.map(k => `"${k}" = ?`).join(', ')
-        await c.execute({ sql: `UPDATE "IpProfile" SET ${setClause}, "updatedAt" = ? WHERE "userId" = ?`, args: [...fields.map(k => String(data[k])), now, userId] })
+        await c.execute({ sql: `UPDATE "IpProfile" SET ${setClause}, "updatedAt" = ? WHERE "userId" = ?`, args: [...fields.map(k => toDb(data[k])), now, userId] })
       } else {
         const cols = ['userId', ...fields, 'createdAt', 'updatedAt']
-        const vals = [userId, ...fields.map(k => String(data[k])), now, now]
+        const vals = [userId, ...fields.map(k => toDb(data[k])), now, now]
         await c.execute({ sql: `INSERT INTO "IpProfile" (${cols.map(c => `"${c}"`).join(',')}) VALUES (${cols.map(() => '?').join(',')})`, args: vals })
       }
     } catch (e) { console.error('[turso] saveProfile:', e); }

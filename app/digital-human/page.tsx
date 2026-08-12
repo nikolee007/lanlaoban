@@ -54,6 +54,19 @@ export default function DigitalHumanPage() {
 
   const currentScene = SCENES.find(s => s.id === scene)!
 
+  // 视频 URL 落库 → 每日邮件短视频嵌入（仅登录用户）
+  const saveLatestVideo = async (url: string) => {
+    try {
+      const token = localStorage.getItem('lanlaoban_token')
+      if (!token) return
+      await fetch('/api/ip-profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ latestVideoUrl: url }),
+      })
+    } catch {}
+  }
+
   useEffect(() => {
     fetch('/api/tts')
       .then(r => r.json())
@@ -218,6 +231,8 @@ export default function DigitalHumanPage() {
             if (s.status === 'completed' || s.status === 'done' || s.status === 'succeeded') {
               const video = s.output?.url || ''
               setVideoUrl(video); clearInterval(poll)
+              // 视频 URL 落库，供「每日一条邮件短视频」嵌入使用
+              if (video) saveLatestVideo(video)
 
               if (!ttsDone) {
                 ttsDone = true; setProgress(92); setStatusMessage('正在生成配音...')

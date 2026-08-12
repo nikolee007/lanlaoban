@@ -262,10 +262,16 @@ model IpProfile {
   // 素材库
   videoScripts   String? // 历史生成的脚本(JSON数组)
   contentIdeas   String? // 内容灵感(JSON数组)
+  persona        String? // 生成的人设方案(JSON: nickname/slogan/bio)
   // 自动跟进
   lastChatAt     DateTime? // 上次聊天时间
   nextFollowUpAt DateTime? // 下次自动跟进时间
   followUpCount  Int       @default(0) // 跟进次数
+  // 每日邮件短视频投递
+  dailyDeliveryEnabled Boolean  @default(false) // 是否开启每日一条邮件短视频获客
+  deliveryDayCount     Int      @default(0) // 已投递天数(用于轮换脚本)
+  lastDeliveryAt       DateTime? // 上次投递时间
+  latestVideoUrl       String? // 最新生成的数字人视频 URL（邮件中嵌入）
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   user           User      @relation(fields: [userId], references: [id])

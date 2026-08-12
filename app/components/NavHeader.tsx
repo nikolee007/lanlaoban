@@ -38,6 +38,7 @@ const NAV_GROUPS: Array<{
   items: NavItem[]
 }> = [
   { color: 'orange', label: 'AI创作', items: [
+    { key: 'nav.agent', href: '/agent', isAI: true },
     { key: 'nav.oneClickIP', href: '/persona', isAI: true },
     { key: 'nav.oneClickBrand', href: '/brand-promotion', isAI: true },
     { key: 'content.avatar', href: '/digital-human', isAI: true },

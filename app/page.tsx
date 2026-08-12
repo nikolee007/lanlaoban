@@ -140,7 +140,7 @@ export default function HomePage() {
                 <div className="flex items-end justify-between">
                   <div>
                     <p className="text-sm text-[#6B7280]">起</p>
-                    <p className="text-4xl font-bold tracking-tight">¥599<span className="text-base font-normal text-[#6B7280]">/月</span></p>
+                    <p className="text-4xl font-bold tracking-tight">¥199<span className="text-base font-normal text-[#6B7280]">/月</span></p>
                   </div>
                   <Link href="/interview" className="group/btn inline-flex items-center gap-2 rounded-full bg-[#FF6034] text-white px-6 py-3 text-sm font-semibold hover:shadow-lg hover:shadow-[#FF6034]/20 transition-all">
                     了解详情
@@ -357,15 +357,15 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">IP 操盘手</h3>
-                  <p className="text-sm text-white/50">按月订阅，稳定产出</p>
+                  <p className="text-sm text-white/50">专属运营编导 · 越用越懂你</p>
                 </div>
               </div>
               <div className="space-y-1 mb-8">
                 {[
-                  { name: '标准版', price: '¥599', unit: '/月', note: '' },
-                  { name: '专业版', price: '¥1,499', unit: '/月', note: '年付¥11,680' },
-                  { name: '至尊版', price: '¥3,999', unit: '/月', note: '年付¥26,800' },
-                  { name: '体验包', price: '¥99', unit: '', note: '一次性·含3条脚本+2条口播' },
+                  { name: '尝鲜版', price: '¥199', unit: '/月', note: '脚本10 + 成片10' },
+                  { name: '标准版', price: '¥1,999', unit: '/月', note: '脚本30 + 成片30 · 专属Agent（推荐）' },
+                  { name: '专业版', price: '¥2,999', unit: '/月', note: '脚本60 + 成片60 · 全链路Agent' },
+                  { name: '续费优惠', price: '8折/7折', unit: '', note: '1年续费8折 · 2年续费7折' },
                 ].map(p => (
                   <div key={p.name} className="flex items-center justify-between py-4 border-b border-white/[0.06] last:border-0">
                     <div>
@@ -430,7 +430,7 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-3xl px-6 text-center text-white">
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">试试看，0风险</h2>
           <p className="text-lg text-white/80 max-w-lg mx-auto mb-10">
-            ¥99体验IP操盘手 | ¥1,299体验产品小样。觉得好再续，不满意随时停。
+            ¥199 尝鲜版 | ¥1,299 体验产品小样。觉得好再续，不满意随时停。
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <Link href="/persona" className="inline-flex items-center gap-2 rounded-full bg-white text-[#0A0A0B] px-8 py-4 text-base font-semibold hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">

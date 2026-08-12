@@ -91,10 +91,10 @@ export default function IpManagerPage() {
               <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[2px] mb-4">PRICING</p>
               <div className="space-y-4">
                 {[
-                  { name: '标准版', price: '¥599/月', desc: '30条脚本+10条口播' },
-                  { name: '专业版', price: '¥1,499/月', desc: '45条脚本+20条口播+数据追踪' },
-                  { name: '至尊版', price: '¥3,999/月', desc: '60条脚本+30条口播+优先响应' },
-                  { name: '体验包', price: '¥99', desc: '含3条脚本+2条口播' },
+                  { name: '尝鲜版', price: '¥199/月', desc: '脚本10 + 成片10' },
+                  { name: '标准版', price: '¥1,999/月', desc: '脚本30 + 成片30 · 专属Agent' },
+                  { name: '专业版', price: '¥2,999/月', desc: '脚本60 + 成片60 · 全链路操盘' },
+                  { name: '续费优惠', price: '8折/7折', desc: '1年8折 · 2年7折' },
                 ].map(p => (
                   <div key={p.name} className="flex items-center justify-between py-3 border-b border-[#FF6034]/10 last:border-0">
                     <div>
@@ -142,7 +142,7 @@ export default function IpManagerPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#FF6034] to-[#E04A1E]" />
         <div className="relative mx-auto max-w-3xl px-6 text-center text-white">
           <FiZap className="w-10 h-10 mx-auto mb-6" />
-          <h2 className="text-4xl font-bold tracking-tight mb-4">¥99 开始你的IP</h2>
+          <h2 className="text-4xl font-bold tracking-tight mb-4">¥199 开始你的IP</h2>
           <p className="text-white/80 max-w-md mx-auto mb-8">AI采访+3条脚本+2条口播，不满意随时停</p>
           <Link href="#" className="inline-flex items-center gap-2 rounded-full bg-white text-[#0A0A0B] px-8 py-4 text-base font-semibold hover:shadow-xl transition-all">
             立即体验 <FiArrowRight className="w-4 h-4" />

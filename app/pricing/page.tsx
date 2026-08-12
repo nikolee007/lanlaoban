@@ -4,10 +4,9 @@ import { FiCheck, FiArrowRight, FiUser, FiCamera, FiZap, FiStar, FiShield, FiHel
 import NavHeader from '../components/NavHeader'
 
 const ipPlans = [
-  { name: '体验包', price: '¥99', period: '一次性', desc: '试试水', target: '想低成本体验AI做IP效果的新手老板', features: ['AI采访1次', '脚本3条', '口播视频2条（即将上线）', '素材邮箱交付'], popular: false, highlight: false },
-  { name: '标准版', price: '¥599', period: '/月', yearly: '¥4,680/年', desc: '稳定更新', target: '刚起步的老板，需要持续输出内容积累粉丝', features: ['AI深度采访+人设策略', '月30条短视频脚本', '数字人口播×10（即将上线）', '邮箱自动交付'], popular: true, highlight: false },
-  { name: '专业版', price: '¥1,499', period: '/月', yearly: '¥11,680/年', desc: '全面增长', target: '已有基础流量，想加速内容产出和粉丝增长', features: ['完整IP增长策略+竞品分析', '月45条脚本+口播×20', '内容数据追踪', '任务优先处理'], popular: false, highlight: false },
-  { name: '至尊版', price: '¥3,999', period: '/月', yearly: '¥26,800/年', desc: '全链路操盘', target: '需要品牌化全链路运营的成熟IP', features: ['全链路IP操盘方案', '月60条脚本+口播×30', '账号评论管理+月度数据复盘', '7×12h优先客服'], popular: false, highlight: true },
+  { name: '尝鲜版', price: '¥199', period: '/月', yearly1: '¥1,910/年', desc: '先试试', target: '想低成本体验AI编导效果的新手老板', features: ['月脚本 10 条', 'AI 图文成片 10 条', '可一键数字人口播', '邮箱交付'], popular: false, highlight: false },
+  { name: '标准版', price: '¥1,999', period: '/月', yearly1: '¥19,190/年', desc: '主力推荐', target: '需要持续产出内容的成长型商家', features: ['月脚本 30 条 + 成片 30 条', '专属运营编导 Agent（越用越懂你）', '数字人一键口播', '邮箱交付'], popular: true, highlight: false },
+  { name: '专业版', price: '¥2,999', period: '/月', yearly1: '¥28,790/年', desc: '全链路操盘', target: '需要全链路IP运营的成熟品牌', features: ['月脚本 60 条 + 成片 60 条', '专属 Agent 全链路操盘', '账号策略 + 数据追踪', '优先客服'], popular: false, highlight: true },
 ]
 
 const productPackages = [
@@ -30,8 +29,8 @@ const computePacks = [
 ]
 
 const faqs = [
-  { q: 'IP操盘手的体验包¥99包含什么？之后怎么续？', a: '体验包包含AI采访1次、脚本3条、口播视频2条，一次性交付不含后续。满意后可订阅标准版/专业版/至尊版，按月自动续费。' },
-  { q: 'IP操盘手一个月能出多少条内容？质量怎么样？', a: '标准版月30条脚本+口播×10，专业版45+20，至尊版60+30。内容风格基于你的IP人设定制，AI生成+人工审核，确保不脱离你的真实风格。' },
+  { q: '尝鲜版 ¥199 包含什么？之后怎么续？', a: '尝鲜版月脚本10条 + AI图文成片10条，可一键数字人口播，邮箱交付。满意后可升级标准版/专业版，1年续费8折、2年续费7折。' },
+  { q: 'IP操盘手一个月能出多少条内容？质量怎么样？', a: '尝鲜版月10条，标准版月30条脚本+成片，专业版月60条。内容由专属编导Agent基于你的品类与风格定制，AI生成+人工审核，确保不脱离你的真实风格。' },
   { q: '产品导演一条40-60s母片包含横竖屏、中英文版本吗？', a: '母片标准交付：1种画幅+1门基础语种。制作母片自动生成成套配套AI广告图片。多语种、多画幅衍生版本需消耗算力渲染。' },
   { q: '成片交付后想持续微调画面怎么收费？', a: '小幅画面优化、素材替换重渲染消耗算力点。如需重构叙事、全新脚本，需新增精品母片。' },
   { q: '项目包内多条母片必须一次性制作吗？', a: '无需一次性排期，项目包有效期12个月，可根据上新节奏分批提交。' },
@@ -39,7 +38,7 @@ const faqs = [
   { q: '连续包月可以随时暂停吗？', a: '支持随时关闭自动续费。暂停后续费保留原有权益和数据。' },
   { q: '我没有视频制作经验，能直接用产品导演吗？', a: '完全不需要。你只需上传产品图和基本素材，AI自动生成脚本、画面和配音。三步完成：上传→设置→生成。' },
   { q: 'IP操盘手和产品导演能一起用吗？', a: '可以。两个产品独立订阅，互不冲突。同时订阅有组合优惠，详询客服。' },
-  { q: '什么情况可以退款？', a: '体验包购买后7天内未使用可退款。月付订阅首次使用后7天内不满意可取消并退款。包年和项目包一经开通不退款。' },
+  { q: '什么情况可以退款？', a: '尝鲜版/月付订阅首次使用后7天内不满意可取消并退款。包年和项目包一经开通不退款。' },
 ]
 
 export default function PricingPage() {
@@ -65,7 +64,7 @@ export default function PricingPage() {
           </div>
           <div>
             <h2 className="text-2xl font-bold">IP 操盘手</h2>
-            <p className="text-sm text-[#6B7280]">按月订阅，稳定产出30-60条/月</p>
+            <p className="text-sm text-[#6B7280]">专属运营编导 · 越用越懂你</p>
           </div>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -88,7 +87,8 @@ export default function PricingPage() {
               <div className="mb-4">
                 <span className="text-3xl sm:text-4xl font-bold">{p.price}</span>
                 <span className="text-sm text-[#6B7280]">{p.period}</span>
-                {p.yearly && <p className="text-xs text-[#FF6034] mt-1 font-medium">{p.yearly}（年付）</p>}
+                {p.yearly1 && <p className="text-xs text-[#FF6034] mt-1 font-medium">{p.yearly1}（1年续费·8折）</p>}
+                {p.yearly1 && <p className="text-xs text-[#FF6034]/70 mt-0.5">2年续费·7折</p>}
               </div>
               <ul className="space-y-2.5 mb-6">
                 {p.features.map(f => (
@@ -98,16 +98,20 @@ export default function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href={p.name === '体验包' ? '/interview' : '/login'} className={`block text-center rounded-full py-3 text-sm font-semibold transition-all ${
+              <Link href={p.name === '尝鲜版' ? '/interview' : '/login'} className={`block text-center rounded-full py-3 text-sm font-semibold transition-all ${
                 p.popular ? 'bg-[#FF6034] text-white hover:shadow-lg hover:shadow-[#FF6034]/20' :
                 'border border-[#E5E7EB] text-[#0A0A0B] hover:border-[#FF6034]/30 hover:text-[#FF6034]'
               }`}>
-                {p.name === '体验包' ? '立即体验' : '订阅'}
+                {p.name === '尝鲜版' ? '立即体验' : '订阅'}
               </Link>
             </div>
           ))}
         </div>
-        <p className="text-xs text-[#6B7280] mt-4 text-center">追加脚本 ¥15/条 · 追人口播 ¥69/条（即将上线）</p>
+        <div className="mt-6 rounded-2xl border border-[#FF6034]/10 bg-[#FFF8F5] p-5">
+          <p className="text-sm font-bold mb-1">每个老板，都有一个专属的运营编导 Agent</p>
+          <p className="text-xs text-[#6B7280] leading-relaxed">账号越用越懂你的品类、话术与风格，AI 持续为你产出脚本与成片。数字人由老板本人照片生成，非虚拟网红，使用前签肖像授权说明。</p>
+        </div>
+        <p className="text-xs text-[#6B7280] mt-4 text-center">追加脚本 ¥15/条 · 追加数字人口播 ¥69/条</p>
       </section>
 
       {/* 场景选择指南 */}
@@ -126,10 +130,9 @@ export default function PricingPage() {
               </thead>
               <tbody>
                 {[
-                  { who: "刚起步，想试试AI做IP效果", plan: "体验包 ¥99", why: "低成本验证，觉得好再续" },
-                  { who: "已有账号，需要稳定更新", plan: "标准版 ¥599/月", why: "月30条脚本稳定输出，适合持续涨粉" },
-                  { who: "账号有起色，想加速增长", plan: "专业版 ¥1,499/月", why: "更多内容+数据追踪，按效果优化" },
-                  { who: "成熟IP，品牌化运营", plan: "至尊版 ¥3,999/月", why: "全链路操盘，7x12h客服" },
+                  { who: "刚起步，想先试试AI编导", plan: "尝鲜版 ¥199/月", why: "低成本验证，觉得好再续" },
+                  { who: "需要持续产出内容", plan: "标准版 ¥1,999/月", why: "30条脚本+成片，专属Agent越用越懂你" },
+                  { who: "要全链路IP运营", plan: "专业版 ¥2,999/月", why: "60条+全链路操盘，优先客服" },
                 ].map((row, i) => (
                   <tr key={i} className="border-b border-[#E5E7EB]/60 last:border-0">
                     <td className="py-3 pr-4 text-[#0A0A0B] font-medium">{row.who}</td>
@@ -239,7 +242,7 @@ export default function PricingPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#FF6034] to-[#E04A1E]" />
         <div className="relative mx-auto max-w-3xl px-6 text-center text-white">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">先试试，再决定</h2>
-          <p className="text-white/80 max-w-md mx-auto mb-8">¥99体验IP操盘手 · ¥1,299体验产品小样</p>
+          <p className="text-white/80 max-w-md mx-auto mb-8">¥199 尝鲜版 · ¥1,299 体验产品小样</p>
           <Link href="/interview" className="inline-flex items-center gap-2 rounded-full bg-white text-[#0A0A0B] px-8 py-4 text-base font-semibold hover:shadow-xl transition-all">
             <FiZap className="w-4 h-4" /> 立即体验
           </Link>

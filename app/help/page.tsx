@@ -35,7 +35,7 @@ const quickLinks = [
   { label: '品牌宣传视频', href: '/brand-promotion', desc: '产品图→30s精品短片' },
   { label: 'IP操盘', href: '/persona', desc: 'AI采访·人设定位·内容策略' },
   { label: 'AI聊天助手', href: '/ai-assistant', desc: '生意顾问·IP策划' },
-  { label: '定价方案', href: '/pricing', desc: '体验包·标准版·专业版' },
+  { label: '定价方案', href: '/pricing', desc: '尝鲜版·标准版·专业版' },
   { label: '常见问题', href: '/faq', desc: '使用疑问·计费说明' },
 ]
 

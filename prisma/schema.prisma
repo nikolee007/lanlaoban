@@ -125,6 +125,37 @@ model User {
   IpProfile               IpProfile?
   IpChat                  IpChat[]
   createdActivationCodes  ActivationCode[]
+  balanceYuan             Float            @default(0)   // 算力余额（元）
+  cloneAvatars            CloneAvatar[]
+  cloneGenerations        CloneGeneration[]
+}
+
+// 克隆分身资产（用户上传一次，永久复用）
+model CloneAvatar {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  name        String   @default("我的分身")
+  avatarUrl   String
+  sourcePhoto String?
+  engine      String   @default("agnes")
+  status      String   @default("ready") // ready / generating / failed
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// 生成记录（算力扣费落点）
+model CloneGeneration {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  type        String   // avatar / preview
+  engine      String
+  template    String?
+  chargedYuan Float    @default(0)
+  status      String   @default("pending") // pending / done / failed / refunded
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 // UserCollection (用户收藏)

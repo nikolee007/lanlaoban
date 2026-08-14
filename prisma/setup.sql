@@ -96,6 +96,7 @@ CREATE TABLE "User" (
     "avatar" TEXT,
     "company" TEXT,
     "phone" TEXT,
+    "balanceYuan" REAL NOT NULL DEFAULT 0,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
@@ -289,4 +290,35 @@ CREATE UNIQUE INDEX "ActivationCode_cid_key" ON "ActivationCode"("cid");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Activation_codeId_deviceFingerprint_key" ON "Activation"("codeId", "deviceFingerprint");
+
+-- CreateTable
+CREATE TABLE "CloneAvatar" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "name" TEXT NOT NULL DEFAULT '我的分身',
+    "avatarUrl" TEXT NOT NULL,
+    "sourcePhoto" TEXT,
+    "engine" TEXT NOT NULL DEFAULT 'agnes',
+    "status" TEXT NOT NULL DEFAULT 'ready',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "CloneAvatar_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "CloneGeneration" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "type" TEXT NOT NULL,
+    "engine" TEXT NOT NULL,
+    "template" TEXT,
+    "chargedYuan" REAL NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL DEFAULT 'pending',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateIndex
+CREATE INDEX "CloneAvatar_userId_idx" ON "CloneAvatar"("userId");
+
+-- CreateIndex
+CREATE INDEX "CloneGeneration_userId_idx" ON "CloneGeneration"("userId");
 

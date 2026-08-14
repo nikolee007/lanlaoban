@@ -48,3 +48,11 @@
 2. Phase 2：即梦/可灵接入（人脸身份保持，脸像本人兑现）
 3. Phase 3：4 个 Agent 调 `/api/clone/generate` 批量生产
 4. 商业化文档：首页文案/商业计划书/宣传脚本/服务须知（可并行产出）
+5. **支付接入（最后接）**：虎皮椒充值，上线前移除测试入账（删 `NEXT_PUBLIC_TEST_RECHARGE`/`TEST_RECHARGE` 环境变量即可隐藏按钮 + 拒绝 API）
+
+## 追加收尾（当天下午，老大定"支付最后接，先做完开发"）
+
+- ✅ **Turso 生产分支实测**：`__tests__/turso-clone.test.ts` 用 libsql file: 库全链路通过（建表/分身/免费额度/付费扣费/退款）
+- ✅ **middleware 修复（存量 bug）**：`app/middleware.ts` → 根目录 `middleware.ts`。Next.js 14 不识别 app/ 位置，7-19 起的"路由保护"从未真正生效。已修复并验证：`/persona` `/clone` 未登录 307、API 返回 needsAuth、**Middleware 首次进入 build**
+- ✅ **页面 UI 验证**：`/clone` 登录渲染正常（老板克隆分身/算力余额/充值），middleware 保护生效
+- ✅ **测试入账按钮**：充值弹层加「测试入账 +¥10」，`TEST_RECHARGE=1` 开关控制（本地开，生产不配即 403+隐藏），支付接入前跑通算力扣费闭环

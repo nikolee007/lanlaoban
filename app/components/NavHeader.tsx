@@ -41,6 +41,7 @@ const NAV_GROUPS: Array<{
     { key: 'nav.agent', href: '/agent', isAI: true },
     { key: 'nav.oneClickIP', href: '/persona', isAI: true },
     { key: 'nav.oneClickBrand', href: '/brand-promotion', isAI: true },
+    { key: 'nav.cloneAvatar', href: '/clone', isAI: true },
     { key: 'content.avatar', href: '/digital-human', isAI: true },
     { key: 'nav.scripts', href: '/scripts', isAI: true },
     { key: 'nav.storyboard', href: '/storyboard', isAI: true },

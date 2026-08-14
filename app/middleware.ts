@@ -7,6 +7,7 @@ const PROTECTED_PATHS = [
   '/brand-promotion',
   '/persona',
   '/digital-human',
+  '/clone',
   '/profile',
   '/settings',
   '/admin',
@@ -14,6 +15,7 @@ const PROTECTED_PATHS = [
   '/api/chat',
   '/api/copilotkit',
   '/api/admin',
+  '/api/clone',
 ]
 
 /** 始终公开的路由（无需登录） */

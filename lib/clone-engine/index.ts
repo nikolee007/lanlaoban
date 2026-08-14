@@ -12,5 +12,8 @@ export function getEngines(): CloneEngine[] {
 
 export function getEngine(id?: string | null): CloneEngine {
   const target = id ? ENGINES.find(e => e.id === id) : undefined
-  return target || ENGINES.find(e => e.id === DEFAULT_ENGINE_ID) || agnesEngine
+  if (target) return target
+  // 默认引擎必须是 active；若 CLONE_ENGINE 配了 coming 引擎则回退到首个可用引擎
+  const configured = ENGINES.find(e => e.id === DEFAULT_ENGINE_ID && e.status === 'active')
+  return configured || ENGINES.find(e => e.status === 'active') || agnesEngine
 }

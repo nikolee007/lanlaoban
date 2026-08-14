@@ -7,7 +7,7 @@ const FREE_LIMIT = 3
 export interface BeginResult {
   ok: boolean
   mode: 'free' | 'paid'
-  error?: 'insufficient_balance' | 'db_error'
+  error?: string
   recordId: number
 }
 

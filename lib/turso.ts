@@ -262,6 +262,86 @@ export const tursoDb = {
       return r.rows as unknown as TursoChat[]
     } catch (e) { console.error('[turso] getChats:', e); return [] }
   },
+
+  // ── 克隆分身 / 算力 ─────────────────────────────
+  async getCloneAvatars(userId: number): Promise<Record<string, unknown>[]> {
+    const c = getClient(); if (!c) return []
+    await ensureSchema()
+    try {
+      const r = await c.execute({ sql: 'SELECT * FROM "CloneAvatar" WHERE "userId" = ? ORDER BY "id" DESC', args: [userId] })
+      return r.rows as unknown as Record<string, unknown>[]
+    } catch (e) { console.error('[turso] getCloneAvatars:', e); return [] }
+  },
+  async saveCloneAvatar(userId: number, data: { name: string; avatarUrl: string; sourcePhoto?: string; engine: string }): Promise<Record<string, unknown> | null> {
+    const c = getClient(); if (!c) return null
+    await ensureSchema()
+    try {
+      await c.execute({
+        sql: 'INSERT INTO "CloneAvatar" ("userId","name","avatarUrl","sourcePhoto","engine","status","createdAt") VALUES (?,?,?,?,?,?,?)',
+        args: [userId, data.name, data.avatarUrl, data.sourcePhoto || null, data.engine, 'ready', new Date().toISOString()],
+      })
+      const r = await c.execute({ sql: 'SELECT * FROM "CloneAvatar" WHERE "userId" = ? ORDER BY "id" DESC LIMIT 1', args: [userId] })
+      return (r.rows[0] as unknown as Record<string, unknown>) || null
+    } catch (e) { console.error('[turso] saveCloneAvatar:', e); return null }
+  },
+  async getUserBilling(userId: number): Promise<{ freeUsed: number; balance: number }> {
+    const c = getClient(); if (!c) return { freeUsed: 0, balance: 0 }
+    await ensureSchema()
+    try {
+      const gen = await c.execute({ sql: 'SELECT count(*) as cnt FROM "CloneGeneration" WHERE "userId" = ?', args: [userId] })
+      const u = await c.execute({ sql: 'SELECT "balanceYuan" FROM "User" WHERE "id" = ?', args: [userId] })
+      const freeUsed = Number((gen.rows[0] as unknown as SqliteMasterRow)?.cnt || 0)
+      const balance = Number((u.rows[0] as any)?.balanceYuan || 0)
+      return { freeUsed, balance }
+    } catch (e) { console.error('[turso] getUserBilling:', e); return { freeUsed: 0, balance: 0 } }
+  },
+  async beginCloneGeneration(userId: number, opts: { type: string; engine: string; template?: string; price: number }): Promise<{ ok: boolean; mode: 'free' | 'paid'; error?: string; recordId: number }> {
+    const c = getClient(); if (!c) return { ok: false, mode: 'paid', error: 'db_unavailable', recordId: 0 }
+    await ensureSchema()
+    try {
+      const gen = await c.execute({ sql: 'SELECT count(*) as cnt FROM "CloneGeneration" WHERE "userId" = ?', args: [userId] })
+      const freeUsed = Number((gen.rows[0] as unknown as SqliteMasterRow)?.cnt || 0)
+      const isFree = freeUsed < 3
+      let charged = 0
+      if (!isFree) {
+        const u = await c.execute({ sql: 'SELECT "balanceYuan" FROM "User" WHERE "id" = ?', args: [userId] })
+        const balance = Number((u.rows[0] as any)?.balanceYuan || 0)
+        if (balance < opts.price) return { ok: false, mode: 'paid', error: 'insufficient_balance', recordId: 0 }
+        charged = opts.price
+        await c.execute({ sql: 'UPDATE "User" SET "balanceYuan" = "balanceYuan" - ? WHERE "id" = ?', args: [charged, userId] })
+      }
+      const r = await c.execute({
+        sql: 'INSERT INTO "CloneGeneration" ("userId","type","engine","template","chargedYuan","status","createdAt") VALUES (?,?,?,?,?,?,?)',
+        args: [userId, opts.type, opts.engine, opts.template || null, charged, 'pending', new Date().toISOString()],
+      })
+      return { ok: true, mode: isFree ? 'free' : 'paid', recordId: Number(r.lastInsertRowid) }
+    } catch (e) { console.error('[turso] beginCloneGeneration:', e); return { ok: false, mode: 'paid', error: 'db_error', recordId: 0 } }
+  },
+  async finishCloneGeneration(recordId: number, ok: boolean) {
+    const c = getClient(); if (!c) return
+    await ensureSchema()
+    try {
+      if (ok) {
+        await c.execute({ sql: 'UPDATE "CloneGeneration" SET "status" = ? WHERE "id" = ?', args: ['done', recordId] })
+      } else {
+        const rec = await c.execute({ sql: 'SELECT * FROM "CloneGeneration" WHERE "id" = ?', args: [recordId] })
+        const row = rec.rows[0] as any
+        if (row) {
+          await c.execute({ sql: 'UPDATE "CloneGeneration" SET "status" = ? WHERE "id" = ?', args: ['refunded', recordId] })
+          if (Number(row.chargedYuan) > 0) {
+            await c.execute({ sql: 'UPDATE "User" SET "balanceYuan" = "balanceYuan" + ? WHERE "id" = ?', args: [Number(row.chargedYuan), Number(row.userId)] })
+          }
+        }
+      }
+    } catch (e) { console.error('[turso] finishCloneGeneration:', e) }
+  },
+  async addBalance(userId: number, amount: number) {
+    const c = getClient(); if (!c) return
+    await ensureSchema()
+    try {
+      await c.execute({ sql: 'UPDATE "User" SET "balanceYuan" = "balanceYuan" + ? WHERE "id" = ?', args: [amount, userId] })
+    } catch (e) { console.error('[turso] addBalance:', e) }
+  },
 }
 
 /** 洋葱一键出海 · 激活码存储（Turso 生产环境） */
@@ -364,85 +444,5 @@ export const tursoActivation = {
       const r = await c.execute({ sql: 'SELECT * FROM "ActivationCode" ORDER BY "id" DESC LIMIT ?', args: [limit] })
       return r.rows as unknown as Record<string, unknown>[]
     } catch (e) { console.error('[turso] listCodes:', e); return [] }
-  },
-
-  // ── 克隆分身 / 算力 ─────────────────────────────
-  async getCloneAvatars(userId: number): Promise<Record<string, unknown>[]> {
-    const c = getClient(); if (!c) return []
-    await ensureSchema()
-    try {
-      const r = await c.execute({ sql: 'SELECT * FROM "CloneAvatar" WHERE "userId" = ? ORDER BY "id" DESC', args: [userId] })
-      return r.rows as unknown as Record<string, unknown>[]
-    } catch (e) { console.error('[turso] getCloneAvatars:', e); return [] }
-  },
-  async saveCloneAvatar(userId: number, data: { name: string; avatarUrl: string; sourcePhoto?: string; engine: string }): Promise<Record<string, unknown> | null> {
-    const c = getClient(); if (!c) return null
-    await ensureSchema()
-    try {
-      await c.execute({
-        sql: 'INSERT INTO "CloneAvatar" ("userId","name","avatarUrl","sourcePhoto","engine","status","createdAt") VALUES (?,?,?,?,?,?,?)',
-        args: [userId, data.name, data.avatarUrl, data.sourcePhoto || null, data.engine, 'ready', new Date().toISOString()],
-      })
-      const r = await c.execute({ sql: 'SELECT * FROM "CloneAvatar" WHERE "userId" = ? ORDER BY "id" DESC LIMIT 1', args: [userId] })
-      return (r.rows[0] as unknown as Record<string, unknown>) || null
-    } catch (e) { console.error('[turso] saveCloneAvatar:', e); return null }
-  },
-  async getUserBilling(userId: number): Promise<{ freeUsed: number; balance: number }> {
-    const c = getClient(); if (!c) return { freeUsed: 0, balance: 0 }
-    await ensureSchema()
-    try {
-      const gen = await c.execute({ sql: 'SELECT count(*) as cnt FROM "CloneGeneration" WHERE "userId" = ?', args: [userId] })
-      const u = await c.execute({ sql: 'SELECT "balanceYuan" FROM "User" WHERE "id" = ?', args: [userId] })
-      const freeUsed = Number((gen.rows[0] as unknown as SqliteMasterRow)?.cnt || 0)
-      const balance = Number((u.rows[0] as any)?.balanceYuan || 0)
-      return { freeUsed, balance }
-    } catch (e) { console.error('[turso] getUserBilling:', e); return { freeUsed: 0, balance: 0 } }
-  },
-  async beginCloneGeneration(userId: number, opts: { type: string; engine: string; template?: string; price: number }): Promise<{ ok: boolean; mode: 'free' | 'paid'; error?: string; recordId: number }> {
-    const c = getClient(); if (!c) return { ok: false, mode: 'paid', error: 'db_unavailable', recordId: 0 }
-    await ensureSchema()
-    try {
-      const gen = await c.execute({ sql: 'SELECT count(*) as cnt FROM "CloneGeneration" WHERE "userId" = ?', args: [userId] })
-      const freeUsed = Number((gen.rows[0] as unknown as SqliteMasterRow)?.cnt || 0)
-      const isFree = freeUsed < 3
-      let charged = 0
-      if (!isFree) {
-        const u = await c.execute({ sql: 'SELECT "balanceYuan" FROM "User" WHERE "id" = ?', args: [userId] })
-        const balance = Number((u.rows[0] as any)?.balanceYuan || 0)
-        if (balance < opts.price) return { ok: false, mode: 'paid', error: 'insufficient_balance', recordId: 0 }
-        charged = opts.price
-        await c.execute({ sql: 'UPDATE "User" SET "balanceYuan" = "balanceYuan" - ? WHERE "id" = ?', args: [charged, userId] })
-      }
-      const r = await c.execute({
-        sql: 'INSERT INTO "CloneGeneration" ("userId","type","engine","template","chargedYuan","status","createdAt") VALUES (?,?,?,?,?,?,?)',
-        args: [userId, opts.type, opts.engine, opts.template || null, charged, 'pending', new Date().toISOString()],
-      })
-      return { ok: true, mode: isFree ? 'free' : 'paid', recordId: Number(r.lastInsertRowid) }
-    } catch (e) { console.error('[turso] beginCloneGeneration:', e); return { ok: false, mode: 'paid', error: 'db_error', recordId: 0 } }
-  },
-  async finishCloneGeneration(recordId: number, ok: boolean) {
-    const c = getClient(); if (!c) return
-    await ensureSchema()
-    try {
-      if (ok) {
-        await c.execute({ sql: 'UPDATE "CloneGeneration" SET "status" = ? WHERE "id" = ?', args: ['done', recordId] })
-      } else {
-        const rec = await c.execute({ sql: 'SELECT * FROM "CloneGeneration" WHERE "id" = ?', args: [recordId] })
-        const row = rec.rows[0] as any
-        if (row) {
-          await c.execute({ sql: 'UPDATE "CloneGeneration" SET "status" = ? WHERE "id" = ?', args: ['refunded', recordId] })
-          if (Number(row.chargedYuan) > 0) {
-            await c.execute({ sql: 'UPDATE "User" SET "balanceYuan" = "balanceYuan" + ? WHERE "id" = ?', args: [Number(row.chargedYuan), Number(row.userId)] })
-          }
-        }
-      }
-    } catch (e) { console.error('[turso] finishCloneGeneration:', e) }
-  },
-  async addBalance(userId: number, amount: number) {
-    const c = getClient(); if (!c) return
-    await ensureSchema()
-    try {
-      await c.execute({ sql: 'UPDATE "User" SET "balanceYuan" = "balanceYuan" + ? WHERE "id" = ?', args: [amount, userId] })
-    } catch (e) { console.error('[turso] addBalance:', e) }
   },
 }

@@ -36,6 +36,25 @@ export default function RechargeModal({ open, onClose, onRecharged }: Props) {
     } finally { setLoading(false) }
   }
 
+  // 测试入账：支付接入前跑通算力闭环（仅 NEXT_PUBLIC_TEST_RECHARGE=1 环境显示）
+  const testAdd = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/clone/recharge/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeaders()) },
+        body: JSON.stringify({ amount: 10 }),
+      })
+      const data = await res.json()
+      if (!data.success) { showToast(data.error || '入账失败', 'error'); return }
+      showToast(`测试入账 +¥${data.data.added}`, 'success')
+      onRecharged()
+      onClose()
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : '入账失败', 'error')
+    } finally { setLoading(false) }
+  }
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl p-6 w-full max-w-md" onClick={e => e.stopPropagation()}>
@@ -59,6 +78,12 @@ export default function RechargeModal({ open, onClose, onRecharged }: Props) {
               className="w-full py-3 rounded-xl bg-[#FF6034] text-white font-medium disabled:opacity-40 hover:opacity-90">
               {loading ? '下单中...' : `充值 ¥${amount}`}
             </button>
+            {process.env.NEXT_PUBLIC_TEST_RECHARGE === '1' && (
+              <button onClick={testAdd} disabled={loading}
+                className="mt-3 w-full py-2.5 rounded-xl border border-dashed border-gray-300 text-gray-500 text-sm hover:bg-gray-50">
+                测试入账 +¥10（仅测试环境）
+              </button>
+            )}
           </>
         ) : (
           <div className="flex flex-col items-center">

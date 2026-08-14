@@ -28,20 +28,30 @@ interface AgnesRequestBody {
   [key: string]: unknown
 }
 
+// 图片生成（图生图带参考图）可能较慢，给足 60s
+const FETCH_TIMEOUT = 60_000
+
 async function agnesFetch(endpoint: string, body?: AgnesRequestBody, method = 'POST') {
-  const res = await fetch(`${AGNES_BASE}${endpoint}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${AGNES_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    ...(body ? { body: JSON.stringify(body) } : {}),
-  })
-  if (!res.ok) {
-    const errText = await res.text()
-    throw new Error(`Agnes API error (${res.status}): ${errText}`)
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT)
+  try {
+    const res = await fetch(`${AGNES_BASE}${endpoint}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${AGNES_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+      signal: controller.signal,
+    })
+    if (!res.ok) {
+      const errText = await res.text()
+      throw new Error(`Agnes API error (${res.status}): ${errText}`)
+    }
+    return res.json()
+  } finally {
+    clearTimeout(timer)
   }
-  return res.json()
 }
 
 export async function generateImage(prompt: string, size = '1024x1024', referenceImage?: string): Promise<AgnesImageResult> {

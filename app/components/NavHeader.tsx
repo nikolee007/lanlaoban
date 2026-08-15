@@ -29,35 +29,24 @@ type UserProfile = {
   phone: string
 }
 
-/** 导航分组 */
+/** 导航项 */
 type NavItem = { key: string; href: string; isAI: boolean; comingSoon?: boolean; eta?: string }
 
-const NAV_GROUPS: Array<{
-  color: 'orange' | 'gray'
-  label: string
-  items: NavItem[]
-}> = [
-  { color: 'orange', label: 'AI创作', items: [
-    { key: 'nav.agent', href: '/agent', isAI: true },
-    { key: 'nav.oneClickIP', href: '/persona', isAI: true },
-    { key: 'nav.oneClickBrand', href: '/brand-promotion', isAI: true },
-    { key: 'nav.cloneAvatar', href: '/clone', isAI: true },
-    { key: 'content.avatar', href: '/digital-human', isAI: true },
-    { key: 'nav.scripts', href: '/scripts', isAI: true },
-    { key: 'nav.storyboard', href: '/storyboard', isAI: true },
-  ]},
-  { color: 'gray', label: '更多', items: [
-    { key: 'nav.pricing', href: '/pricing', isAI: false },
-  ]},
+/** 核心导航（桌面顶部平铺，精简突出卖点） */
+const CORE_NAV: NavItem[] = [
+  { key: 'nav.cloneAvatar', href: '/clone', isAI: true },
+  { key: 'content.avatar', href: '/digital-human', isAI: true },
+  { key: 'nav.oneClickBrand', href: '/brand-promotion', isAI: true },
+  { key: 'nav.pricing', href: '/pricing', isAI: false },
 ]
 
-type GroupColor = 'orange' | 'gray'
-
-/** 根据分组颜色获取 hover/active 的 Tailwind 类名 */
-const groupActiveClasses: Record<GroupColor, { active: string; hover: string }> = {
-  orange: { active: 'text-brand-400 bg-brand-50', hover: 'hover:text-brand-500 hover:bg-orange-50' },
-  gray: { active: 'text-gray-700 bg-gray-100', hover: 'hover:text-gray-700 hover:bg-gray-100' },
-}
+/** 更多下拉（收纳次要功能，避免导航拥挤） */
+const MORE_NAV: NavItem[] = [
+  { key: 'nav.agent', href: '/agent', isAI: true },
+  { key: 'nav.oneClickIP', href: '/persona', isAI: true },
+  { key: 'nav.scripts', href: '/scripts', isAI: true },
+  { key: 'nav.storyboard', href: '/storyboard', isAI: true },
+]
 
 export default function NavHeader() {
   const pathname = usePathname()
@@ -67,8 +56,10 @@ export default function NavHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [user, setUser] = useState<UserProfile | null>(null)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
   const navRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const moreRef = useRef<HTMLDivElement>(null)
 
   // Persist locale to localStorage
   useEffect(() => {
@@ -91,6 +82,9 @@ export default function NavHeader() {
       }
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false)
+      }
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
+        setMoreOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -132,8 +126,6 @@ export default function NavHeader() {
 
   const userInitial = user?.name?.charAt(0) || user?.email?.charAt(0) || '?'
 
-  const isAdminActive = pathname === '/admin'
-
   return (
     <nav className="border-b border-[#E5E7EB]/50 bg-white/90 backdrop-blur-xl sticky top-0 z-50" role="navigation" aria-label={mobileMenuOpen ? t('menu.label', locale) : t('menu.label', locale)}>
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
@@ -150,56 +142,54 @@ export default function NavHeader() {
           </div>
         </Link>
 
-        {/* Desktop Nav — 已开放 + 即将上线 */}
+        {/* Desktop Nav — 精简核心 + 更多下拉 */}
         <div className="hidden sm:flex items-center" ref={navRef}>
-          {NAV_GROUPS.map((group, gi) => (
-            <React.Fragment key={gi}>
-              {gi > 0 && (
-                <span className="mx-1 text-gray-300 select-none text-[10px]">·</span>
-              )}
-              {group.items.map((item) => (
-                <Link
-                  key={item.key}
-                  href={item.comingSoon ? '/coming-soon' : item.href}
-                  className={`flex items-center gap-1 px-1.5 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
-                    item.comingSoon
-                      ? 'text-gray-400 hover:text-gray-500 cursor-pointer'
-                      : isActive(item.href) ? groupActiveClasses[group.color].active : `text-gray-600 ${groupActiveClasses[group.color].hover}`
-                  }`}
-                >
-                  {t(item.key, locale)}
-                  {item.comingSoon ? (
-                    <span className="ml-0.5 inline-flex items-center rounded bg-gray-200 text-gray-500 px-[3px] py-[1px] text-[7px] font-medium leading-none whitespace-nowrap">{item.eta || '即将上线'}</span>
-                  ) : item.isAI ? (
-                    <span className="inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-[3px] py-[1px] text-[8px] font-bold text-white leading-none">AI</span>
-                  ) : null}
-                </Link>
-              ))}
-            </React.Fragment>
-          ))}
-
-          <Link
-            href="/onion"
-            className={`flex items-center gap-1 px-2 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
-              isActive('/onion') ? 'text-brand-400 bg-brand-50' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            洋葱一键出海
-          </Link>
-
-          {user && (
+          {CORE_NAV.map((item) => (
             <Link
-              href="/admin"
-              className={`flex items-center gap-1.5 px-2 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
-                isAdminActive
-                  ? 'text-brand-400 bg-brand-50'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              key={item.key}
+              href={item.href}
+              className={`flex items-center gap-1 px-1.5 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+                isActive(item.href) ? 'text-brand-400 bg-brand-50' : 'text-gray-600 hover:text-brand-500 hover:bg-orange-50'
               }`}
             >
-              <FiSettings className="w-4 h-4" />
-              <span>{t('nav.adminPanel', locale)}</span>
+              {t(item.key, locale)}
+              {item.isAI && (
+                <span className="inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-[3px] py-[1px] text-[8px] font-bold text-white leading-none">AI</span>
+              )}
             </Link>
-          )}
+          ))}
+
+          {/* 更多下拉 */}
+          <div className="relative" ref={moreRef}>
+            <button
+              onClick={() => setMoreOpen(!moreOpen)}
+              className={`flex items-center gap-1 px-1.5 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+                MORE_NAV.some(n => isActive(n.href)) ? 'text-brand-400 bg-brand-50' : 'text-gray-600 hover:text-brand-500 hover:bg-orange-50'
+              }`}
+            >
+              更多
+              <FiChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {moreOpen && (
+              <div className="absolute right-0 top-full mt-1 w-44 rounded-xl border border-gray-100 bg-white py-2 shadow-xl z-50">
+                {MORE_NAV.map((item) => (
+                  <Link
+                    key={item.key}
+                    href={item.href}
+                    onClick={() => setMoreOpen(false)}
+                    className={`flex items-center gap-1 px-4 py-2.5 text-sm transition-colors ${
+                      isActive(item.href) ? 'text-brand-400 font-medium' : 'text-gray-700 hover:text-brand-500 hover:bg-orange-50'
+                    }`}
+                  >
+                    {t(item.key, locale)}
+                    {item.isAI && (
+                      <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-[3px] py-[1px] text-[8px] font-bold text-white leading-none">AI</span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right side actions */}
@@ -308,57 +298,38 @@ export default function NavHeader() {
         <div
           className="sm:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1 shadow-lg max-h-[80vh] overflow-y-auto"
         >
-          {NAV_GROUPS.map((group, gi) => (
-            <React.Fragment key={gi}>
-              {gi > 0 && <hr className="my-2 border-gray-100" />}
-              <div className="px-3 pb-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{group.label}</div>
-              {group.items.map((item) => (
-                <Link
-                  key={item.key}
-                  href={item.comingSoon ? '/coming-soon' : item.href}
-                  className={`flex items-center gap-1 px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
-                    item.comingSoon
-                      ? 'text-gray-400'
-                      : isActive(item.href)
-                        ? group.color === 'orange' ? 'text-brand-400 bg-brand-50'
-                          : 'text-gray-700 bg-gray-100'
-                        : 'text-gray-700 hover:bg-gray-50'
-                  }`}
-                  onClick={closeMobileMenu}
-                >
-                  {t(item.key, locale)}
-                  {item.comingSoon ? (
-                    <span className="ml-1 inline-flex items-center rounded bg-gray-200 text-gray-400 px-1.5 py-0.5 text-[8px] font-medium">{item.eta || '即将上线'}</span>
-                  ) : item.isAI ? (
-                    <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
-                  ) : null}
-                </Link>
-              ))}
-            </React.Fragment>
-          ))}
-
-          <Link
-            href="/onion"
-            className="flex items-center gap-2 px-3 min-h-[44px] text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-            onClick={closeMobileMenu}
-          >
-            洋葱一键出海
-          </Link>
-
-          {user && (
+          <div className="px-3 pb-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">核心功能</div>
+          {CORE_NAV.map((item) => (
             <Link
-              href="/admin"
-              className={`flex items-center gap-2 px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
-                isAdminActive
-                  ? 'text-brand-400 bg-brand-50'
-                  : 'text-gray-500 hover:bg-gray-50'
+              key={item.key}
+              href={item.href}
+              className={`flex items-center gap-1 px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
+                isActive(item.href) ? 'text-brand-400 bg-brand-50' : 'text-gray-700 hover:bg-gray-50'
               }`}
               onClick={closeMobileMenu}
             >
-              <FiSettings className="w-4 h-4" />
-              {t('nav.adminPanel', locale)}
+              {t(item.key, locale)}
+              {item.isAI && (
+                <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
+              )}
             </Link>
-          )}
+          ))}
+          <div className="px-3 pb-1 pt-2 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">更多</div>
+          {MORE_NAV.map((item) => (
+            <Link
+              key={item.key}
+              href={item.href}
+              className={`flex items-center gap-1 px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
+                isActive(item.href) ? 'text-brand-400 bg-brand-50' : 'text-gray-700 hover:bg-gray-50'
+              }`}
+              onClick={closeMobileMenu}
+            >
+              {t(item.key, locale)}
+              {item.isAI && (
+                <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
+              )}
+            </Link>
+          ))}
 
           <div className="pt-3 px-3" />
 

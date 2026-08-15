@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { FiArrowRight, FiUser, FiCamera, FiTrendingUp, FiPackage, FiAward, FiPlay, FiCheck, FiStar, FiShield, FiZap } from 'react-icons/fi'
+import { FiArrowRight, FiUser, FiCamera, FiTrendingUp, FiPackage, FiAward, FiPlay, FiCheck, FiStar, FiShield, FiZap, FiSmile } from 'react-icons/fi'
 import NavHeader from './components/NavHeader'
 import VideoPlayer from './components/VideoPlayer'
 import LightboxVideo from './components/LightboxVideo'
@@ -119,7 +119,7 @@ export default function HomePage() {
             <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">你想做什么？</h2>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-3 gap-6">
             {/* IP 操盘手 */}
             <div className="group relative rounded-3xl border border-[#E5E7EB] bg-white p-10 transition-all duration-500 hover:shadow-[0_20px_60px_-12px_rgba(255,96,52,0.2)] hover:-translate-y-1 overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-[#FF6034]/5 to-transparent rounded-bl-full" />
@@ -174,6 +174,36 @@ export default function HomePage() {
                   </div>
                   <Link href="/brand-promotion" className="group/btn inline-flex items-center gap-2 rounded-full bg-[#2563EB] text-white px-6 py-3 text-sm font-semibold hover:shadow-lg hover:shadow-[#2563EB]/20 transition-all">
                     了解详情
+                    <FiArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* 老板克隆分身 */}
+            <div className="group relative rounded-3xl border border-[#E5E7EB] bg-white p-10 transition-all duration-500 hover:shadow-[0_20px_60px_-12px_rgba(139,92,246,0.25)] hover:-translate-y-1 overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-[#8B5CF6]/5 to-transparent rounded-bl-full" />
+              <div className="relative">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#8B5CF6]/10 to-[#8B5CF6]/5 flex items-center justify-center mb-6 border border-[#8B5CF6]/10">
+                  <FiSmile className="w-8 h-8 text-[#8B5CF6]" />
+                </div>
+                <h3 className="text-2xl font-bold mb-2">老板克隆分身</h3>
+                <p className="text-[#6B7280] mb-2">不出镜，也有专属出镜形象</p>
+                <p className="text-[#6B7280] leading-relaxed mb-8 max-w-md">
+                  上传本人照片 → AI 生成专属克隆分身 → 和产品同框出宣传图。老板不用露脸，也能持续产出内容。
+                </p>
+                <div className="flex flex-wrap gap-2 mb-8">
+                  {['人脸克隆','产品可视化','不出镜出片','算力即用'].map(tag => (
+                    <span key={tag} className="text-xs px-3 py-1.5 rounded-full bg-[#FAFAFA] border border-[#E5E7EB] text-[#6B7280]">{tag}</span>
+                  ))}
+                </div>
+                <div className="flex items-end justify-between">
+                  <div>
+                    <p className="text-sm text-[#6B7280]">算力</p>
+                    <p className="text-4xl font-bold tracking-tight">¥0.5<span className="text-base font-normal text-[#6B7280]">/张</span></p>
+                  </div>
+                  <Link href="/clone" className="group/btn inline-flex items-center gap-2 rounded-full bg-[#8B5CF6] text-white px-6 py-3 text-sm font-semibold hover:shadow-lg hover:shadow-[#8B5CF6]/20 transition-all">
+                    立即体验
                     <FiArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                   </Link>
                 </div>

@@ -6,14 +6,6 @@ import { FiZap, FiClock, FiCheckCircle, FiArrowRight } from 'react-icons/fi'
 
 const UPCOMING = [
   {
-    name: '数字人口播',
-    desc: 'AI数字人出镜口播，自动生成短视频，适合打造老板个人IP',
-    eta: '2026年7月',
-    status: '开发中',
-    progress: 60,
-    highlights: ['支持6种场景', '语音克隆', '批量生成'],
-  },
-  {
     name: '全球供应链',
     desc: '162家认证供应商、202个商品、TikTok热销榜、一键询盘',
     eta: '2026年7月',

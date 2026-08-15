@@ -71,7 +71,7 @@ export default function IpManagerPage() {
               <div className="space-y-5">
                 {[
                   { icon: FiFileText, title: '30-60条短视频脚本', desc: '含情绪钩子+分镜描述+字幕建议，5个内容模块覆盖' },
-                  { icon: FiVideo, title: '10-30条数字人口播', desc: 'AI数字人出镜口播，选择场景和风格（即将上线）' },
+                  { icon: FiVideo, title: '10-30条数字人口播', desc: 'AI数字人出镜口播，选择场景和风格，一键出片' },
                   { icon: FiTrendingUp, title: '完整IP增长策略', desc: '竞品分析+选题矩阵+热词预埋+数据复盘' },
                   { icon: FiStar, title: '人设+定位方案', desc: 'AI深度采访后提炼的人设公式、对标分析和受众画像' },
                 ].map(f => (

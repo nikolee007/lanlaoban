@@ -390,6 +390,27 @@ export const tursoDb = {
       })
     } catch (e) { console.error('[turso] saveFeedback:', e) }
   },
+  /** 数据专家统计（反馈采纳率 / 行业分布 / 最近反馈） */
+  async getAgentStats(): Promise<{ totalGen: number; fbTotal: number; byFeedback: Record<string, number>; byIndustry: { industry: string; cnt: number }[]; recent: Record<string, unknown>[] } | null> {
+    const c = getClient(); if (!c) return null
+    await ensureSchema()
+    try {
+      const totalGen = await c.execute('SELECT count(*) as cnt FROM "CloneGeneration"')
+      const fbTotal = await c.execute('SELECT count(*) as cnt FROM "AgentFeedback"')
+      const byFb = await c.execute('SELECT "feedback", count(*) as cnt FROM "AgentFeedback" GROUP BY "feedback"')
+      const byInd = await c.execute('SELECT "industry", count(*) as cnt FROM "AgentFeedback" WHERE "industry" IS NOT NULL AND "industry" != "" GROUP BY "industry" ORDER BY cnt DESC LIMIT 8')
+      const recent = await c.execute('SELECT "sourceType","industry","feedback","contentSummary","createdAt" FROM "AgentFeedback" ORDER BY "id" DESC LIMIT 10')
+      const byFeedback: Record<string, number> = {}
+      byFb.rows.forEach((r: any) => { byFeedback[r.feedback] = Number(r.cnt) })
+      return {
+        totalGen: Number((totalGen.rows[0] as any)?.cnt || 0),
+        fbTotal: Number((fbTotal.rows[0] as any)?.cnt || 0),
+        byFeedback,
+        byIndustry: byInd.rows.map((r: any) => ({ industry: r.industry, cnt: Number(r.cnt) })),
+        recent: recent.rows as unknown as Record<string, unknown>[],
+      }
+    } catch (e) { console.error('[turso] getAgentStats:', e); return null }
+  },
 }
 
 /** 洋葱一键出海 · 激活码存储（Turso 生产环境） */

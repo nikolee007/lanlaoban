@@ -2,7 +2,7 @@
 // 5 套 Skill：标准方案 / 冷启动 / 转化招商 / 矩阵批量 / 脚本优化
 // 所有 Skill 复用底层内核 + 各场景策略，输出强制 JSON 结构化（后端可校验解析）
 
-export type SkillType = 'standard' | 'coldstart' | 'convert' | 'matrix' | 'optimize'
+export type SkillType = 'standard' | 'coldstart' | 'convert' | 'matrix' | 'optimize' | 'operator'
 
 export interface SkillDef {
   id: SkillType
@@ -132,6 +132,37 @@ ${GEN_OUTPUT}`,
   "ops_advice": { "notes": ["优化后操盘建议"] }
 }`,
   },
+
+  operator: {
+    id: 'operator',
+    name: 'AI 操盘手',
+    desc: '账号诊断 + 内容策略 + 周排期（核心操盘经验）',
+    scriptCount: 0,
+    systemPrompt: `${KERNEL}
+【Agent1｜AI操盘手】
+职责：诊断商家账号所处阶段（冷启动/成长/成熟），输出内容策略与周排期。
+账号阶段判断依据：
+- 冷启动：新号、播放<500、无稳定内容 → 策略：优先完播率，强化冲突钩子，少硬广、多故事感，先立人设
+- 成长：有稳定播放、粉丝增长慢 → 策略：强化人设垂直度，深耕赛道，加速转化链路，出爆款驱动
+- 成熟：有忠实粉丝、以转化为主 → 策略：强化变现，招商/成交内容，数据驱动优化，批量矩阵
+输出 JSON 结构（字段必填，只输出 JSON）：
+{
+  "diagnosis": {
+    "account_stage": "冷启动|成长|成熟",
+    "strengths": ["账号当前优势（2-3条）"],
+    "gaps": ["账号当前短板（2-3条）"],
+    "core_issue": "一句话点破核心问题"
+  },
+  "strategy": {
+    "positioning": "账号定位一句话",
+    "content_direction": "内容方向（围绕什么持续产出）",
+    "weekly_plan": [ { "day": "周一", "topic": "选题", "format": "口播|产品展示|探店" } ],
+    "priority_actions": ["本周最该做的 3 件事"],
+    "growth_goal": "阶段性目标（可衡量）"
+  },
+  "ops_advice": { "distribution": "发布节奏与平台建议", "notes": ["操盘建议 2-3 条"] }
+}`,
+  },
 }
 
 // ── 画像注入段 ──────────────────────────────────────────────────────
@@ -167,6 +198,10 @@ function validateSkillOutput(skillId: SkillType, data: Record<string, unknown>):
   }
   if (skillId === 'optimize') {
     if (!Array.isArray(data.optimized_scripts)) throw new Error('优化输出缺少脚本')
+    return
+  }
+  if (skillId === 'operator') {
+    if (!data.diagnosis || !data.strategy) throw new Error('操盘手输出缺少诊断或策略')
     return
   }
   if (!Array.isArray(data.scripts) || (data.scripts as unknown[]).length === 0) throw new Error('输出缺少脚本')

@@ -28,6 +28,12 @@ interface ScriptResult {
   ops_advice?: { distribution?: string; notes?: string[] }
 }
 
+interface OperatorResult {
+  diagnosis?: { account_stage?: string; strengths?: string[]; gaps?: string[]; core_issue?: string }
+  strategy?: { positioning?: string; content_direction?: string; weekly_plan?: { day: string; topic: string; format: string }[]; priority_actions?: string[]; growth_goal?: string }
+  ops_advice?: { distribution?: string; notes?: string[] }
+}
+
 export default function AgentPage() {
   const [skillType, setSkillType] = useState<SkillType>('standard')
   const [industry, setIndustry] = useState('')
@@ -41,6 +47,62 @@ export default function AgentPage() {
   const [result, setResult] = useState<ScriptResult | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
   const [feedbackSent, setFeedbackSent] = useState<string | null>(null)
+  const [activeAgent, setActiveAgent] = useState<'operator' | 'writer' | 'director' | 'analyst'>('operator')
+  const [opResult, setOpResult] = useState<OperatorResult | null>(null)
+  const [opLoading, setOpLoading] = useState(false)
+  const [directorProduct, setDirectorProduct] = useState('')
+  const [directorDesc, setDirectorDesc] = useState('')
+  const [directorPreview, setDirectorPreview] = useState('')
+  const [dirLoading, setDirLoading] = useState(false)
+  const [stats, setStats] = useState<Record<string, unknown> | null>(null)
+
+  // 操盘手：账号诊断 + 策略
+  const handleOperator = async () => {
+    setOpLoading(true); setError('')
+    try {
+      const res = await fetch('/api/agent/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skillType: 'operator', industry, product, targetCustomer: '', goal, durationSec, note }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.success) throw new Error(data.error || '生成失败')
+      setOpResult(data.data)
+    } catch (e) { setError(e instanceof Error ? e.message : '生成失败') }
+    setOpLoading(false)
+  }
+
+  // 广告导演：产品可视化（用已有克隆分身 + 产品图出宣传图）
+  const handleDirector = async () => {
+    if (!directorProduct) { setError('请先上传产品图'); return }
+    setDirLoading(true); setError('')
+    try {
+      const avatarsRes = await fetch('/api/clone/avatars')
+      const avatarsData = await avatarsRes.json()
+      const avatar = avatarsData.data?.[0]
+      if (!avatar?.avatarUrl) { setError('请先到「克隆分身」生成你的老板分身'); return }
+      const fd = new FormData()
+      fd.append('avatarUrl', avatar.avatarUrl)
+      fd.append('productImage', directorProduct)
+      if (directorDesc) fd.append('productDesc', directorDesc)
+      fd.append('template', 'owner_product')
+      const res = await fetch('/api/clone/preview', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!data.success) { setError(data.error || '生成失败'); return }
+      setDirectorPreview(data.data.url)
+    } catch (e) { setError(e instanceof Error ? e.message : '生成失败') }
+    setDirLoading(false)
+  }
+
+  // 数据专家：进入 tab 时拉统计
+  useEffect(() => {
+    if (activeAgent === 'analyst') {
+      fetch('/api/agent/stats')
+        .then(r => r.json())
+        .then(d => { if (d?.success) setStats(d.data) })
+        .catch(() => {})
+    }
+  }, [activeAgent])
 
   // 数据飞轮：记录商家对生成方案的反馈（采纳/爆款/未用）
   const sendFeedback = async (fb: 'adopt' | 'bomb' | 'unused') => {
@@ -127,10 +189,31 @@ export default function AgentPage() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <FiZap className="text-brand-400" /> AI 短视频工作台
+            <FiZap className="text-brand-400" /> AI 工作台 · 四大 Agent
           </h1>
-          <p className="text-gray-500 text-sm mt-1">专属运营编导 · 越用越懂你。选场景，填最少信息，一键出稿。</p>
+          <p className="text-gray-500 text-sm mt-1">操盘手定策略 · 编剧出脚本 · 广告导演做可视化 · 数据专家看效果。越用越懂你。</p>
         </div>
+
+        {/* 四大 Agent 切换 */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-6">
+          {[
+            { id: 'operator', name: 'AI 操盘手', desc: '账号诊断·内容策略·周排期' },
+            { id: 'writer', name: 'AI 编剧', desc: '脚本·标题·口播文案' },
+            { id: 'director', name: 'AI 广告导演', desc: '产品可视化·宣传图' },
+            { id: 'analyst', name: 'AI 数据专家', desc: '数据洞察·越用越懂' },
+          ].map(a => (
+            <button key={a.id} onClick={() => setActiveAgent(a.id as typeof activeAgent)}
+              className={`text-left rounded-xl border px-4 py-3 transition-all ${activeAgent === a.id
+                ? 'border-brand-400 bg-brand-50 ring-1 ring-brand-400'
+                : 'border-gray-100 bg-white hover:border-gray-200'}`}>
+              <p className="font-semibold text-sm">{a.name}</p>
+              <p className="text-xs text-gray-400 mt-0.5">{a.desc}</p>
+            </button>
+          ))}
+        </div>
+
+        {/* ============ AI 编剧（原短视频工作台） ============ */}
+        {activeAgent === 'writer' && (<>
 
         {/* Step 1 · 场景直选 */}
         <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-6">
@@ -283,6 +366,203 @@ export default function AgentPage() {
               </div>
             ) : (
               <p className="mt-4 pt-4 border-t border-gray-100 text-xs text-green-600">已记录你的反馈，懒老板会越用越懂你 ✦</p>
+            )}
+          </div>
+        )}
+        </> )}
+
+        {/* ============ AI 操盘手 ============ */}
+        {activeAgent === 'operator' && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <p className="text-sm font-semibold mb-3">填入账号信息，操盘手给你诊断 + 周策略</p>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="text-xs text-gray-500">行业</span>
+                  <input value={industry} onChange={(e) => setIndustry(e.target.value)} placeholder="如：餐饮 / 美业 / 工厂" className="input mt-1" />
+                </label>
+                <label className="block">
+                  <span className="text-xs text-gray-500">主营 / 产品</span>
+                  <input value={product} onChange={(e) => setProduct(e.target.value)} placeholder="如：湘菜馆，招牌剁椒鱼头" className="input mt-1" />
+                </label>
+                <label className="block">
+                  <span className="text-xs text-gray-500">账号目标</span>
+                  <select value={goal} onChange={(e) => setGoal(e.target.value)} className="input mt-1">
+                    {GOALS.map(g => <option key={g} value={g}>{g}</option>)}
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="text-xs text-gray-500">补充说明</span>
+                  <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="账号现状 / 卡点" className="input mt-1" />
+                </label>
+              </div>
+              <button onClick={handleOperator} disabled={opLoading}
+                className="mt-4 px-6 py-2.5 rounded-xl bg-brand-400 text-white font-medium disabled:opacity-50 hover:opacity-90">
+                {opLoading ? '正在分析账号...' : '生成操盘方案'}
+              </button>
+            </div>
+
+            {opResult && (
+              <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                <p className="font-semibold mb-4">操盘方案</p>
+
+                <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xs text-orange-700 font-medium">账号阶段</span>
+                    <span className="text-sm font-bold text-orange-700">{opResult.diagnosis?.account_stage}</span>
+                  </div>
+                  {opResult.diagnosis?.core_issue && <p className="text-sm text-orange-800 mb-2"><span className="font-medium">核心问题：</span>{opResult.diagnosis.core_issue}</p>}
+                  {!!opResult.diagnosis?.strengths?.length && (
+                    <p className="text-xs text-orange-700/80"><span className="font-medium">优势：</span>{opResult.diagnosis.strengths.join('；')}</p>
+                  )}
+                  {!!opResult.diagnosis?.gaps?.length && (
+                    <p className="text-xs text-orange-700/80 mt-1"><span className="font-medium">短板：</span>{opResult.diagnosis.gaps.join('；')}</p>
+                  )}
+                </div>
+
+                {opResult.strategy && (
+                  <div className="mb-4">
+                    <p className="text-xs text-gray-500 mb-2"><span className="font-medium text-gray-700">定位：</span>{opResult.strategy.positioning}</p>
+                    <p className="text-xs text-gray-500 mb-2"><span className="font-medium text-gray-700">内容方向：</span>{opResult.strategy.content_direction}</p>
+                    {!!opResult.strategy.priority_actions?.length && (
+                      <div className="mt-3">
+                        <p className="text-xs font-medium text-gray-600 mb-1.5">本周最该做的 3 件事</p>
+                        {opResult.strategy.priority_actions.map((a, i) => (
+                          <p key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-brand-400 font-bold">{i + 1}.</span>{a}</p>
+                        ))}
+                      </div>
+                    )}
+                    {opResult.strategy.growth_goal && (
+                      <p className="text-xs text-gray-500 mt-3"><span className="font-medium text-gray-700">阶段性目标：</span>{opResult.strategy.growth_goal}</p>
+                    )}
+                  </div>
+                )}
+
+                {!!opResult.strategy?.weekly_plan?.length && (
+                  <div className="mb-4">
+                    <p className="text-xs font-medium text-gray-600 mb-2">一周排期</p>
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      {opResult.strategy.weekly_plan.map((d, i) => (
+                        <div key={i} className="bg-gray-50 rounded-xl p-3">
+                          <p className="text-xs font-semibold text-gray-700 mb-0.5">{d.day}</p>
+                          <p className="text-sm text-gray-800">{d.topic}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{d.format}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {opResult.ops_advice && (
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs font-medium text-gray-500 mb-1">操盘建议</p>
+                    {opResult.ops_advice.distribution && <p className="text-xs text-gray-600">发布：{opResult.ops_advice.distribution}</p>}
+                    {opResult.ops_advice.notes?.map((n, i) => <p key={i} className="text-xs text-gray-600 mt-0.5">· {n}</p>)}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============ AI 广告导演 ============ */}
+        {activeAgent === 'director' && (
+          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+            <p className="text-sm font-semibold mb-1">产品可视化 · 宣传图</p>
+            <p className="text-xs text-gray-500 mb-4">上传产品图，用你的老板克隆分身 + 产品生成宣传预览图</p>
+
+            <div className="grid sm:grid-cols-2 gap-5 mb-4">
+              <div>
+                <p className="text-xs text-gray-500 mb-2">产品图</p>
+                {directorProduct ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={directorProduct} alt="产品" className="w-full aspect-square object-cover rounded-xl border border-gray-200" />
+                ) : (
+                  <label className="w-full aspect-square rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-brand-400 text-gray-400 hover:text-brand-500">
+                    <span className="text-sm">点击上传产品图</span>
+                    <input type="file" accept="image/*" hidden onChange={(e) => {
+                      const f = e.target.files?.[0]
+                      if (f) { const r = new FileReader(); r.onload = () => setDirectorProduct(r.result as string); r.readAsDataURL(f) }
+                      e.target.value = ''
+                    }} />
+                  </label>
+                )}
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 mb-2">产品说明（选填）</p>
+                <textarea value={directorDesc} onChange={(e) => setDirectorDesc(e.target.value)} placeholder="如：招牌剁椒鱼头、主打家庭聚餐"
+                  className="w-full h-36 rounded-xl border border-gray-200 p-3 text-sm" />
+              </div>
+            </div>
+
+            <button onClick={handleDirector} disabled={dirLoading}
+              className="px-6 py-2.5 rounded-xl bg-brand-400 text-white font-medium disabled:opacity-50 hover:opacity-90">
+              {dirLoading ? '生成中...' : '生成产品宣传图'}
+            </button>
+
+            {directorPreview && (
+              <div className="mt-5">
+                <p className="text-xs text-gray-500 mb-2">生成结果（下载见克隆分身工作台）</p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={directorPreview} alt="产品宣传图" className="w-full rounded-xl border border-gray-200" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============ AI 数据专家 ============ */}
+        {activeAgent === 'analyst' && (
+          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+            <p className="text-sm font-semibold mb-1">数据洞察</p>
+            <p className="text-xs text-gray-500 mb-4">基于商家反馈飞轮统计，越用越懂你的账号</p>
+
+            {!stats ? (
+              <p className="text-sm text-gray-400">加载中...</p>
+            ) : (
+              <div className="space-y-5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { label: '累计生成', val: (stats as any).totalGen || 0 },
+                    { label: '累计反馈', val: (stats as any).fbTotal || 0 },
+                    { label: '采纳数', val: (stats as any).byFeedback?.adopt || 0 },
+                    { label: '爆款标记', val: (stats as any).byFeedback?.bomb || 0 },
+                  ].map(s => (
+                    <div key={s.label} className="bg-gray-50 rounded-xl p-3 text-center">
+                      <p className="text-2xl font-bold text-brand-500">{s.val}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {!!(stats as any).byIndustry?.length && (
+                  <div>
+                    <p className="text-xs font-medium text-gray-600 mb-2">反馈行业分布</p>
+                    <div className="flex flex-wrap gap-2">
+                      {(stats as any).byIndustry.map((r: any) => (
+                        <span key={r.industry} className="text-xs px-3 py-1.5 rounded-full bg-orange-50 text-orange-600 border border-orange-100">{r.industry} · {r.cnt}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {!!(stats as any).recent?.length && (
+                  <div>
+                    <p className="text-xs font-medium text-gray-600 mb-2">最近反馈</p>
+                    <div className="space-y-2">
+                      {(stats as any).recent.map((r: any, i: number) => (
+                        <div key={i} className="bg-gray-50 rounded-xl p-3">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="text-xs font-medium text-gray-700">{r.feedback === 'adopt' ? '采纳' : r.feedback === 'bomb' ? '爆款' : '未用'}</span>
+                            {r.industry && <span className="text-xs text-gray-400">{r.industry}</span>}
+                            <span className="text-xs text-gray-300">{r.sourceType}</span>
+                          </div>
+                          {r.contentSummary && <p className="text-xs text-gray-500 truncate">{r.contentSummary}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         )}

@@ -40,6 +40,24 @@ export default function AgentPage() {
   const [error, setError] = useState('')
   const [result, setResult] = useState<ScriptResult | null>(null)
   const [profileLoaded, setProfileLoaded] = useState(false)
+  const [feedbackSent, setFeedbackSent] = useState<string | null>(null)
+
+  // 数据飞轮：记录商家对生成方案的反馈（采纳/爆款/未用）
+  const sendFeedback = async (fb: 'adopt' | 'bomb' | 'unused') => {
+    try {
+      await fetch('/api/agent/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceType: 'agent',
+          industry: industry || undefined,
+          contentSummary: result?.video_profile?.hook_3s || result?.video_profile?.track || 'agent-script',
+          feedback: fb,
+        }),
+      })
+      setFeedbackSent(fb)
+    } catch {}
+  }
 
   // 预填商家画像（不用重填）
   useEffect(() => {
@@ -63,6 +81,7 @@ export default function AgentPage() {
     setLoading(true)
     setError('')
     setResult(null)
+    setFeedbackSent(null)
     try {
       const res = await fetch('/api/agent/generate', {
         method: 'POST',
@@ -252,6 +271,18 @@ export default function AgentPage() {
                 {result.ops_advice.distribution && <p className="text-xs text-gray-600">投放：{result.ops_advice.distribution}</p>}
                 {result.ops_advice.notes?.map((n, i) => <p key={i} className="text-xs text-gray-600 mt-0.5">· {n}</p>)}
               </div>
+            )}
+
+            {/* 数据飞轮：反馈 */}
+            {!feedbackSent ? (
+              <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-center gap-2">
+                <span className="text-xs text-gray-400 mr-1">这份方案你觉得？</span>
+                <button onClick={() => sendFeedback('adopt')} className="px-3 py-1.5 rounded-full bg-green-50 text-green-600 text-xs font-medium hover:bg-green-100 transition-colors">采纳用</button>
+                <button onClick={() => sendFeedback('bomb')} className="px-3 py-1.5 rounded-full bg-orange-50 text-orange-600 text-xs font-medium hover:bg-orange-100 transition-colors">爆款潜力</button>
+                <button onClick={() => sendFeedback('unused')} className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-500 text-xs font-medium hover:bg-gray-200 transition-colors">不用</button>
+              </div>
+            ) : (
+              <p className="mt-4 pt-4 border-t border-gray-100 text-xs text-green-600">已记录你的反馈，懒老板会越用越懂你 ✦</p>
             )}
           </div>
         )}

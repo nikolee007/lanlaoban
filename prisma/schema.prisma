@@ -128,6 +128,21 @@ model User {
   balanceYuan             Float            @default(0)   // 算力余额（元）
   cloneAvatars            CloneAvatar[]
   cloneGenerations        CloneGeneration[]
+  agentFeedbacks          AgentFeedback[]
+}
+
+// Agent 生成反馈（数据飞轮：记录采纳/爆款/未用，供后续训练）
+model AgentFeedback {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  sourceType     String   // agent / clone / video
+  industry       String?
+  contentSummary String?
+  feedback       String   // adopt(采纳) / bomb(爆款) / unused(未用)
+  rating         Int?
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 // 克隆分身资产（用户上传一次，永久复用）

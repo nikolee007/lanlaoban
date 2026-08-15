@@ -142,6 +142,17 @@ async function ensureSchema() {
               )`)
               await client.execute('CREATE UNIQUE INDEX IF NOT EXISTS "RechargeOrder_tradeOrderId_key" ON "RechargeOrder"("tradeOrderId")')
             }
+            // 幂等：Agent 生成反馈表（数据飞轮）
+            const r5 = await client.execute("SELECT count(*) as cnt FROM sqlite_master WHERE type='table' AND name='AgentFeedback'")
+            const row5 = r5.rows?.[0] as unknown as SqliteMasterRow | undefined
+            if (row5 && Number(row5.cnt) === 0) {
+              await client.execute(`CREATE TABLE IF NOT EXISTS "AgentFeedback" (
+                "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                "userId" INTEGER NOT NULL, "sourceType" TEXT NOT NULL,
+                "industry" TEXT, "contentSummary" TEXT, "feedback" TEXT NOT NULL,
+                "rating" INTEGER, "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+              )`)
+            }
           } catch (e) { console.error('[turso] clone schema:', e) }
         }
         _readyFlag = true
@@ -367,6 +378,17 @@ export const tursoDb = {
     } catch (e) {
       return false // unique 冲突 → 已处理过（幂等）
     }
+  },
+  /** Agent 生成反馈（数据飞轮写入） */
+  async saveFeedback(data: { userId: number; sourceType: string; industry?: string; contentSummary?: string; feedback: string; rating?: number }) {
+    const c = getClient(); if (!c) return
+    await ensureSchema()
+    try {
+      await c.execute({
+        sql: 'INSERT INTO "AgentFeedback" ("userId","sourceType","industry","contentSummary","feedback","rating","createdAt") VALUES (?,?,?,?,?,?,?)',
+        args: [data.userId, data.sourceType, data.industry || null, data.contentSummary || null, data.feedback, data.rating || null, new Date().toISOString()],
+      })
+    } catch (e) { console.error('[turso] saveFeedback:', e) }
   },
 }
 

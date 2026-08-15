@@ -329,6 +329,19 @@ CREATE TABLE "CloneGeneration" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- CreateTable
+CREATE TABLE "AgentFeedback" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "userId" INTEGER NOT NULL,
+    "sourceType" TEXT NOT NULL,
+    "industry" TEXT,
+    "contentSummary" TEXT,
+    "feedback" TEXT NOT NULL,
+    "rating" INTEGER,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "AgentFeedback_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE INDEX "CloneAvatar_userId_idx" ON "CloneAvatar"("userId");
 

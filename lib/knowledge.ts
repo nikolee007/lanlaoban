@@ -14,9 +14,14 @@ function load<T>(name: string): T | null {
 
 export function matchIndustry(input: string): string {
   const kw = input.toLowerCase()
-  if (/餐饮|饭店|火锅|烧烤|奶茶|咖啡|小吃/.test(kw)) return 'dining'
-  if (/装修|建材|家具|全屋定制|门窗|橱柜|工程|设计/.test(kw)) return 'decoration'
-  if (/工厂|加工|制造|五金|机械|钢材|塑料|橡胶|设备|工业/.test(kw)) return 'factory'
+  if (/餐饮|饭店|火锅|烧烤|奶茶|咖啡|小吃|面馆/.test(kw)) return 'dining'
+  if (/装修|建材|家具|全屋定制|门窗|橱柜|工程|设计|装饰/.test(kw)) return 'decoration'
+  if (/工厂|加工|制造|五金|机械|钢材|塑料|橡胶|设备|工业|注塑/.test(kw)) return 'factory'
+  if (/美容|美发|美甲|纹绣|皮肤|医美|养生|美业|祛痘/.test(kw)) return 'beauty'
+  if (/教育|培训|教培|琴行|早教|辅导|艺考|少儿/.test(kw)) return 'education'
+  if (/健身|瑜伽|舞蹈|私教|搏击|普拉提/.test(kw)) return 'fitness'
+  if (/汽修|洗车|保养|轮胎|4s|修车|汽车/.test(kw)) return 'auto'
+  if (/宠物|狗|猫|萌宠|宠物医院/.test(kw)) return 'pet'
   if (/中非|非洲|外贸|出口|跨境|欧洲|欧盟/.test(kw)) return 'trade'
   return 'retail'
 }

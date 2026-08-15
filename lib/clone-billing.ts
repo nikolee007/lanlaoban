@@ -3,6 +3,8 @@ import { db } from './db'
 
 const TURSO = !!process.env.TURSO_DATABASE_URL
 const FREE_LIMIT = 3
+// 演示账号（拉投资用）：免费无限生成，UI 显示余额充裕
+const DEMO_EMAIL = process.env.DEMO_ACCOUNT_EMAIL || 'demo@lenboss.win'
 
 export interface BeginResult {
   ok: boolean
@@ -11,15 +13,32 @@ export interface BeginResult {
   recordId: number
 }
 
+/** 判断是否演示账号（拉投资演示用，免费无限生成） */
+export async function isDemoAccount(userId: number): Promise<boolean> {
+  if (!DEMO_EMAIL) return false
+  try {
+    if (TURSO) {
+      const u = await tursoDb.findUserById(userId)
+      return u?.email === DEMO_EMAIL
+    }
+    const u = await db.user.findUnique({ where: { id: userId }, select: { email: true } })
+    return u?.email === DEMO_EMAIL
+  } catch (e) {
+    console.error('[clone-billing] isDemoAccount:', e)
+    return false
+  }
+}
+
 /** 开始一次生成：免费额度判断 + 余额扣费（扣费后记录 pending，失败时退款） */
 export async function beginGeneration(
   userId: number,
   opts: { type: string; engine: string; template?: string; price: number },
 ): Promise<BeginResult> {
-  if (TURSO) return tursoDb.beginCloneGeneration(userId, opts)
+  const isDemo = await isDemoAccount(userId)
+  if (TURSO) return tursoDb.beginCloneGeneration(userId, opts, isDemo)
   try {
     const freeUsed = await db.cloneGeneration.count({ where: { userId } })
-    const isFree = freeUsed < FREE_LIMIT
+    const isFree = isDemo || freeUsed < FREE_LIMIT
     let charged = 0
     if (!isFree) {
       const user = await db.user.findUnique({ where: { id: userId }, select: { balanceYuan: true } })
@@ -57,8 +76,9 @@ export async function finishGeneration(recordId: number, ok: boolean) {
   }
 }
 
-/** 用户算力状态（工作台顶部展示） */
+/** 用户算力状态（工作台顶部展示）；演示账号显示余额充裕、免费额度充足 */
 export async function getUserBilling(userId: number): Promise<{ freeUsed: number; balance: number }> {
+  if (await isDemoAccount(userId)) return { freeUsed: 0, balance: 9999 }
   if (TURSO) return tursoDb.getUserBilling(userId)
   try {
     const [freeUsed, user] = await Promise.all([

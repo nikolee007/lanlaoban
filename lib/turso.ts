@@ -307,13 +307,13 @@ export const tursoDb = {
       return { freeUsed, balance }
     } catch (e) { console.error('[turso] getUserBilling:', e); return { freeUsed: 0, balance: 0 } }
   },
-  async beginCloneGeneration(userId: number, opts: { type: string; engine: string; template?: string; price: number }): Promise<{ ok: boolean; mode: 'free' | 'paid'; error?: string; recordId: number }> {
+  async beginCloneGeneration(userId: number, opts: { type: string; engine: string; template?: string; price: number }, forceFree = false): Promise<{ ok: boolean; mode: 'free' | 'paid'; error?: string; recordId: number }> {
     const c = getClient(); if (!c) return { ok: false, mode: 'paid', error: 'db_unavailable', recordId: 0 }
     await ensureSchema()
     try {
       const gen = await c.execute({ sql: 'SELECT count(*) as cnt FROM "CloneGeneration" WHERE "userId" = ?', args: [userId] })
       const freeUsed = Number((gen.rows[0] as unknown as SqliteMasterRow)?.cnt || 0)
-      const isFree = freeUsed < 3
+      const isFree = forceFree || freeUsed < 3
       let charged = 0
       if (!isFree) {
         const u = await c.execute({ sql: 'SELECT "balanceYuan" FROM "User" WHERE "id" = ?', args: [userId] })

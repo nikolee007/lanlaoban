@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUserId } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getClient, getDefaultModel, extractJsonFromResponse } from '@/lib/openai'
-import { getPainPointsForIndustry, getOralPhrases, getTitleFormulas } from '@/lib/knowledge'
+import { getPainPointsForIndustry, getOralPhrases, getTitleFormulas, getComplianceGuidance } from '@/lib/knowledge'
 import { checkForbidden } from '@/lib/compliance'
 import { SKILLS, SkillType, buildProfileInjection, parseSkillOutput } from '@/lib/agent-skills'
 
@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
     const painSection = painPoints.length ? `\n参考用户真实痛点（脚本至少使用1个）：\n${painPoints.map((p) => `- ${p}`).join('\n')}` : ''
     const oralSection = oralPhrases.length ? `\n参考口语风格（随机嵌入）：\n${oralPhrases.map((p) => `- "${p}"`).join('\n')}` : ''
     const formulaSection = formulas.length ? `\n参考标题公式：\n${formulas.map((f) => `- [${f.type}] ${f.pattern}`).join('\n')}` : ''
+    const complianceSection = getComplianceGuidance(ind)
 
     // 3. 画像注入段
     const profileSection = buildProfileInjection(profile ?? undefined)
@@ -60,7 +61,7 @@ export async function POST(request: NextRequest) {
       `目标客户：${targetCustomer || profile?.targetAudience || ''}\n` +
       `视频目标：${goal || profile?.goal || ''}\n` +
       `视频时长：${durationSec || 60} 秒` +
-      profileSection + painSection + oralSection + formulaSection
+      profileSection + painSection + oralSection + formulaSection + complianceSection
     if (note) userPrompt += `\n补充要求：${note}`
     if (skillType === 'optimize') {
       if (!originalScript) return NextResponse.json({ error: '优化场景需要提供原始脚本' }, { status: 400 })

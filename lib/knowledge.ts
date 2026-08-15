@@ -56,6 +56,26 @@ export function getTitleFormulas(industry: string, count = 3): { type: string; p
   return result
 }
 
+/** 行业中文名映射（forbidden.json 用中文 key） */
+const FORBIDDEN_KEY: Record<string, string> = {
+  dining: '餐饮', decoration: '装修', factory: '工厂', education: '教育', beauty: '美业', trade: '跨境',
+}
+
+/** 合规红线提示（Agent 生成时注入，规避广告法极限词/功效违禁） */
+export function getComplianceGuidance(industry: string): string {
+  const data = load<Record<string, Record<string, string[]>>>('forbidden')
+  if (!data) return ''
+  const key = FORBIDDEN_KEY[matchIndustry(industry)] || '通用'
+  const cat = data[key] || data['通用']
+  if (!cat) return ''
+  const parts: string[] = []
+  Object.entries(cat).forEach(([type, words]) => {
+    if (Array.isArray(words) && words.length) parts.push(`${type}：${words.join('、')}`)
+  })
+  if (parts.length === 0) return ''
+  return `\n合规红线（文案严禁出现以下词汇，规避广告法与虚假宣传）：\n${parts.map((p) => `- 禁${p}`).join('\n')}\n同时严禁承诺涨粉/客流/营业额/收益等具体效果，只交付内容与工具价值。`
+}
+
 interface SceneItem {
   name: string
   note: string

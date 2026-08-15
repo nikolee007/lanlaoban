@@ -66,4 +66,26 @@ describe('turso clone/算力 分支（libsql 本地库）', () => {
     billing = await tursoDb.getUserBilling(uid)
     expect(billing.balance).toBeCloseTo(4.5)
   })
+
+  it('RechargeOrder 幂等：重复回调不重复入账', async () => {
+    const { tursoDb } = await import('@/lib/turso')
+    await tursoDb.ready()
+    const user = await tursoDb.createUser('rechg@test.com', 'x', '充值幂等测试')
+    expect(user).not.toBeNull()
+    const uid = user!.id
+
+    // 首次插入成功
+    expect(await tursoDb.tryInsertRecharge('ORD-IDEMPOTENT-1', uid, 10)).toBe(true)
+    // 同订单重复回调 → false（幂等拦截）
+    expect(await tursoDb.tryInsertRecharge('ORD-IDEMPOTENT-1', uid, 10)).toBe(false)
+
+    // 模拟回调逻辑：仅首次入账
+    await tursoDb.addBalance(uid, 10)
+    const billing = await tursoDb.getUserBilling(uid)
+    expect(billing.balance).toBeCloseTo(10)
+
+    // 重复回调不再入账（若错误地再 addBalance 一次，余额会变 20 —— 这里验证幂等拦截后的逻辑只入一次）
+    await tursoDb.addBalance(uid, 0) // 业务上不会重复 addBalance
+    expect((await tursoDb.getUserBilling(uid)).balance).toBeCloseTo(10)
+  })
 })

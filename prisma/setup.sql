@@ -292,6 +292,19 @@ CREATE UNIQUE INDEX "ActivationCode_cid_key" ON "ActivationCode"("cid");
 CREATE UNIQUE INDEX "Activation_codeId_deviceFingerprint_key" ON "Activation"("codeId", "deviceFingerprint");
 
 -- CreateTable
+CREATE TABLE "RechargeOrder" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "tradeOrderId" TEXT NOT NULL,
+    "userId" INTEGER NOT NULL,
+    "amount" REAL NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'processed',
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "RechargeOrder_tradeOrderId_key" ON "RechargeOrder"("tradeOrderId");
+
+-- CreateTable
 CREATE TABLE "CloneAvatar" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "userId" INTEGER NOT NULL,

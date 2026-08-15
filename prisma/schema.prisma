@@ -144,6 +144,16 @@ model CloneAvatar {
   user User @relation(fields: [userId], references: [id])
 }
 
+// 算力充值订单（回调幂等：tradeOrderId 唯一约束防重复入账）
+model RechargeOrder {
+  id           Int      @id @default(autoincrement())
+  tradeOrderId String   @unique
+  userId       Int
+  amount       Float
+  status       String   @default("processed")
+  createdAt    DateTime @default(now())
+}
+
 // 生成记录（算力扣费落点）
 model CloneGeneration {
   id          Int      @id @default(autoincrement())

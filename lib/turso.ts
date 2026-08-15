@@ -130,6 +130,18 @@ async function ensureSchema() {
             if (!ucols.rows.some((r: any) => r.name === 'balanceYuan')) {
               await client.execute(`ALTER TABLE "User" ADD COLUMN "balanceYuan" REAL NOT NULL DEFAULT 0`)
             }
+            // 幂等：算力充值订单表（回调幂等）
+            const r4 = await client.execute("SELECT count(*) as cnt FROM sqlite_master WHERE type='table' AND name='RechargeOrder'")
+            const row4 = r4.rows?.[0] as unknown as SqliteMasterRow | undefined
+            if (row4 && Number(row4.cnt) === 0) {
+              await client.execute(`CREATE TABLE IF NOT EXISTS "RechargeOrder" (
+                "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                "tradeOrderId" TEXT NOT NULL, "userId" INTEGER NOT NULL,
+                "amount" REAL NOT NULL, "status" TEXT NOT NULL DEFAULT 'processed',
+                "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+              )`)
+              await client.execute('CREATE UNIQUE INDEX IF NOT EXISTS "RechargeOrder_tradeOrderId_key" ON "RechargeOrder"("tradeOrderId")')
+            }
           } catch (e) { console.error('[turso] clone schema:', e) }
         }
         _readyFlag = true
@@ -341,6 +353,20 @@ export const tursoDb = {
     try {
       await c.execute({ sql: 'UPDATE "User" SET "balanceYuan" = "balanceYuan" + ? WHERE "id" = ?', args: [amount, userId] })
     } catch (e) { console.error('[turso] addBalance:', e) }
+  },
+  /** 充值订单幂等：tradeOrderId 唯一约束，重复插入返回 false */
+  async tryInsertRecharge(tradeOrderId: string, userId: number, amount: number): Promise<boolean> {
+    const c = getClient(); if (!c) return false
+    await ensureSchema()
+    try {
+      await c.execute({
+        sql: 'INSERT INTO "RechargeOrder" ("tradeOrderId","userId","amount","status","createdAt") VALUES (?,?,?,?,?)',
+        args: [tradeOrderId, userId, amount, 'processed', new Date().toISOString()],
+      })
+      return true
+    } catch (e) {
+      return false // unique 冲突 → 已处理过（幂等）
+    }
   },
 }
 

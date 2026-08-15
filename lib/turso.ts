@@ -398,7 +398,7 @@ export const tursoDb = {
       const totalGen = await c.execute('SELECT count(*) as cnt FROM "CloneGeneration"')
       const fbTotal = await c.execute('SELECT count(*) as cnt FROM "AgentFeedback"')
       const byFb = await c.execute('SELECT "feedback", count(*) as cnt FROM "AgentFeedback" GROUP BY "feedback"')
-      const byInd = await c.execute('SELECT "industry", count(*) as cnt FROM "AgentFeedback" WHERE "industry" IS NOT NULL AND "industry" != "" GROUP BY "industry" ORDER BY cnt DESC LIMIT 8')
+      const byInd = await c.execute("SELECT \"industry\", count(*) as cnt FROM \"AgentFeedback\" WHERE \"industry\" IS NOT NULL AND \"industry\" != '' GROUP BY \"industry\" ORDER BY cnt DESC LIMIT 8")
       const recent = await c.execute('SELECT "sourceType","industry","feedback","contentSummary","createdAt" FROM "AgentFeedback" ORDER BY "id" DESC LIMIT 10')
       const byFeedback: Record<string, number> = {}
       byFb.rows.forEach((r: any) => { byFeedback[r.feedback] = Number(r.cnt) })

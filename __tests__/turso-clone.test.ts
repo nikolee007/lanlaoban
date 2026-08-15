@@ -88,4 +88,23 @@ describe('turso clone/算力 分支（libsql 本地库）', () => {
     await tursoDb.addBalance(uid, 0) // 业务上不会重复 addBalance
     expect((await tursoDb.getUserBilling(uid)).balance).toBeCloseTo(10)
   })
+
+  it('getAgentStats 反馈统计', async () => {
+    const { tursoDb } = await import('@/lib/turso')
+    await tursoDb.ready()
+    const user = await tursoDb.createUser('stats@test.com', 'x', '统计测试')
+    expect(user).not.toBeNull()
+    const uid = user!.id
+
+    await tursoDb.saveFeedback({ userId: uid, sourceType: 'agent', industry: '美业', contentSummary: '美容院老客流失钩子', feedback: 'adopt' })
+    await tursoDb.saveFeedback({ userId: uid, sourceType: 'agent', industry: '餐饮', feedback: 'bomb' })
+
+    const stats = await tursoDb.getAgentStats()
+    expect(stats).not.toBeNull()
+    expect(stats!.fbTotal).toBe(2)
+    expect(stats!.byFeedback.adopt).toBe(1)
+    expect(stats!.byFeedback.bomb).toBe(1)
+    expect(stats!.byIndustry.some(r => r.industry === '美业')).toBe(true)
+    expect(stats!.recent.length).toBeGreaterThanOrEqual(2)
+  })
 })

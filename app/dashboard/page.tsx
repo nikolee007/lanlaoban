@@ -34,8 +34,16 @@ export default function DashboardPage() {
   const [status, setStatus] = useState<ServiceStatus>({ serviceActive: false, interviewed: false, hasAvatar: false })
   const [billing, setBilling] = useState<{ freeUsed: number; balance: number }>({ freeUsed: 0, balance: 0 })
   const [loading, setLoading] = useState(true)
+  const [firstVisit, setFirstVisit] = useState(false)
 
   useEffect(() => {
+    // 首次登录引导标记
+    try {
+      if (!localStorage.getItem('lanlaoban_first_visit')) {
+        setFirstVisit(true)
+        localStorage.setItem('lanlaoban_first_visit', '1')
+      }
+    } catch {}
     fetch('/api/dashboard/status')
       .then((r) => r.json())
       .then((d) => { if (d?.success) setStatus(d.data) })
@@ -53,6 +61,31 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#f5f5f7]">
       <NavHeader />
       <main className="max-w-5xl mx-auto px-4 py-8">
+        {/* 首次登录引导 */}
+        {firstVisit && (
+          <div className="bg-gradient-to-r from-brand-400 to-[#E04A1E] rounded-2xl p-6 mb-6 text-white">
+            <h2 className="text-xl font-bold mb-1">欢迎！懒老板帮你做短视频</h2>
+            <p className="text-white/85 text-sm mb-4">跟着三步走，你的专属短视频就来了：</p>
+            <div className="grid sm:grid-cols-3 gap-3 mb-4">
+              <div className="bg-white/15 rounded-xl p-3">
+                <p className="font-semibold text-sm">1 · 告诉我你的店</p>
+                <p className="text-xs text-white/80 mt-0.5">免费 · 采访你的门店和卖点</p>
+              </div>
+              <div className="bg-white/15 rounded-xl p-3">
+                <p className="font-semibold text-sm">2 · 发点素材</p>
+                <p className="text-xs text-white/80 mt-0.5">免费 · 传照片和产品图</p>
+              </div>
+              <div className="bg-white/15 rounded-xl p-3">
+                <p className="font-semibold text-sm">3 · 开通服务</p>
+                <p className="text-xs text-white/80 mt-0.5">懒老板开始给你做，视频发邮箱</p>
+              </div>
+            </div>
+            <Link href="#steps" className="inline-flex items-center gap-2 rounded-full bg-white text-brand-500 px-6 py-2.5 text-sm font-semibold hover:opacity-90">
+              开始做你的 IP <FiArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
+
         {/* 头部：服务状态 */}
         <div className="bg-white rounded-2xl p-6 mb-6 border border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -94,7 +127,7 @@ export default function DashboardPage() {
         )}
 
         {/* 7 步流程 */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div id="steps" className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {STEPS.map((s) => {
             const Icon = s.icon
             const isFree = s.free

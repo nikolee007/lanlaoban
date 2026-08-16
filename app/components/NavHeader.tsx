@@ -32,22 +32,13 @@ type UserProfile = {
 /** 导航项 */
 type NavItem = { key: string; href: string; isAI: boolean; comingSoon?: boolean; eta?: string }
 
-/** 核心导航（桌面顶部平铺，精简突出卖点） */
+/** 核心导航（桌面顶部平铺，只留最核心能力） */
 const CORE_NAV: NavItem[] = [
   { key: 'nav.dashboard', href: '/dashboard', isAI: false },
-  { key: 'nav.cloneAvatar', href: '/clone', isAI: true },
-  { key: 'nav.oneClickBrand', href: '/brand-promotion', isAI: true },
+  { key: 'nav.productVisual', href: '/clone', isAI: true },
   { key: 'nav.pricing', href: '/pricing', isAI: false },
-]
-
-/** 更多下拉（收纳次要功能，避免导航拥挤） */
-const MORE_NAV: NavItem[] = [
-  { key: 'nav.agent', href: '/agent', isAI: true },
-  { key: 'content.avatar', href: '/digital-human', isAI: true },
-  { key: 'nav.oneClickIP', href: '/persona', isAI: true },
-  { key: 'nav.cases', href: '/cases', isAI: false },
-  { key: 'nav.scripts', href: '/scripts', isAI: true },
-  { key: 'nav.storyboard', href: '/storyboard', isAI: true },
+  { key: 'nav.multilang', href: '/coming-soon', isAI: true, comingSoon: true },
+  { key: 'nav.onion', href: '/onion', isAI: false, comingSoon: true },
 ]
 
 export default function NavHeader() {
@@ -58,10 +49,8 @@ export default function NavHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [user, setUser] = useState<UserProfile | null>(null)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const [moreOpen, setMoreOpen] = useState(false)
   const navRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
-  const moreRef = useRef<HTMLDivElement>(null)
 
   // Persist locale to localStorage
   useEffect(() => {
@@ -84,9 +73,6 @@ export default function NavHeader() {
       }
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false)
-      }
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) {
-        setMoreOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -161,37 +147,6 @@ export default function NavHeader() {
             </Link>
           ))}
 
-          {/* 更多下拉 */}
-          <div className="relative" ref={moreRef}>
-            <button
-              onClick={() => setMoreOpen(!moreOpen)}
-              className={`flex items-center gap-1 px-1.5 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
-                MORE_NAV.some(n => isActive(n.href)) ? 'text-brand-400 bg-brand-50' : 'text-gray-600 hover:text-brand-500 hover:bg-orange-50'
-              }`}
-            >
-              更多
-              <FiChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
-            </button>
-            {moreOpen && (
-              <div className="absolute right-0 top-full mt-1 w-44 rounded-xl border border-gray-100 bg-white py-2 shadow-xl z-50">
-                {MORE_NAV.map((item) => (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    onClick={() => setMoreOpen(false)}
-                    className={`flex items-center gap-1 px-4 py-2.5 text-sm transition-colors ${
-                      isActive(item.href) ? 'text-brand-400 font-medium' : 'text-gray-700 hover:text-brand-500 hover:bg-orange-50'
-                    }`}
-                  >
-                    {t(item.key, locale)}
-                    {item.isAI && (
-                      <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-[3px] py-[1px] text-[8px] font-bold text-white leading-none">AI</span>
-                    )}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Right side actions */}
@@ -316,23 +271,6 @@ export default function NavHeader() {
               )}
             </Link>
           ))}
-          <div className="px-3 pb-1 pt-2 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">更多</div>
-          {MORE_NAV.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
-              className={`flex items-center gap-1 px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
-                isActive(item.href) ? 'text-brand-400 bg-brand-50' : 'text-gray-700 hover:bg-gray-50'
-              }`}
-              onClick={closeMobileMenu}
-            >
-              {t(item.key, locale)}
-              {item.isAI && (
-                <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
-              )}
-            </Link>
-          ))}
-
           <div className="pt-3 px-3" />
 
           {user ? (

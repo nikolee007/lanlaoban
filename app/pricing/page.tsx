@@ -23,9 +23,9 @@ const productMemberships = [
 ]
 
 const computePacks = [
-  { name: '小额充值包', price: '¥380', credits: '500', unit: '0.76元/点' },
-  { name: '标准充值包', price: '¥1,280', credits: '2,000', unit: '0.64元/点' },
-  { name: '大额充值包', price: '¥4,980', credits: '8,500', unit: '0.59元/点' },
+  { name: '体验充值包', price: '¥100', credits: '10,000', unit: '0.01元/点' },
+  { name: '标准充值包', price: '¥500', credits: '52,000', unit: '0.0096元/点' },
+  { name: '大额充值包', price: '¥1,000', credits: '110,000', unit: '0.0091元/点' },
 ]
 
 const faqs = [
@@ -53,6 +53,24 @@ export default function PricingPage() {
           <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3">PRICING</p>
           <h1 className="text-5xl sm:text-6xl font-bold tracking-tight mb-4">透明定价，无隐藏费用</h1>
           <p className="text-[#6B7280] text-lg max-w-lg mx-auto">连续包月 / 包年，随时可停。先体验，满意再续。</p>
+        </div>
+      </section>
+
+      {/* 双层收费说明 */}
+      <section className="mx-auto max-w-4xl px-6 pb-16">
+        <div className="bg-gray-50 rounded-2xl p-6">
+          <p className="font-semibold mb-3">懒老板怎么收费：会员 + 算力</p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl p-4 border border-gray-100">
+              <p className="font-medium text-sm mb-1">① 会员 · 买资格</p>
+              <p className="text-xs text-gray-500">解锁 AI 操盘手 / 编剧 / 导演 / 数据专家 + 5 类内容类型。能"用"，但生成要算力。</p>
+            </div>
+            <div className="bg-white rounded-xl p-4 border border-gray-100">
+              <p className="font-medium text-sm mb-1">② 算力 · 买弹药</p>
+              <p className="text-xs text-gray-500">生成时消耗算力点（明码标价）。充值即用，结果不满意可重新生成（再消耗）。</p>
+            </div>
+          </div>
+          <p className="text-xs text-gray-400 mt-3">生成结果由 AI 产出，质量自筛 —— 想多试几次，就多备点算力。</p>
         </div>
       </section>
 
@@ -226,6 +244,23 @@ export default function PricingPage() {
             ))}
           </div>
           <div className="rounded-2xl bg-[#FFF8F5] border border-[#FF6034]/10 p-6">
+            <h4 className="font-bold mb-3 mt-8">内容生成 · 算力消耗（明码标价）</h4>
+            <div className="space-y-2 mb-4">
+              {[
+                ['文案 / 脚本（5 类内容）', '20 点'],
+                ['操盘手方案（诊断+策略）', '30 点'],
+                ['克隆分身', '50 点'],
+                ['产品预览图', '50 点'],
+                ['产品可视化视频', '100 点'],
+                ['数字人视频', '1000 点'],
+              ].map(([k, v]) => (
+                <div key={k} className="flex items-center justify-between text-sm text-[#6B7280]">
+                  <span>{k}</span><span className="font-medium text-[#FF6034]">{v}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-[#6B7280] mb-4">生成结果由 AI 产出，质量自筛 —— 不满意可重新生成（再消耗算力）。</p>
+
             <h4 className="font-bold mb-2">算力消耗标准</h4>
             <div className="grid sm:grid-cols-3 gap-4 text-sm">
               <div className="flex items-center gap-2 text-[#6B7280]"><FiZap className="w-4 h-4 text-[#FF6034]" /> 新增1门语种：100算力点</div>

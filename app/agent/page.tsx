@@ -276,7 +276,7 @@ export default function AgentPage() {
           </div>
           <button onClick={handleGenerate} disabled={loading}
             className="mt-4 w-full sm:w-auto btn-primary inline-flex items-center justify-center gap-2 disabled:opacity-50">
-            {loading ? <><FiRefreshCw className="w-4 h-4 animate-spin" /> 生成中…</> : <><FiZap className="w-4 h-4" /> 一键生成<FiArrowRight className="w-4 h-4" /></>}
+            {loading ? <><FiRefreshCw className="w-4 h-4 animate-spin" /> 生成中…</> : <><FiZap className="w-4 h-4" /> 一键生成 · 约消耗 20 算力<FiArrowRight className="w-4 h-4" /></>}
           </button>
           {error && <p className="mt-3 text-sm text-red-500 flex items-center gap-1"><FiAlertCircle /> {error}</p>}
         </div>
@@ -403,7 +403,7 @@ export default function AgentPage() {
               </div>
               <button onClick={handleOperator} disabled={opLoading}
                 className="mt-4 px-6 py-2.5 rounded-xl bg-brand-400 text-white font-medium disabled:opacity-50 hover:opacity-90">
-                {opLoading ? '正在分析账号...' : '生成操盘方案'}
+                {opLoading ? '正在分析账号...' : '生成操盘方案 · 约消耗 30 算力'}
               </button>
             </div>
 

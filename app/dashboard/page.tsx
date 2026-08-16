@@ -32,12 +32,17 @@ const STEPS: Step[] = [
 
 export default function DashboardPage() {
   const [status, setStatus] = useState<ServiceStatus>({ serviceActive: false, interviewed: false, hasAvatar: false })
+  const [billing, setBilling] = useState<{ freeUsed: number; balance: number }>({ freeUsed: 0, balance: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetch('/api/dashboard/status')
       .then((r) => r.json())
       .then((d) => { if (d?.success) setStatus(d.data) })
+      .catch(() => {})
+    fetch('/api/clone/billing')
+      .then((r) => r.json())
+      .then((d) => { if (d?.success) setBilling(d.data) })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
@@ -56,6 +61,9 @@ export default function DashboardPage() {
             </h1>
             <p className="text-gray-500 text-sm mt-1">
               懒老板按流程帮你生产定制化短视频，最后发到你的邮箱。
+            </p>
+            <p className="text-xs text-gray-400 mt-2">
+              算力余额 <span className="font-bold text-brand-400">¥{billing.balance}</span> · 已生成 {billing.freeUsed} 次 · 消耗明码标价
             </p>
           </div>
           <div className="flex items-center gap-3">

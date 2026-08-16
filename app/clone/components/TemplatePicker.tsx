@@ -35,7 +35,7 @@ export default function TemplatePicker({ templateId, hasProduct, onSelect, onBac
         <button onClick={onBack} className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm hover:bg-gray-50">上一步</button>
         <button onClick={onGenerate} disabled={loading || blocked}
           className="px-6 py-2.5 rounded-xl bg-[#FF6034] text-white font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90">
-          {loading ? '生成中...' : `生成预览图${balanceUsed ? `（¥${enginePrice}/次）` : '（本次免费）'}`}
+          {loading ? '生成中...' : `生成预览图${balanceUsed ? `（消耗 50 算力）` : '（本次免费）'}`}
         </button>
       </div>
     </div>

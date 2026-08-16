@@ -58,7 +58,7 @@ export default function AvatarGenerate({ photos, avatar, loading, balanceUsed, e
         ) : (
           <button onClick={onGenerate} disabled={loading || photos.length === 0}
             className="px-6 py-2.5 rounded-xl bg-[#FF6034] text-white font-medium disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90">
-            {loading ? '生成中...' : `生成克隆分身${balanceUsed ? `（¥${enginePrice}/次）` : '（本次免费）'}`}
+            {loading ? '生成中...' : `生成克隆分身${balanceUsed ? `（消耗 50 算力）` : '（本次免费）'}`}
           </button>
         )}
       </div>

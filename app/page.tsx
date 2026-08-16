@@ -218,7 +218,8 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-6">
           <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3 text-center">SHOWCASE</p>
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-center mb-4">看看懒老板能做什么</h2>
-          <p className="text-[#6B7280] text-center max-w-lg mx-auto mb-12">真实操盘 <span className="font-semibold text-[#FF6034]">200+ IP</span> · 全网流量 <span className="font-semibold text-[#FF6034]">10亿+</span> · 以下为精选案例</p>
+          <p className="text-[#6B7280] text-center max-w-lg mx-auto mb-4">真实操盘 <span className="font-semibold text-[#FF6034]">200+ IP</span> · 全网流量 <span className="font-semibold text-[#FF6034]">10亿+</span> · 以下为精选案例</p>
+          <p className="text-center mb-12"><Link href="/cases" className="inline-flex items-center gap-1 text-sm font-medium text-[#FF6034] hover:underline">查看全部真实案例 <FiArrowRight className="w-3 h-3" /></Link></p>
 
           {/* 数字人 IP 竖屏墙 */}
           <div className="mb-14">

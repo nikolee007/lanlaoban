@@ -21,13 +21,13 @@ interface Step {
 }
 
 const STEPS: Step[] = [
-  { n: 1, title: '了解用户', desc: 'AI 采访：门店 / 卖点 / 客群', href: '/interview', icon: FiMessageSquare, free: true, key: 'interviewed' },
-  { n: 2, title: '收集素材', desc: '本人照片 / 口播采样 / 产品图', href: '/clone', icon: FiCamera, free: true, key: 'hasAvatar' },
-  { n: 3, title: 'AI 分析', desc: '操盘手诊断账号阶段', href: '/agent', icon: FiCpu },
-  { n: 4, title: '运营方案', desc: '内容策略 + 脚本方案', href: '/agent', icon: FiFileText },
-  { n: 5, title: '用户拍板', desc: '确认方案，开始制作', href: '/agent', icon: FiCheckSquare },
-  { n: 6, title: '开始制作', desc: '克隆分身 + 数字人 + 产品可视化', href: '/clone', icon: FiVideo },
-  { n: 7, title: '邮箱交付', desc: '定制化短视频发到邮箱', href: '/profile', icon: FiMail },
+  { n: 1, title: '告诉我你的店', desc: '聊一聊门店 / 招牌 / 客群，像朋友聊天', href: '/interview', icon: FiMessageSquare, free: true, key: 'interviewed' },
+  { n: 2, title: '发点素材给我', desc: '本人照片 / 口播 / 产品图，AI 认认你', href: '/clone', icon: FiCamera, free: true, key: 'hasAvatar' },
+  { n: 3, title: '摸清你的情况', desc: 'AI 看看你的账号，适合怎么出圈', href: '/agent', icon: FiCpu },
+  { n: 4, title: '给你出方案', desc: '要做哪些视频，你先看看', href: '/agent', icon: FiFileText },
+  { n: 5, title: '你点头确认', desc: '方案你说了算，定了就开工', href: '/agent', icon: FiCheckSquare },
+  { n: 6, title: '开工制作', desc: 'AI 批量做你的专属视频', href: '/clone', icon: FiVideo },
+  { n: 7, title: '视频发你邮箱', desc: '做好直接发邮箱，省心省力', href: '/profile', icon: FiMail },
 ]
 
 export default function DashboardPage() {
@@ -130,11 +130,29 @@ export default function DashboardPage() {
           )}
         </div>
 
+        {/* 未开通：看看效果（免费摸到价值） */}
+        {!status.serviceActive && (
+          <div className="mt-6 bg-white rounded-2xl p-5 border border-gray-100">
+            <p className="text-sm font-semibold mb-3">先看看懒老板能给你产出什么</p>
+            <div className="bg-gray-50 rounded-xl p-4 mb-3">
+              <p className="text-xs text-brand-500 font-medium mb-1">3 秒钩子示例</p>
+              <p className="text-sm text-gray-800">"本地年轻人，你们是不是也找不到一家靠谱的糖水店？"</p>
+              <p className="text-xs text-gray-400 mt-2">接着会展开成 8 条口播脚本 + 5 个标题 + 封面文案，还能换成你的店、你的产品</p>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {['成交场景','行业动态','自我成长','知识干货','信任建立'].map(t => (
+                <span key={t} className="text-xs px-3 py-1.5 rounded-full bg-orange-50 text-orange-600 border border-orange-100">{t}</span>
+              ))}
+            </div>
+            <p className="text-xs text-gray-400">开通后：AI 按你的店出专属脚本 → 克隆分身 + 产品 → 做成片发你邮箱。</p>
+          </div>
+        )}
+
         {/* 已开通提示 */}
         {status.serviceActive && (
           <div className="mt-6 bg-green-50 border border-green-100 rounded-2xl p-5">
             <p className="text-sm font-semibold text-green-700 mb-2">服务已开通，懒老板开始为你运作</p>
-            <p className="text-xs text-green-600">从「AI 分析」开始，一步步完成方案和制作，成品会发到你的邮箱。</p>
+            <p className="text-xs text-green-600">从「摸清你的情况」开始，一步步完成方案和制作，成品会发到你的邮箱。</p>
           </div>
         )}
       </main>

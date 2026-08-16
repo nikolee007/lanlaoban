@@ -87,6 +87,8 @@ export async function POST(request: NextRequest) {
           ],
           temperature: 0.5,
           max_tokens: 8192,
+          // JSON mode：强制模型输出合法 JSON，杜绝偶发格式异常
+          response_format: { type: 'json_object' },
         })
         const content = response.choices[0]?.message?.content
         if (!content) throw new Error('AI 返回为空')

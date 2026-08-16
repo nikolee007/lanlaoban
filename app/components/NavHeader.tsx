@@ -130,23 +130,26 @@ export default function NavHeader() {
           </div>
         </Link>
 
-        {/* Desktop Nav — 精简核心 + 更多下拉 */}
+        {/* Desktop Nav — 极简核心导航 */}
         <div className="hidden sm:flex items-center" ref={navRef}>
           {CORE_NAV.map((item) => (
             <Link
               key={item.key}
-              href={item.href}
+              href={item.comingSoon ? '/coming-soon' : item.href}
               className={`flex items-center gap-1 px-1.5 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
-                isActive(item.href) ? 'text-brand-400 bg-brand-50' : 'text-gray-600 hover:text-brand-500 hover:bg-orange-50'
+                item.comingSoon
+                  ? 'text-gray-400 hover:text-gray-500'
+                  : isActive(item.href) ? 'text-brand-400 bg-brand-50' : 'text-gray-600 hover:text-brand-500 hover:bg-orange-50'
               }`}
             >
               {t(item.key, locale)}
-              {item.isAI && (
+              {item.comingSoon ? (
+                <span className="ml-0.5 inline-flex items-center rounded bg-gray-200 text-gray-500 px-[3px] py-[1px] text-[7px] font-medium leading-none whitespace-nowrap">{item.eta || '未开放'}</span>
+              ) : item.isAI ? (
                 <span className="inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-[3px] py-[1px] text-[8px] font-bold text-white leading-none">AI</span>
-              )}
+              ) : null}
             </Link>
           ))}
-
         </div>
 
         {/* Right side actions */}
@@ -259,16 +262,20 @@ export default function NavHeader() {
           {CORE_NAV.map((item) => (
             <Link
               key={item.key}
-              href={item.href}
+              href={item.comingSoon ? '/coming-soon' : item.href}
               className={`flex items-center gap-1 px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
-                isActive(item.href) ? 'text-brand-400 bg-brand-50' : 'text-gray-700 hover:bg-gray-50'
+                item.comingSoon
+                  ? 'text-gray-400'
+                  : isActive(item.href) ? 'text-brand-400 bg-brand-50' : 'text-gray-700 hover:bg-gray-50'
               }`}
               onClick={closeMobileMenu}
             >
               {t(item.key, locale)}
-              {item.isAI && (
+              {item.comingSoon ? (
+                <span className="ml-1 inline-flex items-center rounded bg-gray-200 text-gray-400 px-1.5 py-0.5 text-[8px] font-medium">{item.eta || '未开放'}</span>
+              ) : item.isAI ? (
                 <span className="ml-0.5 inline-flex items-center rounded bg-gradient-to-r from-brand-400 to-purple-500 px-1 py-0.5 text-[9px] font-bold text-white leading-none">AI</span>
-              )}
+              ) : null}
             </Link>
           ))}
           <div className="pt-3 px-3" />

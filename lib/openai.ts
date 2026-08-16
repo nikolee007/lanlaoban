@@ -168,7 +168,14 @@ export async function generateContent(
 
 /** 从 AI 响应中提取 JSON（去掉可能包裹的 markdown 代码块） */
 export function extractJsonFromResponse(content: string): string {
+  // 1. markdown 代码块
   const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/)
   if (jsonMatch) return jsonMatch[1].trim()
+  // 2. 截取第一个 { 到最后一个 }（容错模型输出前后带解释文字/截断）
+  const firstBrace = content.indexOf('{')
+  const lastBrace = content.lastIndexOf('}')
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    return content.slice(firstBrace, lastBrace + 1).trim()
+  }
   return content.trim()
 }

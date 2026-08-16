@@ -120,9 +120,9 @@ export default function DashboardPage() {
             <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-2xl p-5 border border-orange-100">
               <div className="flex items-center gap-2 mb-2">
                 <FiLock className="w-5 h-5 text-brand-400" />
-                <p className="font-semibold text-sm">第 3 步起：付费后自动运作</p>
+                <p className="font-semibold text-sm">后面 5 步：开通服务才能用</p>
               </div>
-              <p className="text-xs text-gray-500 mb-3">开通服务后，AI 分析 → 运营方案 → 制作 → 邮箱交付，懒老板替你全程跑。</p>
+              <p className="text-xs text-gray-500 mb-3">开通后，从方案到视频，懒老板全程帮你做，做好发你邮箱。</p>
               <Link href="/pricing" className="inline-flex items-center gap-1 text-sm font-medium text-brand-400 hover:underline">
                 查看套餐 <FiArrowRight className="w-3 h-3" />
               </Link>

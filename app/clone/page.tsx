@@ -23,6 +23,8 @@ export default function ClonePage() {
   const [productDesc, setProductDesc] = useState('')
   const [templateId, setTemplateId] = useState('owner_product')
   const [previewUrl, setPreviewUrl] = useState('')
+  const [freeMode, setFreeMode] = useState(false) // 免费额度生成 → 加水印
+  const [watermarkSeed, setWatermarkSeed] = useState(0)
   const [engines, setEngines] = useState<EngineInfo[]>([])
   const [engineId, setEngineId] = useState('')
   const [billing, setBilling] = useState<BillingInfo>({ freeUsed: 0, balance: 0 })
@@ -61,6 +63,8 @@ export default function ClonePage() {
       const data = await res.json()
       if (!data.success) { setError(data.error || '生成失败'); showToast(data.error || '生成失败', 'error'); return }
       setAvatar({ id: data.data.id, name: '我的分身', avatarUrl: data.data.url, engine: engineId, status: 'ready' })
+      setFreeMode(data.data.mode === 'free')
+      setWatermarkSeed(Date.now() % 100000)
       const avatars = await fetchAvatars()
       if (avatars.length > 0) setAvatar({ id: avatars[0].id, name: avatars[0].name, avatarUrl: avatars[0].avatarUrl, engine: avatars[0].engine, status: avatars[0].status })
       refreshBilling()
@@ -86,6 +90,8 @@ export default function ClonePage() {
         setError(data.error || '生成失败'); showToast(data.error || '生成失败', 'error'); return
       }
       setPreviewUrl(data.data.url)
+      setFreeMode(data.data.mode === 'free')
+      setWatermarkSeed(Date.now() % 100000)
       refreshBilling()
       showToast('预览图生成成功！', 'success')
       setStep('preview')
@@ -127,7 +133,7 @@ export default function ClonePage() {
         )}
         {step === 'avatar' && (
           <AvatarGenerate photos={photos} avatar={avatar} loading={loading} balanceUsed={balanceUsed}
-            enginePrice={activeEngine?.pricePerImage || 0}
+            enginePrice={activeEngine?.pricePerImage || 0} showWatermark={freeMode} watermarkSeed={watermarkSeed}
             onGenerate={handleGenerateAvatar} onBack={() => setStep('photo')} onNext={() => setStep('product')} />
         )}
         {step === 'product' && (
@@ -142,7 +148,7 @@ export default function ClonePage() {
             enginePrice={activeEngine?.pricePerImage || 0} />
         )}
         {step === 'preview' && (
-          <PreviewResult previewUrl={previewUrl} productDesc={productDesc}
+          <PreviewResult previewUrl={previewUrl} productDesc={productDesc} showWatermark={freeMode} watermarkSeed={watermarkSeed}
             onReset={() => { setStep('template'); setPreviewUrl('') }}
             onRegenerate={handleGeneratePreview} loading={loading} />
         )}

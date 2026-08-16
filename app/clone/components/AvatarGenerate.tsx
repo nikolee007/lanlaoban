@@ -1,6 +1,7 @@
 'use client'
 import { FiUser, FiRefreshCw, FiArrowRight } from 'react-icons/fi'
 import type { AvatarInfo } from '../lib'
+import { WatermarkLayer } from './Watermark'
 
 interface Props {
   photos: string[]
@@ -8,12 +9,14 @@ interface Props {
   loading: boolean
   balanceUsed: boolean
   enginePrice: number
+  showWatermark: boolean
+  watermarkSeed: number
   onGenerate: () => void
   onBack: () => void
   onNext: () => void
 }
 
-export default function AvatarGenerate({ photos, avatar, loading, balanceUsed, enginePrice, onGenerate, onBack, onNext }: Props) {
+export default function AvatarGenerate({ photos, avatar, loading, balanceUsed, enginePrice, showWatermark, watermarkSeed, onGenerate, onBack, onNext }: Props) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
       <h2 className="text-xl font-semibold text-gray-900 mb-1">生成老板克隆分身</h2>
@@ -32,10 +35,13 @@ export default function AvatarGenerate({ photos, avatar, loading, balanceUsed, e
           )}
         </div>
         <div>
-          <p className="text-xs font-medium text-gray-400 uppercase mb-2">克隆分身</p>
+          <p className="text-xs font-medium text-gray-400 uppercase mb-2">克隆分身{showWatermark && <span className="text-gray-300 ml-1">· 免费版带水印</span>}</p>
           {avatar?.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatar.avatarUrl} alt="克隆分身" className="w-full aspect-square object-cover rounded-xl border border-gray-200" />
+            <div className="relative w-full aspect-square rounded-xl border border-gray-200 overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={avatar.avatarUrl} alt="克隆分身" className="w-full h-full object-cover" />
+              <WatermarkLayer show={showWatermark} seed={watermarkSeed} />
+            </div>
           ) : (
             <div className="w-full aspect-square rounded-xl bg-gradient-to-br from-orange-50 to-rose-50 flex items-center justify-center text-gray-300">
               <FiUser className="w-10 h-10" />

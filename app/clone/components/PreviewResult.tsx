@@ -1,21 +1,29 @@
 'use client'
 import { FiDownload, FiRefreshCw, FiShare2 } from 'react-icons/fi'
 import { useToast } from '@/app/contexts/ToastContext'
+import { WatermarkLayer, addWatermarkToImage } from './Watermark'
 
 interface Props {
   previewUrl: string
   productDesc: string
+  showWatermark: boolean
+  watermarkSeed: number
   onReset: () => void
   onRegenerate: () => void
   loading: boolean
 }
 
-export default function PreviewResult({ previewUrl, productDesc, onReset, onRegenerate, loading }: Props) {
+export default function PreviewResult({ previewUrl, productDesc, showWatermark, watermarkSeed, onReset, onRegenerate, loading }: Props) {
   const { showToast } = useToast()
 
   const download = async () => {
     try {
-      const res = await fetch(previewUrl)
+      // 免费版下载：Canvas 合成带水印图；付费版下载原图
+      let url = previewUrl
+      if (showWatermark) {
+        url = await addWatermarkToImage(previewUrl, watermarkSeed)
+      }
+      const res = await fetch(url)
       const blob = await res.blob()
       const a = document.createElement('a')
       a.href = URL.createObjectURL(blob)
@@ -41,10 +49,13 @@ export default function PreviewResult({ previewUrl, productDesc, onReset, onRege
       <h2 className="text-xl font-semibold text-gray-900 mb-1">你的老板宣传图</h2>
       <p className="text-sm text-gray-500 mb-5">{productDesc || '克隆分身 + 产品可视化预览图'}</p>
 
-      <div className="rounded-2xl overflow-hidden border border-gray-200 mb-5">
+      <div className="relative rounded-2xl overflow-hidden border border-gray-200 mb-5">
         {previewUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={previewUrl} alt="宣传图" className="w-full object-cover" />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={previewUrl} alt="宣传图" className="w-full object-cover" />
+            <WatermarkLayer show={showWatermark} seed={watermarkSeed} />
+          </>
         ) : (
           <div className="aspect-video bg-gray-100 flex items-center justify-center text-gray-300">加载中...</div>
         )}

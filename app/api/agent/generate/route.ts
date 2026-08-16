@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     // 5. 调 OpenAI，JSON 解析 + 校验，失败自动重试一次
     let data: unknown = null
     let lastError = ''
-    for (let attempt = 0; attempt < 4; attempt++) {
+    for (let attempt = 0; attempt < 5; attempt++) {
       try {
         const response = await getClient().chat.completions.create({
           model: getDefaultModel(),

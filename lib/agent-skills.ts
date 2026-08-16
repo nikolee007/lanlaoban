@@ -193,7 +193,7 @@ export function parseSkillOutput(skillId: SkillType, content: string): unknown {
 }
 
 /** 容错 JSON 解析：先直接解析，失败则修复常见错误（对象/数组末尾多余逗号）再试 */
-function tryParseJson(s: string): unknown {
+function tryParseJson(s: string): any {
   try { return JSON.parse(s) } catch { /* 继续尝试修复 */ }
   const fixed = s.replace(/,\s*([}\]])/g, '$1') // 去末尾多余逗号
   try { return JSON.parse(fixed) } catch { return null }

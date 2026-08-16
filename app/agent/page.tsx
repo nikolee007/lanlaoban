@@ -3,10 +3,15 @@ import { useState, useEffect } from 'react'
 import NavHeader from '../components/NavHeader'
 import { FiZap, FiArrowRight, FiRefreshCw, FiCopy, FiAlertCircle, FiCheckCircle, FiClock } from 'react-icons/fi'
 
-type SkillType = 'standard' | 'coldstart' | 'convert' | 'matrix' | 'optimize'
+type SkillType = 'standard' | 'coldstart' | 'convert' | 'matrix' | 'optimize' | 'deal' | 'news' | 'growth' | 'knowledge' | 'trust'
 
 const SKILLS: { id: SkillType; name: string; desc: string }[] = [
-  { id: 'standard', name: '标准短视频方案', desc: '通用变现，出 5 条脚本' },
+  { id: 'deal', name: '成交场景', desc: '卖点+痛点+促单，直接转化' },
+  { id: 'news', name: '行业动态', desc: '行业话题+老板第一视角点评' },
+  { id: 'growth', name: '自我成长', desc: '创业故事+价值观，立人设' },
+  { id: 'knowledge', name: '知识干货', desc: '实用技巧+避坑，价值输出' },
+  { id: 'trust', name: '信任建立', desc: '真实案例+透明化，靠谱人设' },
+  { id: 'standard', name: '标准方案', desc: '通用变现，出 5 条脚本' },
   { id: 'coldstart', name: '冷启动破播放', desc: '新号没流量，重完播率' },
   { id: 'convert', name: '转化获客招商', desc: '引流 / 招商成交' },
   { id: 'matrix', name: '矩阵批量脚本', desc: '同主题 3 套差异化版本' },
@@ -14,7 +19,7 @@ const SKILLS: { id: SkillType; name: string; desc: string }[] = [
 ]
 
 const GOALS = ['涨粉', '引流到店', '招商成交', '促复购']
-const DURATIONS = [30, 60, 90]
+const DURATIONS = [45, 60, 85]
 
 interface ScriptLine { time: string; line: string; pause?: string; shot_hint?: string }
 interface ScriptResult {

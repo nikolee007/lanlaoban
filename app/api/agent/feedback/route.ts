@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUserId } from '@/lib/auth'
+import { requireServiceActive, serviceRequiredResponse } from '@/lib/service-gate'
 import { tursoDb } from '@/lib/turso'
 import { db } from '@/lib/db'
 
@@ -15,6 +16,8 @@ const ALLOWED_FEEDBACK = ['adopt', 'bomb', 'unused'] // 采纳 / 爆款 / 未用
 export async function POST(request: NextRequest) {
   const userId = getAuthUserId(request.headers)
   if (!userId) return NextResponse.json({ success: false, error: '请先登录' }, { status: 401 })
+  const gate = await requireServiceActive(userId)
+  if (!gate.ok) return NextResponse.json(serviceRequiredResponse(), { status: 402 })
 
   const body = await request.json().catch(() => null)
   const { sourceType, industry, contentSummary, feedback, rating } = body || {}

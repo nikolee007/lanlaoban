@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateImage, generateVideo } from '@/lib/agnes-api'
 import { getClient, getDefaultModel } from '@/lib/openai'
+import { getAuthUserId } from '@/lib/auth'
+import { requireServiceActive, serviceRequiredResponse } from '@/lib/service-gate'
 
 // 场景模板 → 生成提示词
 const SCENE_PROMPTS: Record<string, string> = {
@@ -30,6 +32,12 @@ const SCENE_PROMPTS: Record<string, string> = {
  *    { action: 'video', scene, script, photo } — 直接视频（同 FormData 逻辑）
  */
 export async function POST(request: NextRequest) {
+  // 付费服务门控：数字人视频生成需开通服务
+  const userId = getAuthUserId(request.headers)
+  if (!userId) return NextResponse.json({ success: false, error: '请先登录' }, { status: 401 })
+  const gate = await requireServiceActive(userId)
+  if (!gate.ok) return NextResponse.json(serviceRequiredResponse(), { status: 402 })
+
   const ct = request.headers.get('content-type') || ''
 
   // ─── JSON 模式 ───────────────────────────────────────

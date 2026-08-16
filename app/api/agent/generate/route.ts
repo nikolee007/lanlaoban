@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUserId } from '@/lib/auth'
+import { requireServiceActive, serviceRequiredResponse } from '@/lib/service-gate'
 import { db } from '@/lib/db'
 import { getClient, getDefaultModel, extractJsonFromResponse } from '@/lib/openai'
 import { getPainPointsForIndustry, getOralPhrases, getTitleFormulas, getComplianceGuidance } from '@/lib/knowledge'
@@ -27,13 +28,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { skillType, industry, product, targetCustomer, goal, durationSec, note, originalScript } = body
 
+    // 付费服务门控：Agent 分析/方案需开通服务
+    const userId = getAuthUserId(request.headers)
+    if (!userId) return NextResponse.json({ success: false, error: '请先登录' }, { status: 401 })
+    const gate = await requireServiceActive(userId)
+    if (!gate.ok) return NextResponse.json(serviceRequiredResponse(), { status: 402 })
+
     const skill = SKILLS[skillType as SkillType]
     if (!skill) return NextResponse.json({ error: '未知场景' }, { status: 400 })
 
     // 1. 读取商家画像（登录用户自动注入 → 不用重填）
     let profile: { industry?: string | null; product?: string | null; targetAudience?: string | null; goal?: string | null } | null = null
     try {
-      const userId = getAuthUserId(request.headers)
       if (userId) {
         const found = await db.ipProfile.findUnique({ where: { userId } })
         if (found) profile = found

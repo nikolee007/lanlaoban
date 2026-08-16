@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUserId } from '@/lib/auth'
+import { requireServiceActive, serviceRequiredResponse } from '@/lib/service-gate'
 import { getEngine } from '@/lib/clone-engine'
 import { getTemplate } from '@/lib/clone-engine/templates'
 import { beginGeneration, finishGeneration } from '@/lib/clone-billing'
@@ -9,6 +10,8 @@ export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest) {
   const userId = getAuthUserId(request.headers)
   if (!userId) return NextResponse.json({ success: false, error: '请先登录' }, { status: 401 })
+  const gate = await requireServiceActive(userId)
+  if (!gate.ok) return NextResponse.json(serviceRequiredResponse(), { status: 402 })
 
   const form = await request.formData()
   const avatarUrl = (form.get('avatarUrl') as string)?.trim() || ''

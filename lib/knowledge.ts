@@ -14,7 +14,7 @@ function load<T>(name: string): T | null {
 
 export function matchIndustry(input: string): string {
   const kw = input.toLowerCase()
-  if (/餐饮|饭店|火锅|烧烤|奶茶|咖啡|小吃|面馆/.test(kw)) return 'dining'
+  if (/餐饮|饭店|火锅|烧烤|奶茶|咖啡|小吃|面馆|糖水|甜品|饮品|茶饮|烘焙|蛋糕/.test(kw)) return 'dining'
   if (/装修|建材|家具|全屋定制|门窗|橱柜|工程|设计|装饰/.test(kw)) return 'decoration'
   if (/工厂|加工|制造|五金|机械|钢材|塑料|橡胶|设备|工业|注塑/.test(kw)) return 'factory'
   if (/美容|美发|美甲|纹绣|皮肤|医美|养生|美业|祛痘/.test(kw)) return 'beauty'

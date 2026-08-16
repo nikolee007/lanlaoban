@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthUserId } from '@/lib/auth'
+import { requireServiceActive, serviceRequiredResponse } from '@/lib/service-gate'
 import { getEngine } from '@/lib/clone-engine'
 import { beginGeneration, finishGeneration } from '@/lib/clone-billing'
 import { tursoDb } from '@/lib/turso'
@@ -14,6 +15,8 @@ const AVATAR_PROMPT = (desc: string) =>
 export async function POST(request: NextRequest) {
   const userId = getAuthUserId(request.headers)
   if (!userId) return NextResponse.json({ success: false, error: '请先登录' }, { status: 401 })
+  const gate = await requireServiceActive(userId)
+  if (!gate.ok) return NextResponse.json(serviceRequiredResponse(), { status: 402 })
 
   const form = await request.formData()
   const photos = form.getAll('photos').map(String).filter(Boolean)

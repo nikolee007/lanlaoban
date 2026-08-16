@@ -125,10 +125,13 @@ async function ensureSchema() {
               await client.execute('CREATE INDEX IF NOT EXISTS "CloneAvatar_userId_idx" ON "CloneAvatar"("userId")')
               await client.execute('CREATE INDEX IF NOT EXISTS "CloneGeneration_userId_idx" ON "CloneGeneration"("userId")')
             }
-            // 幂等：User 表补 balanceYuan 列
+            // 幂等：User 表补 balanceYuan / serviceActive 列
             const ucols = await client.execute('PRAGMA table_info("User")')
             if (!ucols.rows.some((r: any) => r.name === 'balanceYuan')) {
               await client.execute(`ALTER TABLE "User" ADD COLUMN "balanceYuan" REAL NOT NULL DEFAULT 0`)
+            }
+            if (!ucols.rows.some((r: any) => r.name === 'serviceActive')) {
+              await client.execute(`ALTER TABLE "User" ADD COLUMN "serviceActive" BOOLEAN NOT NULL DEFAULT false`)
             }
             // 幂等：算力充值订单表（回调幂等）
             const r4 = await client.execute("SELECT count(*) as cnt FROM sqlite_master WHERE type='table' AND name='RechargeOrder'")

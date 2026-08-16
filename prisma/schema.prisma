@@ -126,6 +126,7 @@ model User {
   IpChat                  IpChat[]
   createdActivationCodes  ActivationCode[]
   balanceYuan             Float            @default(0)   // 算力余额（元）
+  serviceActive           Boolean          @default(false) // 是否开通短视频服务（付费后）
   cloneAvatars            CloneAvatar[]
   cloneGenerations        CloneGeneration[]
   agentFeedbacks          AgentFeedback[]

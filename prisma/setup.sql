@@ -97,6 +97,7 @@ CREATE TABLE "User" (
     "company" TEXT,
     "phone" TEXT,
     "balanceYuan" REAL NOT NULL DEFAULT 0,
+    "serviceActive" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );

@@ -8,6 +8,7 @@ const PROTECTED_PATHS = [
   '/persona',
   '/digital-human',
   '/clone',
+  '/dashboard',
   '/profile',
   '/settings',
   '/admin',

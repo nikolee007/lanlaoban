@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     // 5. 调 OpenAI，JSON 解析 + 校验，失败自动重试一次
     let data: unknown = null
     let lastError = ''
-    for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 4; attempt++) {
       try {
         const response = await getClient().chat.completions.create({
           model: getDefaultModel(),
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
             { role: 'system', content: skill.systemPrompt },
             { role: 'user', content: userPrompt },
           ],
-          temperature: 0.7,
+          temperature: 0.5,
           max_tokens: 8192,
         })
         const content = response.choices[0]?.message?.content

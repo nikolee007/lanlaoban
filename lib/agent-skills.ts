@@ -186,9 +186,17 @@ export function buildProfileInjection(profile?: {
 // ── 解析 & 校验 ─────────────────────────────────────────────────────
 export function parseSkillOutput(skillId: SkillType, content: string): unknown {
   const trimmed = content.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim()
-  const data = JSON.parse(trimmed)
+  const data = tryParseJson(trimmed)
+  if (data === null) throw new Error('JSON 解析失败')
   validateSkillOutput(skillId, data)
   return data
+}
+
+/** 容错 JSON 解析：先直接解析，失败则修复常见错误（对象/数组末尾多余逗号）再试 */
+function tryParseJson(s: string): unknown {
+  try { return JSON.parse(s) } catch { /* 继续尝试修复 */ }
+  const fixed = s.replace(/,\s*([}\]])/g, '$1') // 去末尾多余逗号
+  try { return JSON.parse(fixed) } catch { return null }
 }
 
 function validateSkillOutput(skillId: SkillType, data: Record<string, unknown>): void {

@@ -368,6 +368,21 @@ export const tursoDb = {
       await c.execute({ sql: 'UPDATE "User" SET "balanceYuan" = "balanceYuan" + ? WHERE "id" = ?', args: [amount, userId] })
     } catch (e) { console.error('[turso] addBalance:', e) }
   },
+  /** 7 步流程状态（付费判定 / 各步骤完成度） */
+  async getUserServiceStatus(userId: number): Promise<{ serviceActive: boolean; interviewed: boolean; hasAvatar: boolean }> {
+    const c = getClient(); if (!c) return { serviceActive: false, interviewed: false, hasAvatar: false }
+    await ensureSchema()
+    try {
+      const u = await c.execute({ sql: 'SELECT "serviceActive" FROM "User" WHERE "id" = ?', args: [userId] })
+      const profile = await c.execute({ sql: 'SELECT "id" FROM "IpProfile" WHERE "userId" = ?', args: [userId] })
+      const avatar = await c.execute({ sql: 'SELECT "id" FROM "CloneAvatar" WHERE "userId" = ?', args: [userId] })
+      return {
+        serviceActive: !!((u.rows[0] as any)?.serviceActive),
+        interviewed: profile.rows.length > 0,
+        hasAvatar: avatar.rows.length > 0,
+      }
+    } catch (e) { console.error('[turso] getUserServiceStatus:', e); return { serviceActive: false, interviewed: false, hasAvatar: false } }
+  },
   /** 充值订单幂等：tradeOrderId 唯一约束，重复插入返回 false */
   async tryInsertRecharge(tradeOrderId: string, userId: number, amount: number): Promise<boolean> {
     const c = getClient(); if (!c) return false

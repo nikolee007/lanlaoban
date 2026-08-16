@@ -34,8 +34,8 @@ type NavItem = { key: string; href: string; isAI: boolean; comingSoon?: boolean;
 
 /** 核心导航（桌面顶部平铺，精简突出卖点） */
 const CORE_NAV: NavItem[] = [
+  { key: 'nav.dashboard', href: '/dashboard', isAI: false },
   { key: 'nav.cloneAvatar', href: '/clone', isAI: true },
-  { key: 'content.avatar', href: '/digital-human', isAI: true },
   { key: 'nav.oneClickBrand', href: '/brand-promotion', isAI: true },
   { key: 'nav.pricing', href: '/pricing', isAI: false },
 ]
@@ -43,6 +43,7 @@ const CORE_NAV: NavItem[] = [
 /** 更多下拉（收纳次要功能，避免导航拥挤） */
 const MORE_NAV: NavItem[] = [
   { key: 'nav.agent', href: '/agent', isAI: true },
+  { key: 'content.avatar', href: '/digital-human', isAI: true },
   { key: 'nav.oneClickIP', href: '/persona', isAI: true },
   { key: 'nav.scripts', href: '/scripts', isAI: true },
   { key: 'nav.storyboard', href: '/storyboard', isAI: true },

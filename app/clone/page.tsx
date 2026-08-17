@@ -19,6 +19,7 @@ export default function ClonePage() {
   const [step, setStep] = useState<Step>('photo')
   const [photos, setPhotos] = useState<string[]>([])
   const [avatar, setAvatar] = useState<AvatarInfo | null>(null)
+  const [avatars, setAvatars] = useState<AvatarInfo[]>([])
   const [productImage, setProductImage] = useState('')
   const [productDesc, setProductDesc] = useState('')
   const [templateId, setTemplateId] = useState('owner_product')
@@ -43,6 +44,7 @@ export default function ClonePage() {
       setEngineId(active?.id || list.find(e => e.status === 'active')?.id || '')
     })
     fetchAvatars().then(list => {
+      setAvatars(list)
       if (list.length > 0) {
         setAvatar({ id: list[0].id, name: list[0].name, avatarUrl: list[0].avatarUrl, engine: list[0].engine, status: list[0].status })
         setStep('avatar')

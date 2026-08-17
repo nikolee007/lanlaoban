@@ -131,12 +131,12 @@ export default function NavHeader() {
         </Link>
 
         {/* Desktop Nav — 极简核心导航 */}
-        <div className="hidden sm:flex items-center" ref={navRef}>
+        <div className="hidden sm:flex items-center gap-x-2.5" ref={navRef}>
           {CORE_NAV.map((item) => (
             <Link
               key={item.key}
               href={item.comingSoon ? '/coming-soon' : item.href}
-              className={`flex items-center gap-1 px-1.5 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
                 item.comingSoon
                   ? 'text-gray-400 hover:text-gray-500'
                   : isActive(item.href) ? 'text-brand-400 bg-brand-50' : 'text-gray-600 hover:text-brand-500 hover:bg-orange-50'

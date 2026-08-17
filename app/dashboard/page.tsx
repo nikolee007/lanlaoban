@@ -186,6 +186,7 @@ export default function DashboardPage() {
               ))}
             </div>
             <p className="text-xs text-gray-400">开通后：AI 按你的店出专属脚本 → 克隆分身 + 产品 → 做成片发你邮箱。</p>
+            <p className="text-xs text-green-600 font-medium mt-3">先免费试 3 次（克隆分身 / 产品图），觉得能出东西再开通。</p>
           </div>
         )}
 

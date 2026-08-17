@@ -85,7 +85,7 @@ export default function LoginPage() {
       const data = await res.json()
       if (res.ok && data.token) {
         localStorage.setItem('lanlaoban_token', data.token)
-        window.location.href = '/persona'
+        window.location.href = '/dashboard'
       } else {
         setError(data.error || t('login.error.credentials', locale))
       }
@@ -112,7 +112,7 @@ export default function LoginPage() {
       if (res.ok && data.token) {
         localStorage.setItem('lanlaoban_token', data.token)
         localStorage.setItem('lanlaoban_new_user', 'true')
-        window.location.href = '/interview'
+        window.location.href = '/dashboard'
       } else {
         setRegError(data.error || t('login.error.register', locale))
       }

@@ -98,8 +98,8 @@ function SettingsPanel() {
       <h3 className="font-semibold">系统设置</h3>
       <p className="text-sm text-gray-500">环境配置信息</p>
       <div className="grid gap-3">
-        <div className="flex justify-between text-sm"><span className="text-gray-400">AI 引擎</span><span>自动降级 (Agnes 2.0 → DeepSeek → Zhipu)</span></div>
-        <div className="flex justify-between text-sm"><span className="text-gray-400">TTS</span><span>MOSS + Edge 双引擎</span></div>
+        <div className="flex justify-between text-sm"><span className="text-gray-400">AI引擎</span><span>自动降级 (Agnes 2.0 → DeepSeek → Zhipu)</span></div>
+        <div className="flex justify-between text-sm"><span className="text-gray-400">TTS</span><span>MOSS + Edge双引擎</span></div>
       </div>
     </div>
   )
@@ -153,7 +153,7 @@ function ActivationManagement() {
 
   return (
     <div className="space-y-6">
-      {/* 生成激活码 */}
+      {/*生成激活码 */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <h3 className="font-semibold mb-4">生成激活码</h3>
         <div className="flex flex-wrap items-end gap-4">
@@ -174,10 +174,10 @@ function ActivationManagement() {
         {newCodes.length > 0 && (
           <div className="mt-4 p-3 rounded-lg bg-orange-50 border border-orange-200">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-orange-600 font-medium">新生成的激活码（{newCodes.length} 个）</p>
+              <p className="text-xs text-orange-600 font-medium">新生成的激活码（{newCodes.length}个）</p>
               <div className="flex items-center gap-3">
                 <button onClick={() => copy(newCodes.join('\n'), 'all')} className="text-xs text-orange-600 hover:text-orange-800 font-medium">
-                  {copiedId === 'all' ? '✓ 已复制全部' : '复制全部'}
+                  {copiedId === 'all' ? '已复制全部' : '复制全部'}
                 </button>
                 <button onClick={() => setNewCodes([])} className="text-xs text-gray-400 hover:text-gray-600">关闭</button>
               </div>
@@ -186,7 +186,7 @@ function ActivationManagement() {
               {newCodes.map(c => (
                 <div key={c} className="flex items-center justify-between gap-2 bg-white px-2 py-1 rounded border border-orange-100">
                   <code className="text-xs break-all">{c}</code>
-                  <button onClick={() => copy(c, c)} className="text-xs text-orange-600 shrink-0">{copiedId === c ? '✓' : '复制'}</button>
+                  <button onClick={() => copy(c, c)} className="text-xs text-orange-600 shrink-0">{copiedId === c ? '' : '复制'}</button>
                 </div>
               ))}
             </div>
@@ -194,7 +194,7 @@ function ActivationManagement() {
         )}
       </div>
 
-      {/* 激活码列表 */}
+      {/*激活码列表 */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="p-4 border-b border-gray-100 flex items-center justify-between">
           <h3 className="font-semibold">激活码列表（{filtered.length}）</h3>
@@ -234,7 +234,7 @@ function ActivationManagement() {
                   <td className="px-4 py-3 text-gray-500">{c.createdBy ? `用户 #${c.createdBy}` : '—'}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => copy(c.code, `l${c.id}`)} className="text-xs text-blue-500 hover:text-blue-700">{copiedId === `l${c.id}` ? '✓' : '复制'}</button>
+                      <button onClick={() => copy(c.code, `l${c.id}`)} className="text-xs text-blue-500 hover:text-blue-700">{copiedId === `l${c.id}` ? '' : '复制'}</button>
                       {c.status !== 'revoked' && (
                         <button onClick={() => revoke(c.code)} className="text-xs text-red-500 hover:text-red-700">吊销</button>
                       )}

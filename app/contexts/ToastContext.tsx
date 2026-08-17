@@ -1,5 +1,6 @@
 'use client'
 import { createContext, useContext, useState, useRef, ReactNode, useCallback } from 'react'
+import { FiCheck, FiX, FiInfo, FiAlertTriangle } from 'react-icons/fi'
 
 type ToastType = 'success' | 'error' | 'info' | 'warning'
 
@@ -15,11 +16,11 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType>({ showToast: () => {} })
 
-const TOAST_ICONS: Record<ToastType, string> = {
-  success: '✓',
-  error: '✕',
-  info: 'ℹ',
-  warning: '⚠',
+const TOAST_ICONS: Record<ToastType, ReactNode> = {
+  success: <FiCheck className="w-4 h-4" />,
+  error: <FiX className="w-4 h-4" />,
+  info: <FiInfo className="w-4 h-4" />,
+  warning: <FiAlertTriangle className="w-4 h-4" />,
 }
 
 const TOAST_COLORS: Record<ToastType, string> = {

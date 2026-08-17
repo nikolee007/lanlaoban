@@ -77,7 +77,7 @@ export default function VideoResult({
           </div>
         </div>
         <button onClick={onBack} className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50">
-          <FiRefreshCw className="h-3.5 w-3.5" /> 重做
+          <FiRefreshCw className="h-3.5 w-3.5" />重做
         </button>
       </div>
 
@@ -120,13 +120,13 @@ export default function VideoResult({
         </div>
       </div>
 
-      {/* ═══ Tab: 拍摄清单 ═══ */}
+      {/* ═══ Tab:拍摄清单 ═══ */}
       {tab === 'todo' && (
         <div>
           <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-apple mb-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-gray-900">拍摄清单</h3>
-              <span className="text-xs text-gray-400">{doneTasks.length}/10 已完成</span>
+              <span className="text-xs text-gray-400">{doneTasks.length}/10已完成</span>
             </div>
             <div className="w-full bg-gray-100 rounded-full h-2 mb-4">
               <div className="h-2 rounded-full transition-all bg-gradient-to-r from-brand-400 to-purple-500"
@@ -164,21 +164,21 @@ export default function VideoResult({
             <Link href="/brand-promotion" className="mt-3 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
               style={{ backgroundColor: '#FF6034' }}>去找货源 <FiArrowRight className="h-4 w-4" /></Link>
             <button onClick={onCopyAll} className="mt-3 ml-3 inline-flex items-center gap-2 rounded-lg border-2 px-5 py-2.5 text-sm font-semibold"
-              style={{ borderColor: '#FF6034', color: '#FF6034' }}><FiCopy className="h-4 w-4" /> 复制脚本</button>
+              style={{ borderColor: '#FF6034', color: '#FF6034' }}><FiCopy className="h-4 w-4" />复制脚本</button>
           </div>
         </div>
       )}
 
-      {/* ═══ Tab: 完整脚本 ═══ */}
+      {/* ═══ Tab:完整脚本 ═══ */}
       {tab === 'script' && (
         <div className="card">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-gray-900">完整脚本</h3>
             <button onClick={onCopyAll} className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50">
-              <FiCopy className="h-3.5 w-3.5" /> 复制全部</button>
+              <FiCopy className="h-3.5 w-3.5" />复制全部</button>
           </div>
           <div className="text-xs text-gray-400 mb-4 flex items-center gap-2">
-            <FiClock className="h-3 w-3" /> 总时长2:00 · {blocks.length}段 · {brand} × {prod}
+            <FiClock className="h-3 w-3" />总时长2:00 · {blocks.length}段 · {brand} × {prod}
           </div>
           <div className="space-y-4">
             {blocks.map((b, i) => {
@@ -193,9 +193,9 @@ export default function VideoResult({
                   </div>
                   <p className="text-sm text-gray-800 leading-relaxed">{b.line}</p>
                   <div className="flex items-start gap-2 mt-2 p-2.5 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100/60">
-                    <span className="text-sm leading-none shrink-0 mt-0.5">{emotionIcon || '👁️'}</span>
+                    <span className="text-sm leading-none shrink-0 mt-0.5">{emotionIcon}</span>
                     <div className="min-w-0">
-                      <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">🎣 情绪钩子 · 用户为什么不划走</span>
+                      <span className="text-[10px] font-semibold text-purple-600 uppercase tracking-wider">情绪钩子 ·用户为什么不划走</span>
                       <p className="text-xs text-purple-700/80 leading-relaxed mt-0.5">{emotionText}</p>
                     </div>
                   </div>
@@ -208,13 +208,13 @@ export default function VideoResult({
         </div>
       )}
 
-      {/* ═══ Tab: 拍摄指导 ═══ */}
+      {/* ═══ Tab:拍摄指导 ═══ */}
       {tab === 'shots' && (
         <div>
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-2">
               <FiClock className="w-4 h-4 text-gray-400" />
-              <span className="text-sm font-medium text-gray-700">时间线 · 共2:00</span>
+              <span className="text-sm font-medium text-gray-700">时间线 ·共2:00</span>
             </div>
             <div className="flex h-8 rounded-lg overflow-hidden shadow-sm">
               {blocks.map((b, i) => {
@@ -244,8 +244,8 @@ export default function VideoResult({
                     <p className="text-sm text-gray-700 leading-relaxed">{b.line}</p>
                     {b.emotion && (
                       <div className="flex items-center gap-1.5 mt-1.5">
-                        <span className="text-[10px]">{b.emotion.match(/^(\p{Emoji})/u)?.[1] || '👁️'}</span>
-                        <span className="text-[10px] text-purple-500/70 italic">🎣 {(b.emotion || '').replace(/^\p{Emoji}\s*/u, '').split('→')[0]}</span>
+                        <span className="text-[10px]">{b.emotion.match(/^(\p{Emoji})/u)?.[1] || ''}</span>
+                        <span className="text-[10px] text-purple-500/70 italic"> {(b.emotion || '').replace(/^\p{Emoji}\s*/u, '').split('→')[0]}</span>
                       </div>
                     )}
                     {hover === i && (
@@ -292,10 +292,10 @@ export default function VideoResult({
         </div>
       )}
 
-      {/* ═══ Tab: 机位库 ═══ */}
+      {/* ═══ Tab:机位库 ═══ */}
       {tab === 'guide' && (
         <div>
-          <p className="text-sm text-gray-500 mb-4">共 {tpls.length} 种机位 · 每种含效果参考 + 手机/相机架设示意</p>
+          <p className="text-sm text-gray-500 mb-4">共 {tpls.length}种机位 ·每种含效果参考 +手机/相机架设示意</p>
           <div className="grid gap-6 sm:grid-cols-2">
             {tpls.map(t => (
               <div key={t.id} className="card overflow-hidden p-0 hover:shadow-apple-md transition-all">
@@ -367,13 +367,13 @@ export default function VideoResult({
         <p className="text-xs text-gray-500 mt-1">拍完去品牌推广中心创作更多内容</p>
         <div className="mt-4 flex items-center justify-center gap-3 flex-wrap">
           <button onClick={onCopyAll} className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
-            style={{ backgroundColor: '#FF6034' }}><FiCopy className="h-4 w-4" /> 复制脚本</button>
+            style={{ backgroundColor: '#FF6034' }}><FiCopy className="h-4 w-4" />复制脚本</button>
           <button onClick={onBack} className="inline-flex items-center gap-2 rounded-lg border-2 px-5 py-2.5 text-sm font-semibold"
-            style={{ borderColor: '#FF6034', color: '#FF6034' }}><FiZap className="h-4 w-4" /> 再做一个</button>
+            style={{ borderColor: '#FF6034', color: '#FF6034' }}><FiZap className="h-4 w-4" />再做一个</button>
           <Link href="/digital-human" className="inline-flex items-center gap-2 rounded-lg border-2 px-5 py-2.5 text-sm font-semibold"
-            style={{ borderColor: '#8B5CF6', color: '#8B5CF6' }}><FiUser className="h-4 w-4" /> 数字人口播</Link>
+            style={{ borderColor: '#8B5CF6', color: '#8B5CF6' }}><FiUser className="h-4 w-4" />数字人口播</Link>
           <Link href="/brand-promotion" className="inline-flex items-center gap-2 rounded-lg border-2 px-5 py-2.5 text-sm font-semibold"
-            style={{ borderColor: '#059669', color: '#059669' }}><FiCamera className="h-4 w-4" /> 产品可视化</Link>
+            style={{ borderColor: '#059669', color: '#059669' }}><FiCamera className="h-4 w-4" />产品可视化</Link>
         </div>
       </div>
     </div>

@@ -22,15 +22,15 @@ interface DailyProfile {
 }
 
 /**
- * GET /api/cron/daily-deliver — 每日一条邮件短视频获客
+ * GET /api/cron/daily-deliver —每日一条邮件短视频获客
  *
- * 由 Vercel Cron（每天固定时间）调用：
- *   1. 找出所有开启「每日投递」的 IP 档案
- *   2. 按 deliveryDayCount 轮换脚本，每天发 1 条
- *   3. 邮件含今日脚本 + 数字人视频入口（latestVideoUrl）
- *   4. 更新投递计数 + 站内通知
+ *由 Vercel Cron（每天固定时间）调用：
+ *   1.找出所有开启「每日投递」的 IP档案
+ *   2.按 deliveryDayCount轮换脚本，每天发 1条
+ *   3.邮件含今日脚本 +数字人视频入口（latestVideoUrl）
+ *   4.更新投递计数 +站内通知
  *
- * 鉴权：Authorization: Bearer <CRON_SECRET>
+ *鉴权：Authorization: Bearer <CRON_SECRET>
  */
 export async function GET(request: NextRequest) {
   const auth = request.headers.get('authorization')
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         if (!user?.email) continue
 
         const scripts = parseScripts(profile.videoScripts)
-        if (scripts.length === 0) continue // 没有脚本不发空邮件，等待 onboard 补齐
+        if (scripts.length === 0) continue //没有脚本不发空邮件，等待 onboard补齐
 
         const day = (profile.deliveryDayCount || 0)
         const script = scripts[day % scripts.length]
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
         const html = buildDailyVideoHtml({
           bossName,
           dayNumber: day + 1,
-          title: script.title || `第 ${day + 1} 条`,
+          title: script.title || `第 ${day + 1}条`,
           content: script.content || '',
           emotion: script.emotion,
           videoUrl,
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 
         const sent = await sendDeliveryEmail({
           to: user.email,
-          subject: `懒老板 · ${bossName}，今日短视频脚本已就绪（第 ${day + 1} 天）`,
+          subject: `懒老板 · ${bossName}，今日短视频脚本已就绪（第 ${day + 1}天）`,
           html,
         })
 
@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
           processed++
         }
       } catch (err) {
-        console.error(`[cron daily-deliver] 用户 ${profile.userId} 投递失败:`, err)
+        console.error(`[cron daily-deliver]用户 ${profile.userId}投递失败:`, err)
       }
     }
 
@@ -122,20 +122,20 @@ async function getUserEmail(userId: number): Promise<{ email: string } | null> {
   return u
 }
 
-/** 站内通知（Prisma；Turso 模式下失败不阻断投递，仅记日志） */
+/**站内通知（Prisma；Turso模式下失败不阻断投递，仅记日志） */
 async function createNotification(userId: number, email: string, day: number, hasVideo: boolean) {
   try {
     await db.notification.create({
       data: {
         userId,
         type: 'delivery',
-        title: `📬 今日短视频已送达（第 ${day} 天）`,
+        title: `今日短视频已送达（第 ${day}天）`,
         message: `已发送至 ${email}，含今日脚本${hasVideo ? '和视频入口' : ''}。`,
         link: '/digital-human',
       },
     })
   } catch (e) {
-    console.error('[cron daily-deliver] 通知创建失败(不影响投递):', e)
+    console.error('[cron daily-deliver]通知创建失败(不影响投递):', e)
   }
 }
 

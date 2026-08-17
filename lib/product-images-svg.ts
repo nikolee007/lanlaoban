@@ -4,16 +4,16 @@
  */
 
 const CATEGORY_ART: Record<string, { bg: string; accent: string; dark: string; label: string }> = {
-  '电子产品': { bg: '#EFF6FF', accent: '#3B82F6', dark: '#1E40AF', label: '📱' },
-  '服装': { bg: '#FFF1F2', accent: '#FF6034', dark: '#BE123C', label: '👗' },
-  '家居': { bg: '#F0FDF4', accent: '#22C55E', dark: '#166534', label: '🏠' },
-  '美妆': { bg: '#FDF2F8', accent: '#EC4899', dark: '#9D174D', label: '💄' },
-  '食品': { bg: '#FFFBEB', accent: '#F59E0B', dark: '#92400E', label: '🍜' },
-  '宠物': { bg: '#F5F3FF', accent: '#8B5CF6', dark: '#5B21B6', label: '🐾' },
-  '运动': { bg: '#F0F9FF', accent: '#0EA5E9', dark: '#075985', label: '🏃' },
-  '玩具': { bg: '#FFF0F0', accent: '#F43F5E', dark: '#9F1239', label: '🧸' },
-  '鞋类': { bg: '#F8FAFC', accent: '#64748B', dark: '#334155', label: '👟' },
-  '其他': { bg: '#F3F4F6', accent: '#9CA3AF', dark: '#4B5563', label: '📦' },
+  '电子产品': { bg: '#EFF6FF', accent: '#3B82F6', dark: '#1E40AF', label: '电' },
+  '服装': { bg: '#FFF1F2', accent: '#FF6034', dark: '#BE123C', label: '服' },
+  '家居': { bg: '#F0FDF4', accent: '#22C55E', dark: '#166534', label: '家' },
+  '美妆': { bg: '#FDF2F8', accent: '#EC4899', dark: '#9D174D', label: '美' },
+  '食品': { bg: '#FFFBEB', accent: '#F59E0B', dark: '#92400E', label: '食' },
+  '宠物': { bg: '#F5F3FF', accent: '#8B5CF6', dark: '#5B21B6', label: '宠' },
+  '运动': { bg: '#F0F9FF', accent: '#0EA5E9', dark: '#075985', label: '动' },
+  '玩具': { bg: '#FFF0F0', accent: '#F43F5E', dark: '#9F1239', label: '玩' },
+  '鞋类': { bg: '#F8FAFC', accent: '#64748B', dark: '#334155', label: '鞋' },
+  '其他': { bg: '#F3F4F6', accent: '#9CA3AF', dark: '#4B5563', label: '品' },
 }
 
 const CATEGORY_KEYWORDS: [RegExp, string][] = [

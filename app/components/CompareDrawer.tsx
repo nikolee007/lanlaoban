@@ -166,7 +166,7 @@ export default function CompareDrawer({ open, onClose }: CompareDrawerProps) {
                       </td>
                     ))}
                   </tr>
-                  {/* 一件代发 */}
+                  {/*一件代发 */}
                   <tr>
                     <td className="py-3 pr-4 text-xs font-medium text-gray-400">
                       {locale === 'en' ? 'Dropshipping' : '一件代发'}
@@ -175,7 +175,7 @@ export default function CompareDrawer({ open, onClose }: CompareDrawerProps) {
                       <td key={item.id} className="px-3 py-3 text-center">
                         {item.dropship ? (
                           <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600">
-                            ✓ {locale === 'en' ? 'Supported' : '支持'}
+                             {locale === 'en' ? 'Supported' : '支持'}
                           </span>
                         ) : (
                           <span className="text-xs text-gray-400">—</span>
@@ -192,7 +192,7 @@ export default function CompareDrawer({ open, onClose }: CompareDrawerProps) {
                       <td key={item.id} className="px-3 py-3 text-center">
                         {item.oem ? (
                           <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600">
-                            ✓ {locale === 'en' ? 'Supported' : '支持'}
+                             {locale === 'en' ? 'Supported' : '支持'}
                           </span>
                         ) : (
                           <span className="text-xs text-gray-400">—</span>

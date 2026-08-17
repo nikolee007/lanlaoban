@@ -52,50 +52,46 @@ export default function ComingSoonPage() {
       <div className="max-w-5xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
-            更多功能<span className="text-[#FF6034]">即将上线</span>
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">更多功能<span className="text-[#FF6034]">即将上线</span>
           </h1>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            我们正在全力打造这些功能，敬请期待
+          <p className="text-gray-500 text-lg max-w-xl mx-auto">我们正在全力打造这些功能，敬请期待
           </p>
         </div>
 
-        {/* 已开放功能 */}
+        {/*已开放功能 */}
         <div className="mb-16">
           <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <FiCheckCircle className="text-green-500" size={20} />
-            已开放
+            <FiCheckCircle className="text-green-500" size={20} />已开放
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Link href="/persona" className="group relative bg-white rounded-2xl p-5 border border-green-100 hover:border-green-300 shadow-sm hover:shadow-md transition-all">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-gray-900 group-hover:text-[#FF6034] transition-colors">一键做IP 🤖</h3>
-                  <p className="text-sm text-gray-500 mt-1">AI人设方案生成 + 脚本生成</p>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-[#FF6034] transition-colors">一键做IP </h3>
+                  <p className="text-sm text-gray-500 mt-1">AI人设方案生成 +脚本生成</p>
                 </div>
                 <span className="inline-flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                  <FiCheckCircle size={12} /> 已开放
+                  <FiCheckCircle size={12} />已开放
                 </span>
               </div>
             </Link>
             <Link href="/brand-promotion" className="group relative bg-white rounded-2xl p-5 border border-green-100 hover:border-green-300 shadow-sm hover:shadow-md transition-all">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-gray-900 group-hover:text-[#FF6034] transition-colors">产品可视化 🤖</h3>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-[#FF6034] transition-colors">产品可视化 </h3>
                   <p className="text-sm text-gray-500 mt-1">AI生成多语言宣传视频，同步/异步生成</p>
                 </div>
                 <span className="inline-flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                  <FiCheckCircle size={12} /> 已开放
+                  <FiCheckCircle size={12} />已开放
                 </span>
               </div>
             </Link>
           </div>
         </div>
 
-        {/* 即将上线功能 */}
+        {/*即将上线功能 */}
         <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <FiClock className="text-[#FF6034]" size={20} />
-          即将上线
+          <FiClock className="text-[#FF6034]" size={20} />即将上线
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {UPCOMING.map((f) => {
@@ -147,8 +143,7 @@ export default function ComingSoonPage() {
           <Link
             href="/persona"
             className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6034] text-white rounded-xl font-semibold hover:bg-[#E8552E] transition-all shadow-lg shadow-[#FF6034]/25"
-          >
-            立即体验已开放功能 <FiArrowRight size={18} />
+          >立即体验已开放功能 <FiArrowRight size={18} />
           </Link>
         </div>
       </div>

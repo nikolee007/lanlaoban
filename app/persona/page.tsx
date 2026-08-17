@@ -13,28 +13,28 @@ const COACHES = [
   {
     value: 'libazi',
     label: '纪实派·真诚人设',
-    desc: '22-26s · 全品类通用',
+    desc: '22-26s ·全品类通用',
     industry: '餐饮·工厂·门店',
     image: '/images/coaches/libazi.jpg',
   },
   {
     value: 'boge',
     label: '烟火派·同城共情',
-    desc: '25-30s · 餐饮同城',
+    desc: '25-30s ·餐饮同城',
     industry: '餐饮·本地生活',
     image: '/images/coaches/boge.jpg',
   },
   {
     value: 'zhuge',
     label: '认知派·高客单逻辑',
-    desc: '28-35s · 家装建材',
+    desc: '28-35s ·家装建材',
     industry: '家装·建材·高客单',
     image: '/images/coaches/zhuge.jpg',
   },
   {
     value: 'geng',
     label: '工业派·B端采购',
-    desc: '20-25s · 工厂制造',
+    desc: '20-25s ·工厂制造',
     industry: '工厂·制造·B2B',
     image: '/images/coaches/geng.jpg',
   },
@@ -135,8 +135,7 @@ export default function PersonaPage() {
           <h1 className="text-3xl font-bold text-gray-900">
             <span className="text-[#FF6034]">一键做IP</span> · AI智能生成实体老板人设方案
           </h1>
-          <p className="mt-2 text-gray-500">
-            选择IP风格，填写行业信息，AI全自动生成完整的人设方案
+          <p className="mt-2 text-gray-500">选择IP风格，填写行业信息，AI全自动生成完整的人设方案
           </p>
         </div>
 
@@ -180,7 +179,7 @@ export default function PersonaPage() {
           ))}
         </div>
 
-        {/* ─── Step 1: 选择IP风格 ─── */}
+        {/* ─── Step 1:选择IP风格 ─── */}
         {step === 1 && (
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-8">
@@ -253,35 +252,31 @@ export default function PersonaPage() {
               <button
                 onClick={() => setStep(2)}
                 className="inline-flex items-center gap-2 px-8 py-3 bg-[#FF6034] text-white font-semibold rounded-xl hover:bg-[#E8552E] transition-colors shadow-lg shadow-[#FF6034]/20"
-              >
-                下一步：填写信息
+              >下一步：填写信息
                 <FiArrowRight className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
 
-        {/* ─── Step 2: 填写信息 ─── */}
+        {/* ─── Step 2:填写信息 ─── */}
         {step === 2 && (
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="text-center mb-8">
               <h2 className="text-xl font-bold text-gray-900">填写行业信息</h2>
-              <p className="mt-1 text-sm text-gray-500">
-                信息越详细，AI生成的人设方案越精准
+              <p className="mt-1 text-sm text-gray-500">信息越详细，AI生成的人设方案越精准
               </p>
             </div>
 
-            {/* 基本信息卡片 */}
+            {/*基本信息卡片 */}
             <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
               <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <span className="w-1 h-4 rounded-full bg-[#FF6034]" />
-                基本信息
+                <span className="w-1 h-4 rounded-full bg-[#FF6034]" />基本信息
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1.5">
-                    行业名称 <span className="text-[#FF6034]">*</span>
+                  <label className="block text-sm font-medium text-gray-600 mb-1.5">行业名称 <span className="text-[#FF6034]">*</span>
                   </label>
                   <input
                     value={industry}
@@ -292,8 +287,7 @@ export default function PersonaPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1.5">
-                    主营产品 <span className="text-[#FF6034]">*</span>
+                  <label className="block text-sm font-medium text-gray-600 mb-1.5">主营产品 <span className="text-[#FF6034]">*</span>
                   </label>
                   <input
                     value={product}
@@ -307,8 +301,7 @@ export default function PersonaPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1.5">
-                    从业年限
+                  <label className="block text-sm font-medium text-gray-600 mb-1.5">从业年限
                   </label>
                   <input
                     type="number"
@@ -319,8 +312,7 @@ export default function PersonaPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1.5">
-                    核心客群
+                  <label className="block text-sm font-medium text-gray-600 mb-1.5">核心客群
                   </label>
                   <select
                     value={targetCustomer}
@@ -337,14 +329,12 @@ export default function PersonaPage() {
               </div>
             </div>
 
-            {/* 痛点卡片 */}
+            {/*痛点卡片 */}
             <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
               <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                <span className="w-1 h-4 rounded-full bg-[#FF6034]" />
-                行业痛点（客户最怕的3个坑）
+                <span className="w-1 h-4 rounded-full bg-[#FF6034]" />行业痛点（客户最怕的3个坑）
               </h3>
-              <p className="text-xs text-gray-400 -mt-3">
-                填写客户最担心的行业问题，AI将在人设中帮你一一回应
+              <p className="text-xs text-gray-400 -mt-3">填写客户最担心的行业问题，AI将在人设中帮你一一回应
               </p>
 
               <div className="space-y-3">
@@ -368,7 +358,7 @@ export default function PersonaPage() {
               </div>
             </div>
 
-            {/* 选中的风格提示 */}
+            {/*选中的风格提示 */}
             <div className="flex items-center gap-3 p-4 rounded-xl bg-[#FF6034]/5 border border-[#FF6034]/10">
               <div className="w-8 h-8 rounded-lg bg-[#FF6034]/10 flex items-center justify-center">
                 <FiZap className="w-4 h-4 text-[#FF6034]" />
@@ -382,8 +372,7 @@ export default function PersonaPage() {
               <button
                 onClick={() => setStep(1)}
                 className="ml-auto text-xs text-gray-400 hover:text-[#FF6034] transition-colors flex items-center gap-0.5"
-              >
-                修改 <FiChevronRight className="w-3 h-3" />
+              >修改 <FiChevronRight className="w-3 h-3" />
               </button>
             </div>
 
@@ -399,8 +388,7 @@ export default function PersonaPage() {
               <button
                 onClick={() => setStep(1)}
                 className="w-full sm:w-auto px-6 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-              >
-                上一步
+              >上一步
               </button>
               <button
                 onClick={handleGenerate}
@@ -441,14 +429,12 @@ export default function PersonaPage() {
           </div>
         )}
 
-        {/* ─── Step 3: 生成结果 ─── */}
+        {/* ─── Step 3:生成结果 ─── */}
         {step === 3 && result && (
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="text-center mb-8">
               <h2 className="text-xl font-bold text-gray-900">你的人设方案已生成</h2>
-              <p className="mt-1 text-sm text-gray-500">
-                基于你的行业信息和{COACHES.find((c) => c.value === coach)?.label}
-                风格定制
+              <p className="mt-1 text-sm text-gray-500">基于你的行业信息和{COACHES.find((c) => c.value === coach)?.label}风格定制
               </p>
             </div>
 
@@ -486,15 +472,13 @@ export default function PersonaPage() {
                 href="/generate"
                 className="flex items-center justify-center gap-2 w-full px-6 py-4 bg-[#FF6034] text-white font-semibold rounded-xl hover:bg-[#E8552E] transition-colors shadow-lg shadow-[#FF6034]/20"
               >
-                <FiZap className="w-5 h-5" />
-                生成口播脚本
+                <FiZap className="w-5 h-5" />生成口播脚本
                 <FiArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/brand-promotion"
                 className="flex items-center justify-center gap-2 w-full px-6 py-4 bg-white text-[#FF6034] font-semibold rounded-xl border-2 border-[#FF6034]/20 hover:border-[#FF6034]/40 hover:bg-[#FF6034]/5 transition-colors"
-              >
-                生成宣传视频
+              >生成宣传视频
                 <FiArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -505,7 +489,7 @@ export default function PersonaPage() {
                 onClick={() => setStep(2)}
                 className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
               >
-                ← 修改信息重新生成
+                ←修改信息重新生成
               </button>
               <button
                 onClick={() => {
@@ -514,8 +498,7 @@ export default function PersonaPage() {
                   setError('')
                 }}
                 className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                重新选择风格
+              >重新选择风格
               </button>
             </div>
           </div>
@@ -542,7 +525,7 @@ export default function PersonaPage() {
           <div className="max-w-2xl mx-auto">
             <div className="text-center py-20">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-red-100 mb-6">
-                <span className="text-2xl">😞</span>
+                <span className="text-2xl"></span>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">生成失败</h3>
               <p className="text-sm text-gray-400 mb-6">{error}</p>
@@ -550,8 +533,7 @@ export default function PersonaPage() {
                 onClick={handleGenerate}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF6034] text-white font-semibold rounded-xl hover:bg-[#E8552E] transition-colors"
               >
-                <FiZap className="w-4 h-4" />
-                重新生成
+                <FiZap className="w-4 h-4" />重新生成
               </button>
             </div>
           </div>

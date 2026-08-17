@@ -1,6 +1,6 @@
 'use client'
 import { useRef } from 'react'
-import { FiUpload, FiImage } from 'react-icons/fi'
+import { FiUpload, FiImage, FiX } from 'react-icons/fi'
 
 interface Props {
   photos: string[]
@@ -41,7 +41,7 @@ export default function PhotoUpload({ photos, onPhotosChange, onNext, hasAvatar,
           <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={p} alt={`本人照片${i + 1}`} className="w-full h-full object-cover" />
-            <button onClick={() => removePhoto(i)} className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white text-xs">✕</button>
+            <button onClick={() => removePhoto(i)} className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center" aria-label="移除照片"><FiX className="w-4 h-4" /></button>
           </div>
         ))}
         {photos.length < 3 && (

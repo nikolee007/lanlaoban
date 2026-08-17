@@ -203,7 +203,7 @@ export function buildVideoPackage(
 
 /** 生成 ABC 三种交付模式的描述文本 */
 export function describeDeliveryModes(): string {
-  return `📦 懒老板视频交付支持三种模式：
+  return `懒老板视频交付支持三种模式：
 
 模式 A · 数字人口播
 生成你的 AI 数字人形象，输入脚本即可自动产出真人质感的短视频。

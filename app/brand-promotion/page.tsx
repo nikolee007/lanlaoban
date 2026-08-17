@@ -44,7 +44,7 @@ export default function BrandPromotionPage() {
   const [digitalHumanVideoUrl, setDigitalHumanVideoUrl] = useState<string | null>(null) // Agnes API result
   const [isDownloading, setIsDownloading] = useState(false)
 
-  // 异步任务模式
+  //异步任务模式
   const [asyncMode, setAsyncMode] = useState(true)
   const [taskId, setTaskId] = useState<string | null>(null)
   const [taskStatus, setTaskStatus] = useState<string>('')
@@ -137,7 +137,7 @@ export default function BrandPromotionPage() {
     setTaskStatus('提交中...')
 
     try {
-      // 先上传文件
+      //先上传文件
       const formData = new FormData()
       files.forEach(f => {
         const key = f.type === 'photo' ? 'photos' : f.type === 'video' ? 'videos' : 'logo'
@@ -149,7 +149,7 @@ export default function BrandPromotionPage() {
       if (!uploadRes.ok) throw new Error('上传失败')
       const uploadData = await uploadRes.json()
 
-      // 提交任务
+      //提交任务
       const taskRes = await fetch(`${TASK_WORKER_URL}/api/task`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -171,7 +171,7 @@ export default function BrandPromotionPage() {
       setTaskId(tid)
       setTaskStatus('任务已提交，正在后台处理...')
 
-      // 轮询任务状态
+      //轮询任务状态
       const poll = setInterval(async () => {
         try {
           const statusRes = await fetch(`${TASK_WORKER_URL}/api/task/${tid}`)
@@ -182,11 +182,11 @@ export default function BrandPromotionPage() {
             setTaskProgress(d.progress || 0)
             setTaskStatus(d.step || '处理中...')
             if (d.status === 'done') {
-              setTaskStatus('✅ 已完成')
+              setTaskStatus('已完成')
               clearInterval(poll)
               setIsGenerating(false)
             } else if (d.status === 'error') {
-              setTaskStatus('❌ 生成失败: ' + (d.step || ''))
+              setTaskStatus('生成失败: ' + (d.step || ''))
               clearInterval(poll)
               setIsGenerating(false)
             }

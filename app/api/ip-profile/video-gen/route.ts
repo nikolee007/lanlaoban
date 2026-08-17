@@ -18,7 +18,7 @@ interface ScriptEntry {
   duration?: number
 }
 
-// POST /api/ip-profile/video-gen — 生成视频素材包（ABC三模式）
+// POST /api/ip-profile/video-gen —生成视频素材包（ABC三模式）
 export async function POST(request: NextRequest) {
   try {
     const userId = getAuthUserId(request.headers)
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     const bossName = profile.name || '老板'
     const industry = profile.industry || '实体生意'
 
-    // 1. 用 AI 生成脚本内容（如果是空）
+    // 1.用 AI生成脚本内容（如果是空）
     let segments: VideoSegment[] = []
     let existingScripts: ScriptEntry[] = []
     if (profile.videoScripts) {
@@ -49,13 +49,13 @@ export async function POST(request: NextRequest) {
         index: i,
         title: s.title || `第${i + 1}条`,
         content: s.content || '',
-        emotion: s.emotion || '😯 被吸引',
+        emotion: s.emotion || '被吸引',
         shotType: s.shotType || getDefaultShotType(i),
         shotDesc: s.shotDesc || '胸口以上近景口播，眼神看镜头',
         duration: 30,
       }))
     } else {
-      // AI 生成 5 条完整脚本
+      // AI生成 5条完整脚本
       const prompt = `行业：${industry}\n产品：${profile.product || ''}\n目标客户：${profile.targetAudience || '本地消费者'}\n昵称：${bossName}\n特色：${profile.advantage || ''}\n\n生成5条实体老板IP短视频脚本，每条包含：title(标题)、content(260-360字)、emotion(情绪钩子)、shotType(自拍/行走/特写)、shotDesc(拍摄描述)、duration(时长秒数30-60)。\n\n以JSON返回：{ "scripts": [...] }`
 
       const result = await generateContent(prompt,
@@ -66,13 +66,13 @@ export async function POST(request: NextRequest) {
       } catch {}
 
       if (existingScripts.length === 0) {
-        // 兜底模板
+        //兜底模板
         existingScripts = [
-          { title: '自我介绍', content: `大家好，我是${bossName}，做${industry}的。`, emotion: '😯', shotType: '自拍', shotDesc: '正面近景', duration: 30 },
-          { title: '客户故事', content: '上个月一个客户让我特别感动。', emotion: '😌', shotType: '自拍', shotDesc: '正面口播', duration: 30 },
-          { title: '行业真话', content: '这个行业有个秘密，没人告诉你。', emotion: '🤔', shotType: '行走', shotDesc: '边走边讲', duration: 35 },
-          { title: '产品展示', content: '给你看看我们的产品细节。', emotion: '😲', shotType: '特写', shotDesc: '产品特写', duration: 30 },
-          { title: '行动号召', content: '想了解更多？评论区打想了解。', emotion: '🤝', shotType: '自拍', shotDesc: '微笑收尾', duration: 25 },
+          { title: '自我介绍', content: `大家好，我是${bossName}，做${industry}的。`, emotion: '', shotType: '自拍', shotDesc: '正面近景', duration: 30 },
+          { title: '客户故事', content: '上个月一个客户让我特别感动。', emotion: '', shotType: '自拍', shotDesc: '正面口播', duration: 30 },
+          { title: '行业真话', content: '这个行业有个秘密，没人告诉你。', emotion: '', shotType: '行走', shotDesc: '边走边讲', duration: 35 },
+          { title: '产品展示', content: '给你看看我们的产品细节。', emotion: '', shotType: '特写', shotDesc: '产品特写', duration: 30 },
+          { title: '行动号召', content: '想了解更多？评论区打想了解。', emotion: '', shotType: '自拍', shotDesc: '微笑收尾', duration: 25 },
         ]
       }
 
@@ -86,17 +86,17 @@ export async function POST(request: NextRequest) {
         duration: s.duration || getDefaultDuration(i),
       }))
 
-      // 保存到 profile
+      //保存到 profile
       await db.ipProfile.update({
         where: { userId },
         data: { videoScripts: JSON.stringify(existingScripts) },
       })
     }
 
-    // 2. 生成 ABC 三模式交付包
+    // 2.生成 ABC三模式交付包
     const pkg = buildVideoPackage(bossName, industry, segments, modes)
 
-    // 3. 同时触发邮件交付（如果 modes 包含 C）
+    // 3.同时触发邮件交付（如果 modes包含 C）
     if (modes.includes('C')) {
       await fetch(`${request.nextUrl.origin}/api/ip-profile/deliver`, {
         method: 'POST',
@@ -118,16 +118,16 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET /api/ip-profile/video-gen — 获取可用的交付模式说明
+// GET /api/ip-profile/video-gen —获取可用的交付模式说明
 export async function GET() {
   return NextResponse.json({
     success: true,
     data: {
       modes: describeDeliveryModes(),
       availableModes: ['A', 'B', 'C'],
-      cReady: true,  // 剪辑脚本包立即可用
-      bReady: false, // 需配置 TTS API Key
-      aReady: false, // 需接入数字人 API
+      cReady: true,  //剪辑脚本包立即可用
+      bReady: false, //需配置 TTS API Key
+      aReady: false, //需接入数字人 API
     },
   })
 }

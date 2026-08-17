@@ -11,10 +11,10 @@ const SKILLS: { id: SkillType; name: string; desc: string }[] = [
   { id: 'growth', name: '自我成长', desc: '创业故事+价值观，立人设' },
   { id: 'knowledge', name: '知识干货', desc: '实用技巧+避坑，价值输出' },
   { id: 'trust', name: '信任建立', desc: '真实案例+透明化，靠谱人设' },
-  { id: 'standard', name: '标准方案', desc: '通用变现，出 5 条脚本' },
+  { id: 'standard', name: '标准方案', desc: '通用变现，出 5条脚本' },
   { id: 'coldstart', name: '冷启动破播放', desc: '新号没流量，重完播率' },
-  { id: 'convert', name: '转化获客招商', desc: '引流 / 招商成交' },
-  { id: 'matrix', name: '矩阵批量脚本', desc: '同主题 3 套差异化版本' },
+  { id: 'convert', name: '转化获客招商', desc: '引流 /招商成交' },
+  { id: 'matrix', name: '矩阵批量脚本', desc: '同主题 3套差异化版本' },
   { id: 'optimize', name: '优化我已有脚本', desc: '改钩子、切长句、理顺转化' },
 ]
 
@@ -61,7 +61,7 @@ export default function AgentPage() {
   const [dirLoading, setDirLoading] = useState(false)
   const [stats, setStats] = useState<Record<string, unknown> | null>(null)
 
-  // 操盘手：账号诊断 + 策略
+  //操盘手：账号诊断 +策略
   const handleOperator = async () => {
     setOpLoading(true); setError('')
     try {
@@ -77,7 +77,7 @@ export default function AgentPage() {
     setOpLoading(false)
   }
 
-  // 广告导演：产品可视化（用已有克隆分身 + 产品图出宣传图）
+  //广告导演：产品可视化（用已有克隆分身 +产品图出宣传图）
   const handleDirector = async () => {
     if (!directorProduct) { setError('请先上传产品图'); return }
     setDirLoading(true); setError('')
@@ -99,7 +99,7 @@ export default function AgentPage() {
     setDirLoading(false)
   }
 
-  // 数据专家：进入 tab 时拉统计
+  //数据专家：进入 tab时拉统计
   useEffect(() => {
     if (activeAgent === 'analyst') {
       fetch('/api/agent/stats')
@@ -109,7 +109,7 @@ export default function AgentPage() {
     }
   }, [activeAgent])
 
-  // 数据飞轮：记录商家对生成方案的反馈（采纳/爆款/未用）
+  //数据飞轮：记录商家对生成方案的反馈（采纳/爆款/未用）
   const sendFeedback = async (fb: 'adopt' | 'bomb' | 'unused') => {
     try {
       await fetch('/api/agent/feedback', {
@@ -126,7 +126,7 @@ export default function AgentPage() {
     } catch {}
   }
 
-  // 预填商家画像（不用重填）
+  //预填商家画像（不用重填）
   useEffect(() => {
     fetch('/api/ip-profile')
       .then((r) => r.json())
@@ -194,18 +194,18 @@ export default function AgentPage() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <FiZap className="text-brand-400" /> AI 工作台 · 四大 Agent
+            <FiZap className="text-brand-400" /> AI工作台 ·四大 Agent
           </h1>
-          <p className="text-gray-500 text-sm mt-1">操盘手定策略 · 编剧出脚本 · 广告导演做可视化 · 数据专家看效果。越用越懂你。</p>
+          <p className="text-gray-500 text-sm mt-1">操盘手定策略 ·编剧出脚本 ·广告导演做可视化 ·数据专家看效果。越用越懂你。</p>
         </div>
 
-        {/* 四大 Agent 切换 */}
+        {/*四大 Agent切换 */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-6">
           {[
-            { id: 'operator', name: 'AI 操盘手', desc: '账号诊断·内容策略·周排期' },
-            { id: 'writer', name: 'AI 编剧', desc: '脚本·标题·口播文案' },
-            { id: 'director', name: 'AI 广告导演', desc: '产品可视化·宣传图' },
-            { id: 'analyst', name: 'AI 数据专家', desc: '数据洞察·越用越懂' },
+            { id: 'operator', name: 'AI操盘手', desc: '账号诊断·内容策略·周排期' },
+            { id: 'writer', name: 'AI编剧', desc: '脚本·标题·口播文案' },
+            { id: 'director', name: 'AI广告导演', desc: '产品可视化·宣传图' },
+            { id: 'analyst', name: 'AI数据专家', desc: '数据洞察·越用越懂' },
           ].map(a => (
             <button key={a.id} onClick={() => setActiveAgent(a.id as typeof activeAgent)}
               className={`text-left rounded-xl border px-4 py-3 transition-all ${activeAgent === a.id
@@ -217,12 +217,12 @@ export default function AgentPage() {
           ))}
         </div>
 
-        {/* ============ AI 编剧（原短视频工作台） ============ */}
+        {/* ============ AI编剧（原短视频工作台） ============ */}
         {activeAgent === 'writer' && (<>
 
-        {/* Step 1 · 场景直选 */}
+        {/* Step 1 ·场景直选 */}
         <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-6">
-          <p className="text-sm font-semibold mb-3">① 选场景</p>
+          <p className="text-sm font-semibold mb-3">①选场景</p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {SKILLS.map((s) => (
               <button
@@ -239,16 +239,16 @@ export default function AgentPage() {
           </div>
         </div>
 
-        {/* Step 2 · 极简表单 */}
+        {/* Step 2 ·极简表单 */}
         <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-6">
-          <p className="text-sm font-semibold mb-3">② 填最少信息 {profileLoaded && <span className="text-xs text-green-600 font-normal">· 已自动带入你的画像</span>}</p>
+          <p className="text-sm font-semibold mb-3">②填最少信息 {profileLoaded && <span className="text-xs text-green-600 font-normal">·已自动带入你的画像</span>}</p>
           <div className="grid sm:grid-cols-2 gap-3">
             <label className="block">
               <span className="text-xs text-gray-500">行业</span>
-              <input value={industry} onChange={(e) => setIndustry(e.target.value)} placeholder="如：餐饮 / 美业 / 工厂" className="input mt-1" />
+              <input value={industry} onChange={(e) => setIndustry(e.target.value)} placeholder="如：餐饮 /美业 /工厂" className="input mt-1" />
             </label>
             <label className="block">
-              <span className="text-xs text-gray-500">主营 / 产品</span>
+              <span className="text-xs text-gray-500">主营 /产品</span>
               <input value={product} onChange={(e) => setProduct(e.target.value)} placeholder="如：湘菜馆，招牌剁椒鱼头" className="input mt-1" />
             </label>
             <label className="block">
@@ -260,7 +260,7 @@ export default function AgentPage() {
             <label className="block">
               <span className="text-xs text-gray-500">时长</span>
               <select value={durationSec} onChange={(e) => setDurationSec(Number(e.target.value))} className="input mt-1">
-                {DURATIONS.map((d) => <option key={d} value={d}>{d} 秒</option>)}
+                {DURATIONS.map((d) => <option key={d} value={d}>{d}秒</option>)}
               </select>
             </label>
             <label className="block sm:col-span-2">
@@ -270,22 +270,22 @@ export default function AgentPage() {
             {skillType === 'optimize' && (
               <label className="block sm:col-span-2">
                 <span className="text-xs text-gray-500">待优化脚本</span>
-                <textarea value={originalScript} onChange={(e) => setOriginalScript(e.target.value)} rows={4} placeholder="粘贴你现有的脚本，AI 会重构钩子、切长句、理顺转化" className="input mt-1" />
+                <textarea value={originalScript} onChange={(e) => setOriginalScript(e.target.value)} rows={4} placeholder="粘贴你现有的脚本，AI会重构钩子、切长句、理顺转化" className="input mt-1" />
               </label>
             )}
           </div>
           <button onClick={handleGenerate} disabled={loading}
             className="mt-4 w-full sm:w-auto btn-primary inline-flex items-center justify-center gap-2 disabled:opacity-50">
-            {loading ? <><FiRefreshCw className="w-4 h-4 animate-spin" /> 生成中…</> : <><FiZap className="w-4 h-4" /> 一键生成 · 约消耗 20 算力<FiArrowRight className="w-4 h-4" /></>}
+            {loading ? <><FiRefreshCw className="w-4 h-4 animate-spin" />生成中…</> : <><FiZap className="w-4 h-4" />一键生成 ·约消耗 20算力<FiArrowRight className="w-4 h-4" /></>}
           </button>
           {error && <p className="mt-3 text-sm text-red-500 flex items-center gap-1"><FiAlertCircle /> {error}</p>}
         </div>
 
-        {/* Step 3 · 结果 */}
+        {/* Step 3 ·结果 */}
         {result && (
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <div className="flex items-center justify-between mb-4">
-              <p className="font-semibold flex items-center gap-2"><FiCheckCircle className="text-green-500" /> 生成结果</p>
+              <p className="font-semibold flex items-center gap-2"><FiCheckCircle className="text-green-500" />生成结果</p>
               <button onClick={copyAll} className="btn-outline text-xs"><FiCopy className="w-3 h-3 mr-1" />复制脚本</button>
             </div>
 
@@ -301,7 +301,7 @@ export default function AgentPage() {
 
             {result.scripts && (
               <>
-                <p className="text-sm font-medium mb-2 flex items-center gap-1"><FiClock className="text-brand-400" /> 数字人口播脚本</p>
+                <p className="text-sm font-medium mb-2 flex items-center gap-1"><FiClock className="text-brand-400" />数字人口播脚本</p>
                 {renderScripts(result.scripts)}
               </>
             )}
@@ -321,12 +321,12 @@ export default function AgentPage() {
 
             {result.versions && (
               <>
-                <p className="text-sm font-medium mb-2">矩阵 3 版本</p>
+                <p className="text-sm font-medium mb-2">矩阵 3版本</p>
                 <div className="space-y-4">
                   {result.versions.map((v, i) => (
                     <div key={i} className="border border-gray-100 rounded-xl p-4">
                       <p className="text-sm font-semibold mb-1">{v.variant}</p>
-                      <p className="text-xs text-gray-400 mb-2">钩子：{v.hook_3s} · 标题：{v.title}</p>
+                      <p className="text-xs text-gray-400 mb-2">钩子：{v.hook_3s} ·标题：{v.title}</p>
                       {renderScripts(v.scripts)}
                     </div>
                   ))}
@@ -361,7 +361,7 @@ export default function AgentPage() {
               </div>
             )}
 
-            {/* 数据飞轮：反馈 */}
+            {/*数据飞轮：反馈 */}
             {!feedbackSent ? (
               <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap items-center gap-2">
                 <span className="text-xs text-gray-400 mr-1">这份方案你觉得？</span>
@@ -370,24 +370,24 @@ export default function AgentPage() {
                 <button onClick={() => sendFeedback('unused')} className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-500 text-xs font-medium hover:bg-gray-200 transition-colors">不用</button>
               </div>
             ) : (
-              <p className="mt-4 pt-4 border-t border-gray-100 text-xs text-green-600">已记录你的反馈，懒老板会越用越懂你 ✦</p>
+              <p className="mt-4 pt-4 border-t border-gray-100 text-xs text-green-600">已记录你的反馈，懒老板会越用越懂你 </p>
             )}
           </div>
         )}
         </> )}
 
-        {/* ============ AI 操盘手 ============ */}
+        {/* ============ AI操盘手 ============ */}
         {activeAgent === 'operator' && (
           <div className="space-y-4">
             <div className="bg-white rounded-2xl border border-gray-100 p-5">
-              <p className="text-sm font-semibold mb-3">填入账号信息，操盘手给你诊断 + 周策略</p>
+              <p className="text-sm font-semibold mb-3">填入账号信息，操盘手给你诊断 +周策略</p>
               <div className="grid sm:grid-cols-2 gap-3">
                 <label className="block">
                   <span className="text-xs text-gray-500">行业</span>
-                  <input value={industry} onChange={(e) => setIndustry(e.target.value)} placeholder="如：餐饮 / 美业 / 工厂" className="input mt-1" />
+                  <input value={industry} onChange={(e) => setIndustry(e.target.value)} placeholder="如：餐饮 /美业 /工厂" className="input mt-1" />
                 </label>
                 <label className="block">
-                  <span className="text-xs text-gray-500">主营 / 产品</span>
+                  <span className="text-xs text-gray-500">主营 /产品</span>
                   <input value={product} onChange={(e) => setProduct(e.target.value)} placeholder="如：湘菜馆，招牌剁椒鱼头" className="input mt-1" />
                 </label>
                 <label className="block">
@@ -398,12 +398,12 @@ export default function AgentPage() {
                 </label>
                 <label className="block">
                   <span className="text-xs text-gray-500">补充说明</span>
-                  <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="账号现状 / 卡点" className="input mt-1" />
+                  <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="账号现状 /卡点" className="input mt-1" />
                 </label>
               </div>
               <button onClick={handleOperator} disabled={opLoading}
                 className="mt-4 px-6 py-2.5 rounded-xl bg-brand-400 text-white font-medium disabled:opacity-50 hover:opacity-90">
-                {opLoading ? '正在分析账号...' : '生成操盘方案 · 约消耗 30 算力'}
+                {opLoading ? '正在分析账号...' : '生成操盘方案 ·约消耗 30算力'}
               </button>
             </div>
 
@@ -431,7 +431,7 @@ export default function AgentPage() {
                     <p className="text-xs text-gray-500 mb-2"><span className="font-medium text-gray-700">内容方向：</span>{opResult.strategy.content_direction}</p>
                     {!!opResult.strategy.priority_actions?.length && (
                       <div className="mt-3">
-                        <p className="text-xs font-medium text-gray-600 mb-1.5">本周最该做的 3 件事</p>
+                        <p className="text-xs font-medium text-gray-600 mb-1.5">本周最该做的 3件事</p>
                         {opResult.strategy.priority_actions.map((a, i) => (
                           <p key={i} className="text-sm text-gray-700 flex items-start gap-2"><span className="text-brand-400 font-bold">{i + 1}.</span>{a}</p>
                         ))}
@@ -470,11 +470,11 @@ export default function AgentPage() {
           </div>
         )}
 
-        {/* ============ AI 广告导演 ============ */}
+        {/* ============ AI广告导演 ============ */}
         {activeAgent === 'director' && (
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
-            <p className="text-sm font-semibold mb-1">产品可视化 · 宣传图</p>
-            <p className="text-xs text-gray-500 mb-4">上传产品图，用你的老板克隆分身 + 产品生成宣传预览图</p>
+            <p className="text-sm font-semibold mb-1">产品可视化 ·宣传图</p>
+            <p className="text-xs text-gray-500 mb-4">上传产品图，用你的老板克隆分身 +产品生成宣传预览图</p>
 
             <div className="grid sm:grid-cols-2 gap-5 mb-4">
               <div>
@@ -515,7 +515,7 @@ export default function AgentPage() {
           </div>
         )}
 
-        {/* ============ AI 数据专家 ============ */}
+        {/* ============ AI数据专家 ============ */}
         {activeAgent === 'analyst' && (
           <div className="bg-white rounded-2xl border border-gray-100 p-5">
             <p className="text-sm font-semibold mb-1">数据洞察</p>

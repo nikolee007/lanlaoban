@@ -100,7 +100,7 @@ export default function PricingPage() {
               <h3 className="text-lg font-bold mb-1">{p.name}</h3>
               <p className="text-sm text-[#6B7280] mb-1.5">{p.desc}</p>
               <p className="text-xs text-[#FF6034]/80 bg-[#FF6034]/5 rounded-lg px-2.5 py-1.5 mb-3 leading-relaxed">
-                🎯 {p.target}
+                {p.target}
               </p>
               <div className="mb-4">
                 <span className="text-3xl sm:text-4xl font-bold">{p.price}</span>
@@ -185,7 +185,7 @@ export default function PricingPage() {
               <div key={p.name} className="rounded-2xl border border-[#E5E7EB] bg-white p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                 <h4 className="text-lg font-bold mb-1">{p.name}</h4>
                 <p className="text-sm text-[#6B7280] mb-1.5">{p.desc}</p>
-                <p className="text-xs text-[#2563EB]/80 bg-[#2563EB]/5 rounded-lg px-2.5 py-1.5 mb-3 leading-relaxed">🎯 {p.target}</p>
+                <p className="text-xs text-[#2563EB]/80 bg-[#2563EB]/5 rounded-lg px-2.5 py-1.5 mb-3 leading-relaxed">{p.target}</p>
                 <p className="text-3xl sm:text-4xl font-bold mb-4">{p.price}</p>
                 <ul className="space-y-2 mb-6">
                   {p.features.map(f => (

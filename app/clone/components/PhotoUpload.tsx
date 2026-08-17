@@ -32,8 +32,9 @@ export default function PhotoUpload({ photos, onPhotosChange, onNext, hasAvatar,
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
-      <h2 className="text-xl font-semibold text-gray-900 mb-1">上传本人照片</h2>
-      <p className="text-sm text-gray-500 mb-5">上传 1-3 张本人清晰正面照，AI 生成你的老板克隆分身</p>
+      <h2 className="text-xl font-semibold text-gray-900 mb-1">采集你的形象</h2>
+      <p className="text-sm text-gray-500 mb-2">两种方式：<span className="text-gray-700">传照片</span>（简单·生成分身） · <span className="text-gray-700">录视频</span>（更真实会说话·MiniMax 接入后开放）</p>
+      <p className="text-sm text-gray-400 mb-5">先传照片，生成你的老板分身，收进克隆形象库。</p>
 
       <div className="grid grid-cols-3 gap-3 mb-5">
         {photos.map((p, i) => (

@@ -312,6 +312,8 @@ CREATE TABLE "CloneAvatar" (
     "name" TEXT NOT NULL DEFAULT '我的分身',
     "avatarUrl" TEXT NOT NULL,
     "sourcePhoto" TEXT,
+    "type" TEXT NOT NULL DEFAULT 'image',
+    "videoUrl" TEXT,
     "engine" TEXT NOT NULL DEFAULT 'agnes',
     "status" TEXT NOT NULL DEFAULT 'ready',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

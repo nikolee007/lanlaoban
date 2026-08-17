@@ -146,15 +146,17 @@ model AgentFeedback {
   user User @relation(fields: [userId], references: [id])
 }
 
-// 克隆分身资产（用户上传一次，永久复用）
+// 克隆人库形象资产（用户可拥有多个形象，永久复用）
 model CloneAvatar {
   id          Int      @id @default(autoincrement())
   userId      Int
   name        String   @default("我的分身")
   avatarUrl   String
   sourcePhoto String?
+  type        String   @default("image") // image 图片克隆 / video 视频克隆
+  videoUrl    String?  // 视频克隆训练结果
   engine      String   @default("agnes")
-  status      String   @default("ready") // ready / generating / failed
+  status      String   @default("ready") // ready / generating / failed / training 训练中 / pending 待采集
   createdAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])

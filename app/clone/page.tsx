@@ -127,6 +127,27 @@ export default function ClonePage() {
           <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">{error}</div>
         )}
 
+        {/* 克隆形象库（克隆人库） */}
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <p className="font-semibold text-sm">我的克隆形象库</p>
+            <span className="text-xs text-gray-400">{avatars.length} 个形象</span>
+          </div>
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {avatars.map(a => (
+              <div key={a.id} className="shrink-0 w-20 text-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={a.avatarUrl} alt={a.name} className="w-20 h-20 rounded-xl object-cover border border-gray-200" />
+                <p className="text-[10px] text-gray-500 mt-1 truncate">{a.name}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 mt-3">
+            两种方式采集你的形象：<span className="text-gray-600">传照片</span>（简单，生成分身） ·
+            <span className="text-gray-600">录 1-3 分钟视频</span>（更真实，会说话有姿态 · MiniMax 接入后开放）
+          </p>
+        </div>
+
         {step === 'photo' && (
           <PhotoUpload photos={photos} onPhotosChange={setPhotos}
             onNext={() => setStep('avatar')} hasAvatar={!!avatar} onUseExisting={() => setStep('product')} />

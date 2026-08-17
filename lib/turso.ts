@@ -125,6 +125,16 @@ async function ensureSchema() {
               await client.execute('CREATE INDEX IF NOT EXISTS "CloneAvatar_userId_idx" ON "CloneAvatar"("userId")')
               await client.execute('CREATE INDEX IF NOT EXISTS "CloneGeneration_userId_idx" ON "CloneGeneration"("userId")')
             }
+            // 幂等：CloneAvatar 补 type/videoUrl 列（克隆人库多形象）
+            try {
+              const acols = await client.execute('PRAGMA table_info("CloneAvatar")')
+              if (!acols.rows.some((r: any) => r.name === 'type')) {
+                await client.execute(`ALTER TABLE "CloneAvatar" ADD COLUMN "type" TEXT NOT NULL DEFAULT 'image'`)
+              }
+              if (!acols.rows.some((r: any) => r.name === 'videoUrl')) {
+                await client.execute(`ALTER TABLE "CloneAvatar" ADD COLUMN "videoUrl" TEXT`)
+              }
+            } catch (e) { console.error('[turso] CloneAvatar migration:', e) }
             // 幂等：User 表补 balanceYuan / serviceActive 列
             const ucols = await client.execute('PRAGMA table_info("User")')
             if (!ucols.rows.some((r: any) => r.name === 'balanceYuan')) {
@@ -298,13 +308,13 @@ export const tursoDb = {
       return r.rows as unknown as Record<string, unknown>[]
     } catch (e) { console.error('[turso] getCloneAvatars:', e); return [] }
   },
-  async saveCloneAvatar(userId: number, data: { name: string; avatarUrl: string; sourcePhoto?: string; engine: string }): Promise<Record<string, unknown> | null> {
+  async saveCloneAvatar(userId: number, data: { name: string; avatarUrl: string; sourcePhoto?: string; engine: string; type?: string; videoUrl?: string }): Promise<Record<string, unknown> | null> {
     const c = getClient(); if (!c) return null
     await ensureSchema()
     try {
       await c.execute({
-        sql: 'INSERT INTO "CloneAvatar" ("userId","name","avatarUrl","sourcePhoto","engine","status","createdAt") VALUES (?,?,?,?,?,?,?)',
-        args: [userId, data.name, data.avatarUrl, data.sourcePhoto || null, data.engine, 'ready', new Date().toISOString()],
+        sql: 'INSERT INTO "CloneAvatar" ("userId","name","avatarUrl","sourcePhoto","type","videoUrl","engine","status","createdAt") VALUES (?,?,?,?,?,?,?,?,?)',
+        args: [userId, data.name, data.avatarUrl, data.sourcePhoto || null, data.type || 'image', data.videoUrl || null, data.engine, 'ready', new Date().toISOString()],
       })
       const r = await c.execute({ sql: 'SELECT * FROM "CloneAvatar" WHERE "userId" = ? ORDER BY "id" DESC LIMIT 1', args: [userId] })
       return (r.rows[0] as unknown as Record<string, unknown>) || null

@@ -6,8 +6,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import JsonLd from './components/JsonLd'
 import NewUserGuide from './components/NewUserGuide'
 import BackgroundTaskMonitor from './components/BackgroundTaskMonitor'
-import { CopilotKit } from '@copilotkit/react-core'
-import { CopilotSidebar } from '@copilotkit/react-ui'
+import CopilotWrap from './components/CopilotWrap'
 import '@copilotkit/react-ui/styles.css'
 
 export const metadata: Metadata = {
@@ -68,21 +67,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           `
         }} />
         <ErrorBoundary fullPage>
-          <CopilotKit runtimeUrl="/api/copilotkit">
+          <CopilotWrap>
           <Providers>
             {children}
             <BackgroundTaskMonitor />
             <FeedbackButton />
             <NewUserGuide />
           </Providers>
-          <CopilotSidebar
-            defaultOpen={false}
-            labels={{
-              title: '懒老板 AI 助手',
-              initial: '你好！我是懒老板 AI 助手，可以帮你：\n\n- 生成老板IP人设方案\n- 制作产品宣传视频\n- 回答懒老板平台使用问题\n\n有什么可以帮你的？',
-            }}
-          />
-          </CopilotKit>
+          </CopilotWrap>
         </ErrorBoundary>
       </body>
     </html>

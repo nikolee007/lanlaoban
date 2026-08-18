@@ -47,7 +47,7 @@ export default function IndustryPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavHeader />
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-1">新行业内容生成器</h1>
           <p className="text-gray-500 text-sm">输入任何行业名称，AI自动推断生成完整内容方案</p>

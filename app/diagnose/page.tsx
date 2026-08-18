@@ -30,7 +30,7 @@ export default function DiagnosePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavHeader />
-      <main className="max-w-3xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-1">账号诊断</h1>
           <p className="text-gray-500 text-sm">输入你的抖音/小红书账号链接，AI自动分析并给出优化方案</p>

@@ -191,7 +191,7 @@ export default function AgentPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavHeader />
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <FiZap className="text-brand-400" /> AI工作台 ·四大 Agent

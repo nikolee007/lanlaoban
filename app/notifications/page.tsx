@@ -126,7 +126,7 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavHeader />
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="mx-auto max-w-5xl px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">

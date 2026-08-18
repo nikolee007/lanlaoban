@@ -110,7 +110,7 @@ export default function GuidePage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <header className="border-b bg-white">
-          <div className="max-w-5xl mx-auto px-4 py-4 flex items-center gap-3">
+          <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2"><div className="w-8 h-8 bg-brand-400 rounded-lg flex items-center justify-center text-white font-bold text-sm">懒</div><span className="text-xl font-bold">懒老板</span></Link>
           </div>
         </header>

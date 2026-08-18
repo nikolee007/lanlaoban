@@ -60,7 +60,7 @@ export default function SalesCopyPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f7]">
       <NavHeader />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3">
         <Breadcrumb items={[{ label: '懒老板', href: '/' }, { label: 'AI 成交话术' }]} />
       </div>
       <section className="px-4 pt-6 pb-10 text-center">

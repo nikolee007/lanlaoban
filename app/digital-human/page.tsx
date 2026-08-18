@@ -280,7 +280,7 @@ export default function DigitalHumanPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f7]">
       <NavHeader />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3">
         <Breadcrumb items={[{ label: '懒老板', href: '/' }, { label: 'AI 数字人口播' }]} />
       </div>
       <div className="mx-auto max-w-5xl px-4 sm:px-6 pb-12">

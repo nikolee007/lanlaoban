@@ -45,7 +45,7 @@ export default function HelpPage() {
       <NavHeader />
 
       {/* Hero */}
-      <section className="mx-auto max-w-4xl px-6 pt-24 pb-14 text-center">
+      <section className="mx-auto max-w-5xl px-6 pt-24 pb-14 text-center">
         <h1 className="section-title">
           使用指南
         </h1>

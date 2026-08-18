@@ -56,7 +56,7 @@ export default function LogsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavHeader />
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold mb-1">日常拍摄记录</h1>

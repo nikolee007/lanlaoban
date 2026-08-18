@@ -6,7 +6,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-[#f5f5f7]">
       <NavHeader />
 
-      <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
+      <div className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
         <div className="mb-2">
           <h1 className="section-title">
             隐私政策

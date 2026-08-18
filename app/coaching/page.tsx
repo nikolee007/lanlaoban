@@ -38,7 +38,7 @@ export default function CoachingPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavHeader />
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-1">出镜纠错手册</h1>
         <p className="text-gray-500 text-sm mb-6">22类老板常见出镜问题，现场编导即时调整方案</p>
 

@@ -65,7 +65,7 @@ export default function ScenesPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <NavHeader />
-        <main className="max-w-4xl mx-auto px-4 py-20 text-center">
+        <main className="max-w-6xl mx-auto px-4 py-20 text-center">
           <FiCamera className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-gray-900 mb-2">拍摄场景方案</h2>
           <p className="text-gray-500 mb-4">完成 IP 采访后，AI 自动生成 5 个人设场景 + 10 个商业场景</p>

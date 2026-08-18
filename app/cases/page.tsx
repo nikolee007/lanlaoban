@@ -12,7 +12,7 @@ export default function CasesPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f7]">
       <NavHeader />
-      <main className="max-w-6xl mx-auto px-4 py-10">
+      <main className="max-w-7xl mx-auto px-4 py-10">
         {/* Hero */}
         <div className="text-center mb-12">
           <p className="text-sm font-semibold text-brand-400 uppercase tracking-[3px] mb-3">REAL RESULTS</p>

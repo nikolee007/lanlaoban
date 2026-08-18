@@ -36,7 +36,7 @@ export default function PlanPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavHeader />
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-1">IP起盘规划</h1>
           <p className="text-gray-500 text-sm">输入行业信息，AI自动生成完整起盘方案</p>

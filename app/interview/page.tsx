@@ -188,7 +188,7 @@ export default function InterviewPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <NavHeader />
-      <main className="flex-1 max-w-3xl mx-auto w-full px-4 py-6 flex flex-col">
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6 flex flex-col">
         {/* 进度 */}
         <div className="mb-4">
           <div className="flex items-center justify-between text-xs text-gray-400 mb-1.5">

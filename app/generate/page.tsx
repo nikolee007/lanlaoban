@@ -184,7 +184,7 @@ export default function GeneratePage() {
     <div className="min-h-screen bg-gray-50">
       <NavHeader />
 
-      <main className="mx-auto max-w-4xl px-6 py-12">
+      <main className="mx-auto max-w-6xl px-6 py-12">
         {step !== 3 && (
           <>
             <h1 className="text-3xl font-bold mb-2">AI 生成你的专属IP内容</h1>

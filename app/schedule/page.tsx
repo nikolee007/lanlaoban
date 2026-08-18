@@ -75,7 +75,7 @@ export default function SchedulePage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <NavHeader />
-        <main className="max-w-4xl mx-auto px-4 py-20 text-center">
+        <main className="max-w-6xl mx-auto px-4 py-20 text-center">
           <FiCalendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-gray-900 mb-2">还没有生成内容</h2>
           <Link href="/generate" className="btn-primary">去生成脚本</Link>

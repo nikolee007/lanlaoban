@@ -112,7 +112,7 @@ export default function LaunchPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <NavHeader />
-      <main className="max-w-3xl mx-auto px-4 py-8">
+      <main className="max-w-5xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-1">一键全流程启动</h1>
           <p className="text-gray-500 text-sm">填一次信息，自动跑完规划→人设→脚本→场景→排期→账主页</p>

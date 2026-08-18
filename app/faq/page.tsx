@@ -53,7 +53,7 @@ export default function FAQPage() {
 
       <section className="relative pt-28 pb-20 overflow-hidden">
         <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-radial from-[#FF6034]/5 to-transparent blur-3xl" />
-        <div className="relative mx-auto max-w-3xl px-6 text-center">
+        <div className="relative mx-auto max-w-5xl px-6 text-center">
           <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3">FAQ</p>
           <h1 className="text-5xl sm:text-6xl font-bold tracking-tight mb-4">常见问题</h1>
           <p className="text-lg text-[#6B7280]">关于懒老板，这里都有答案</p>

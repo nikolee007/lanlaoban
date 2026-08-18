@@ -69,7 +69,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <NavHeader />
-        <main className="max-w-4xl mx-auto px-4 py-20 text-center">
+        <main className="max-w-6xl mx-auto px-4 py-20 text-center">
           <FiUser className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-gray-900 mb-2">还没有生成人设</h2>
           <p className="text-gray-500 mb-6">先去创建人设方案，再来查看账主页方案</p>

@@ -37,16 +37,16 @@ export default function DemoPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f7]">
       <NavHeader />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3">
         <Breadcrumb items={[{ label: '懒老板', href: '/' }, { label: '效果体验 Demo' }]} />
       </div>
 
-      <main className="mx-auto max-w-6xl px-4 pb-16">
+      <main className="mx-auto max-w-7xl px-4 pb-16">
         {/* Hero */}
         <div className="text-center py-8">
-          <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3">REAL DEMO</p>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">看看不同老板的短视频是怎么做出来的</h1>
-          <p className="text-gray-500 max-w-lg mx-auto">每个示例都是真实产出：老板口播成片 + 关键帧 + 转写的真实文案。</p>
+          <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3">HOW LAO LAOBAN WORKS</p>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">懒老板怎么把老板做成短视频 IP</h1>
+          <p className="text-gray-500 max-w-lg mx-auto">五步真实制作过程：了解老板背景 → 生成脚本 → 生成关键帧 → 生成短视频，成片发你邮箱。</p>
         </div>
 
         {/* Tab 切换 */}
@@ -75,13 +75,19 @@ export default function DemoPage() {
                     <img src={v.poster} alt={v.title} className={`w-full object-cover ${isProduct ? 'aspect-video' : 'aspect-[3/4]'}`} />
                     <span className="absolute top-2 left-2 text-[10px] font-semibold text-white bg-[#FF6034] rounded-full px-2 py-1">{v.title}</span>
                   </div>
-                  <p className="text-xs text-gray-400 mt-2">{isProduct ? '产品主视觉' : '老板 IP 形象 · 克隆分身'}</p>
+                  <p className="text-xs text-gray-400 mt-2">{isProduct ? '产品主视觉' : '① 老板 IP 形象 · 克隆分身'}</p>
                 </div>
 
-                {/* ② 文案 */}
+                {/* ② 了解老板背景 */}
+                <div className="px-4 pb-2">
+                  <p className="text-xs font-medium text-gray-500 flex items-center gap-1 mb-1"><FiUser className="w-3 h-3" /> ② 了解老板背景</p>
+                  <p className="text-xs text-gray-600 leading-relaxed">{group.background}</p>
+                </div>
+
+                {/* ③ 生成今日脚本 */}
                 <div className="px-4 pb-2 flex-1 flex flex-col">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-medium text-gray-500 flex items-center gap-1"><FiFileText className="w-3 h-3" /> 生成文案</p>
+                    <p className="text-xs font-medium text-gray-500 flex items-center gap-1"><FiFileText className="w-3 h-3" /> ③ 生成今日脚本</p>
                     {text && !isProduct && (
                       <button onClick={() => copyText(v.key, text)} className="text-xs text-[#FF6034] hover:underline inline-flex items-center gap-1">
                         <FiCopy className="w-3 h-3" />{copiedKey === v.key ? '已复制' : '复制'}
@@ -89,30 +95,30 @@ export default function DemoPage() {
                     )}
                   </div>
                   {isProduct ? (
-                    <p className="text-sm text-gray-700 leading-relaxed">产品可视化宣传片，突出产品卖点与画面质感，适配电商/广告投放。</p>
+                    <p className="text-sm text-gray-700 leading-relaxed">产品可视化宣传脚本，突出产品卖点与画面质感。</p>
                   ) : text ? (
                     <p className="text-sm text-gray-700 leading-relaxed line-clamp-5">{text}</p>
                   ) : (
-                    <p className="text-sm text-gray-300 flex items-center gap-2"><FiLoader className="w-3 h-3 animate-spin" /> 正在读取成片文案...</p>
+                    <p className="text-sm text-gray-300 flex items-center gap-2"><FiLoader className="w-3 h-3 animate-spin" /> 正在读取脚本...</p>
                   )}
                 </div>
 
-                {/* ③ 生成视频 */}
+                {/* ④ 生成关键帧 */}
                 <div className="px-4 pb-2">
-                  <video src={v.video} poster={v.poster} controls
-                    className={`w-full ${isProduct ? 'aspect-video' : 'aspect-[3/4]'} object-cover bg-black rounded-xl`} />
-                  <p className="text-xs text-gray-400 mt-1">生成成片 · {isProduct ? '产品宣传视频' : '老板口播视频'}</p>
-                </div>
-
-                {/* ④ 关键帧（从成片提取） */}
-                <div className="p-4 pt-2">
-                  <p className="text-xs font-medium text-gray-500 flex items-center gap-1 mb-2"><FiImage className="w-3 h-3" /> 关键帧（从成片提取）</p>
+                  <p className="text-xs font-medium text-gray-500 flex items-center gap-1 mb-2"><FiImage className="w-3 h-3" /> ④ 生成关键帧</p>
                   <div className="grid grid-cols-4 gap-1">
                     {v.frames.map((f, fi) => (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img key={fi} src={f} alt={`帧${fi + 1}`} className={`${isProduct ? 'aspect-video' : 'aspect-[9/16]'} object-cover rounded border border-gray-100`} />
                     ))}
                   </div>
+                </div>
+
+                {/* ⑤ 生成短视频 */}
+                <div className="px-4 pb-4">
+                  <video src={v.video} poster={v.poster} controls
+                    className={`w-full ${isProduct ? 'aspect-video' : 'aspect-[3/4]'} object-cover bg-black rounded-xl`} />
+                  <p className="text-xs text-gray-400 mt-1">⑤ 生成短视频 · {isProduct ? '产品宣传视频' : '老板口播视频'}</p>
                 </div>
               </div>
             )

@@ -117,7 +117,7 @@ export default function NavHeader() {
 
   return (
     <nav className="border-b border-[#E5E7EB]/50 bg-white/90 backdrop-blur-xl sticky top-0 z-50" role="navigation" aria-label={mobileMenuOpen ? t('menu.label', locale) : t('menu.label', locale)}>
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+      <div className="mx-auto flex max-w-screen-2xl items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
           <div className="w-9 h-9 bg-gradient-to-br from-[#FF6034] to-[#FF8A66] rounded-xl flex items-center justify-center text-white font-bold text-base shadow-lg shadow-[#FF6034]/20">

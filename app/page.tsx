@@ -27,7 +27,7 @@ export default function HomePage() {
           backgroundSize: '60px 60px'
         }} />
 
-        <div className="relative mx-auto max-w-7xl px-6 w-full">
+        <div className="relative mx-auto max-w-screen-2xl px-6 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* 左侧主文案 */}
             <div>
@@ -116,7 +116,7 @@ export default function HomePage() {
       <section className="relative py-28 overflow-hidden" id="products">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-gradient-radial from-[#FF6034]/5 to-transparent blur-2xl pointer-events-none" />
 
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-screen-2xl px-6">
           <div className="text-center mb-16">
             <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3">TWO PRODUCTS</p>
             <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">你想做什么？</h2>
@@ -218,7 +218,7 @@ export default function HomePage() {
 
             {/* ── Showcase ── */}
       <section className="relative py-28 overflow-hidden bg-[#FAFAFA]" id="showcase">
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-screen-2xl px-6">
           <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3 text-center">SHOWCASE</p>
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-center mb-4">看看懒老板能做什么</h2>
           <p className="text-[#6B7280] text-center max-w-lg mx-auto mb-4">真实操盘 <span className="font-semibold text-[#FF6034]">200+ IP</span> · 全网流量 <span className="font-semibold text-[#FF6034]">10亿+</span> · 以下为精选案例</p>
@@ -301,7 +301,7 @@ export default function HomePage() {
       <section className="relative py-28 bg-[#0A0A0B] text-white overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-gradient-radial from-[#FF6034]/5 to-transparent blur-3xl pointer-events-none" />
 
-        <div className="relative mx-auto max-w-7xl px-6">
+        <div className="relative mx-auto max-w-screen-2xl px-6">
           <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3 text-center">HOW IT WORKS</p>
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-center mb-16">从想法到成片，四步搞定</h2>
 
@@ -345,7 +345,7 @@ export default function HomePage() {
 
       {/* ── Cases ── */}
       <section className="py-28">
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="mx-auto max-w-screen-2xl px-6">
           <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3 text-center">SUCCESS STORIES</p>
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-center mb-16">他们已经在用了</h2>
 
@@ -377,7 +377,7 @@ export default function HomePage() {
       <section className="relative py-28 bg-[#0A0A0B] text-white overflow-hidden" id="pricing">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-gradient-radial from-[#FF6034]/5 to-transparent blur-3xl pointer-events-none" />
 
-        <div className="relative mx-auto max-w-7xl px-6">
+        <div className="relative mx-auto max-w-screen-2xl px-6">
           <p className="text-sm font-semibold text-[#FF6034] uppercase tracking-[3px] mb-3 text-center">PRICING</p>
           <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-center mb-4">透明定价，无隐藏费用</h2>
           <p className="text-white/50 text-center max-w-md mx-auto mb-16">连续包月 / 包年，随时可停</p>
@@ -485,7 +485,7 @@ export default function HomePage() {
 
       {/* ── Footer ── */}
       <footer className="bg-[#0A0A0B] text-white/50 py-16 px-6">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-screen-2xl">
           <div className="flex flex-wrap items-center justify-center gap-6 mb-8">
             <Link href="/about" className="text-sm hover:text-white transition-colors">关于我们</Link>
             <Link href="/pricing" className="text-sm hover:text-white transition-colors">定价</Link>

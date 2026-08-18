@@ -108,10 +108,10 @@ export default function ClonePage() {
   return (
     <div className="min-h-screen bg-[#f5f5f7]">
       <NavHeader />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-3">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3">
         <Breadcrumb items={[{ label: '懒老板', href: '/' }, { label: '老板克隆分身' }]} />
       </div>
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 pb-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 pb-16">
 
         {/* 顶部：余额 + 引擎切换 */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">

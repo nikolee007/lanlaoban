@@ -60,7 +60,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-[#f5f5f7]">
       <NavHeader />
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         {/* 首次登录引导 */}
         {firstVisit && (
           <div className="bg-gradient-to-r from-brand-400 to-[#E04A1E] rounded-2xl p-6 mb-6 text-white">

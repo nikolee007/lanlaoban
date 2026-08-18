@@ -7,22 +7,12 @@ import { FiUser, FiImage, FiFileText, FiVideo, FiArrowRight, FiCopy, FiLoader, F
 import { useToast } from '@/app/contexts/ToastContext'
 import { DEMO_GROUPS } from './data'
 
-// 制作过程 5 步
-const STEP_DEFS = [
-  { n: 1, icon: FiUser, label: '形象' },
-  { n: 2, icon: FiFileText, label: '背景' },
-  { n: 3, icon: FiFileText, label: '脚本' },
-  { n: 4, icon: FiImage, label: '关键帧' },
-  { n: 5, icon: FiVideo, label: '视频' },
-]
-
 export default function DemoPage() {
   const { showToast } = useToast()
   const [activeGroup, setActiveGroup] = useState(0)
   const [texts, setTexts] = useState<Record<string, string>>({})
   const [copiedKey, setCopiedKey] = useState('')
   const [lightbox, setLightbox] = useState<{ video: string; poster: string; title: string } | null>(null)
-  const [activeSteps, setActiveSteps] = useState<Record<string, number>>({})
 
   const group = DEMO_GROUPS[activeGroup]
 
@@ -80,89 +70,82 @@ export default function DemoPage() {
             const isProduct = group.id === 'product'
             return (
               <div key={v.key} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-                {/* 制作步骤条（交互式 1-5） */}
-                <div className="flex gap-1 p-2.5 bg-gray-50 border-b border-gray-100">
-                  {STEP_DEFS.map((s, i) => {
-                    const Icon = s.icon
-                    const active = (activeSteps[v.key] ?? 4) === i
-                    return (
-                      <button key={i} onClick={() => setActiveSteps(prev => ({ ...prev, [v.key]: i }))}
-                        className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-lg transition-all ${active ? 'bg-[#FF6034] text-white shadow-sm' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'}`}>
-                        <Icon className="w-4 h-4" />
-                        <span className="text-[9px] font-medium">{s.label}</span>
-                      </button>
-                    )
-                  })}
+                {/* 第 1 步 · 老板 IP 形象 */}
+                <div className="p-4 pb-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-6 h-6 rounded-full bg-[#FF6034] text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>
+                    <p className="font-semibold text-gray-700 text-sm">第 1 步 · 老板 IP 形象</p>
+                  </div>
+                  <div className="relative rounded-xl overflow-hidden border border-gray-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={v.poster} alt={v.title} className={`w-full object-cover ${isProduct ? 'aspect-video' : 'aspect-[3/4]'}`} />
+                    <span className="absolute top-2 left-2 text-[10px] font-semibold text-white bg-[#FF6034] rounded-full px-2 py-1">{v.title}</span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1.5">{isProduct ? '产品主视觉 · 克隆分身' : '克隆分身 · 可换服装/场景'}</p>
                 </div>
 
-                {/* 当前步内容（点击步骤条切换） */}
-                <div className="p-4 flex-1 flex flex-col">
-                  {(() => {
-                    const step = activeSteps[v.key] ?? 4
-                    if (step === 0) return (
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 mb-2">第一步 · 老板 IP 形象</p>
-                        <div className="relative rounded-xl overflow-hidden border border-gray-100">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={v.poster} alt={v.title} className={`w-full object-cover ${isProduct ? 'aspect-video' : 'aspect-[3/4]'}`} />
-                          <span className="absolute top-2 left-2 text-[10px] font-semibold text-white bg-[#FF6034] rounded-full px-2 py-1">{v.title}</span>
-                        </div>
-                        <p className="text-xs text-gray-400 mt-1.5">{isProduct ? '产品主视觉 · 克隆分身' : '克隆分身 · 可换服装/场景'}</p>
+                {/* 第 2 步 · 了解老板背景 */}
+                <div className="px-4 pb-2">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="w-6 h-6 rounded-full bg-[#FF6034] text-white text-xs font-bold flex items-center justify-center shrink-0">2</span>
+                    <p className="font-semibold text-gray-700 text-sm">第 2 步 · 了解老板背景</p>
+                  </div>
+                  <p className="text-xs text-gray-600 leading-relaxed">{group.background}</p>
+                </div>
+
+                {/* 第 3 步 · 生成今日脚本 */}
+                <div className="px-4 pb-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-[#FF6034] text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>
+                      <p className="font-semibold text-gray-700 text-sm">第 3 步 · 生成今日脚本</p>
+                    </div>
+                    {text && !isProduct && (
+                      <button onClick={() => copyText(v.key, text)} className="text-xs text-[#FF6034] hover:underline inline-flex items-center gap-1">
+                        <FiCopy className="w-3 h-3" />{copiedKey === v.key ? '已复制' : '复制'}
+                      </button>
+                    )}
+                  </div>
+                  {isProduct ? (
+                    <p className="text-sm text-gray-700 leading-relaxed">产品可视化宣传脚本，突出产品卖点与画面质感。</p>
+                  ) : text ? (
+                    <p className="text-sm text-gray-700 leading-relaxed">{text}</p>
+                  ) : (
+                    <p className="text-sm text-gray-300 flex items-center gap-2"><FiLoader className="w-3 h-3 animate-spin" /> 正在读取脚本...</p>
+                  )}
+                </div>
+
+                {/* 第 4 步 · 生成关键帧 */}
+                <div className="px-4 pb-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-6 h-6 rounded-full bg-[#FF6034] text-white text-xs font-bold flex items-center justify-center shrink-0">4</span>
+                    <p className="font-semibold text-gray-700 text-sm">第 4 步 · 生成关键帧</p>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1">
+                    {v.frames.map((f, fi) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img key={fi} src={f} alt={`帧${fi + 1}`} className={`${isProduct ? 'aspect-video' : 'aspect-[9/16]'} object-cover rounded border border-gray-100`} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* 第 5 步 · 生成短视频 */}
+                <div className="px-4 pb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-6 h-6 rounded-full bg-[#FF6034] text-white text-xs font-bold flex items-center justify-center shrink-0">5</span>
+                    <p className="font-semibold text-gray-700 text-sm">第 5 步 · 生成短视频</p>
+                  </div>
+                  <button onClick={() => setLightbox({ video: v.video, poster: v.poster, title: v.title })}
+                    className="block w-full relative rounded-xl overflow-hidden border border-gray-100 group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={v.poster} alt={v.title} className={`w-full ${isProduct ? 'aspect-video' : 'aspect-[3/4]'} object-cover`} />
+                    <div className="absolute inset-0 bg-black/25 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                      <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                        <FiPlay className="w-6 h-6 text-[#FF6034] ml-0.5" />
                       </div>
-                    )
-                    if (step === 1) return (
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 mb-2">第二步 · 了解老板背景</p>
-                        <p className="text-sm text-gray-700 leading-relaxed">{group.background}</p>
-                      </div>
-                    )
-                    if (step === 2) return (
-                      <div className="flex-1 flex flex-col">
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="text-xs font-medium text-gray-500">第三步 · 生成今日脚本</p>
-                          {text && !isProduct && (
-                            <button onClick={() => copyText(v.key, text)} className="text-xs text-[#FF6034] hover:underline inline-flex items-center gap-1">
-                              <FiCopy className="w-3 h-3" />{copiedKey === v.key ? '已复制' : '复制'}
-                            </button>
-                          )}
-                        </div>
-                        {isProduct ? (
-                          <p className="text-sm text-gray-700 leading-relaxed">产品可视化宣传脚本，突出产品卖点与画面质感。</p>
-                        ) : text ? (
-                          <p className="text-sm text-gray-700 leading-relaxed">{text}</p>
-                        ) : (
-                          <p className="text-sm text-gray-300 flex items-center gap-2"><FiLoader className="w-3 h-3 animate-spin" /> 正在读取脚本...</p>
-                        )}
-                      </div>
-                    )
-                    if (step === 3) return (
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 mb-2">第四步 · 生成关键帧</p>
-                        <div className="grid grid-cols-4 gap-1">
-                          {v.frames.map((f, fi) => (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img key={fi} src={f} alt={`帧${fi + 1}`} className={`${isProduct ? 'aspect-video' : 'aspect-[9/16]'} object-cover rounded border border-gray-100`} />
-                          ))}
-                        </div>
-                      </div>
-                    )
-                    return (
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 mb-2">第五步 · 生成短视频 · 点击沉浸播放</p>
-                        <button onClick={() => setLightbox({ video: v.video, poster: v.poster, title: v.title })}
-                          className="block w-full relative rounded-xl overflow-hidden border border-gray-100 group">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={v.poster} alt={v.title} className={`w-full ${isProduct ? 'aspect-video' : 'aspect-[3/4]'} object-cover`} />
-                          <div className="absolute inset-0 bg-black/25 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                            <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                              <FiPlay className="w-6 h-6 text-[#FF6034] ml-0.5" />
-                            </div>
-                          </div>
-                        </button>
-                        <p className="text-xs text-gray-400 mt-1.5">{isProduct ? '产品宣传视频' : '老板口播视频'}</p>
-                      </div>
-                    )
-                  })()}
+                    </div>
+                  </button>
+                  <p className="text-xs text-gray-400 mt-1.5">{isProduct ? '产品宣传视频' : '老板口播视频'}</p>
                 </div>
               </div>
             )

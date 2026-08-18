@@ -35,6 +35,7 @@ type NavItem = { key: string; href: string; isAI: boolean; comingSoon?: boolean;
 /** 核心导航（桌面顶部平铺，只留最核心能力） */
 const CORE_NAV: NavItem[] = [
   { key: 'nav.dashboard', href: '/dashboard', isAI: false },
+  { key: 'nav.demo', href: '/demo', isAI: false },
   { key: 'nav.productVisual', href: '/clone', isAI: true },
   { key: 'nav.pricing', href: '/pricing', isAI: false },
   { key: 'nav.multilang', href: '/coming-soon', isAI: true, comingSoon: true },

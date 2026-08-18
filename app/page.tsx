@@ -58,6 +58,9 @@ export default function HomePage() {
                 <Link href="#pricing" className="group inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 backdrop-blur-sm px-8 py-4 text-base font-semibold text-white hover:bg-white/10 hover:-translate-y-0.5 transition-all duration-300">
                   查看定价
                 </Link>
+                <Link href="/demo" className="group inline-flex items-center gap-2 rounded-full border border-[#FF6034]/40 bg-[#FF6034]/10 backdrop-blur-sm px-8 py-4 text-base font-semibold text-[#FF8A66] hover:bg-[#FF6034]/20 hover:-translate-y-0.5 transition-all duration-300">
+                  看效果 Demo
+                </Link>
               </div>
 
               {/* Social proof */}

@@ -65,43 +65,54 @@ export default function DemoPage() {
         <div className="grid lg:grid-cols-3 gap-5 mb-10">
           {group.videos.map((v) => {
             const text = texts[v.key]
+            const isProduct = group.id === 'product'
             return (
               <div key={v.key} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-                {/* 视频 */}
-                <div className="relative">
-                  <video src={v.video} poster={v.poster} controls
-                    className="w-full aspect-[3/4] object-cover bg-black" />
-                  <span className="absolute top-2 left-2 text-[10px] font-semibold text-white bg-[#FF6034] rounded-full px-2 py-1">{v.title}</span>
-                </div>
-
-                {/* 关键帧 */}
-                <div className="px-4 pt-3">
-                  <p className="text-xs font-medium text-gray-500 flex items-center gap-1 mb-2"><FiImage className="w-3 h-3" /> 关键帧</p>
-                  <div className="grid grid-cols-4 gap-1">
-                    {v.frames.map((f, fi) => (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img key={fi} src={f} alt={`帧${fi + 1}`} className="aspect-[9/16] object-cover rounded border border-gray-100" />
-                    ))}
+                {/* ① 老板 IP 形象 */}
+                <div className="p-4 pb-2">
+                  <div className="relative rounded-xl overflow-hidden border border-gray-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={v.poster} alt={v.title} className={`w-full object-cover ${isProduct ? 'aspect-video' : 'aspect-[3/4]'}`} />
+                    <span className="absolute top-2 left-2 text-[10px] font-semibold text-white bg-[#FF6034] rounded-full px-2 py-1">{v.title}</span>
                   </div>
+                  <p className="text-xs text-gray-400 mt-2">{isProduct ? '产品主视觉' : '老板 IP 形象 · 克隆分身'}</p>
                 </div>
 
-                {/* 文案 */}
-                <div className="p-4 flex-1 flex flex-col">
+                {/* ② 文案 */}
+                <div className="px-4 pb-2 flex-1 flex flex-col">
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-medium text-gray-500 flex items-center gap-1"><FiFileText className="w-3 h-3" /> 转写文案</p>
-                    {text && (
+                    <p className="text-xs font-medium text-gray-500 flex items-center gap-1"><FiFileText className="w-3 h-3" /> 生成文案</p>
+                    {text && !isProduct && (
                       <button onClick={() => copyText(v.key, text)} className="text-xs text-[#FF6034] hover:underline inline-flex items-center gap-1">
                         <FiCopy className="w-3 h-3" />{copiedKey === v.key ? '已复制' : '复制'}
                       </button>
                     )}
                   </div>
-                  {group.id === 'product' ? (
+                  {isProduct ? (
                     <p className="text-sm text-gray-700 leading-relaxed">产品可视化宣传片，突出产品卖点与画面质感，适配电商/广告投放。</p>
                   ) : text ? (
-                    <p className="text-sm text-gray-700 leading-relaxed">{text}</p>
+                    <p className="text-sm text-gray-700 leading-relaxed line-clamp-5">{text}</p>
                   ) : (
                     <p className="text-sm text-gray-300 flex items-center gap-2"><FiLoader className="w-3 h-3 animate-spin" /> 正在读取成片文案...</p>
                   )}
+                </div>
+
+                {/* ③ 生成视频 */}
+                <div className="px-4 pb-2">
+                  <video src={v.video} poster={v.poster} controls
+                    className={`w-full ${isProduct ? 'aspect-video' : 'aspect-[3/4]'} object-cover bg-black rounded-xl`} />
+                  <p className="text-xs text-gray-400 mt-1">生成成片 · {isProduct ? '产品宣传视频' : '老板口播视频'}</p>
+                </div>
+
+                {/* ④ 关键帧（从成片提取） */}
+                <div className="p-4 pt-2">
+                  <p className="text-xs font-medium text-gray-500 flex items-center gap-1 mb-2"><FiImage className="w-3 h-3" /> 关键帧（从成片提取）</p>
+                  <div className="grid grid-cols-4 gap-1">
+                    {v.frames.map((f, fi) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img key={fi} src={f} alt={`帧${fi + 1}`} className={`${isProduct ? 'aspect-video' : 'aspect-[9/16]'} object-cover rounded border border-gray-100`} />
+                    ))}
+                  </div>
                 </div>
               </div>
             )

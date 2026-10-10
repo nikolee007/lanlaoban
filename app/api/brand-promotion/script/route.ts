@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClient, getDefaultModel } from '@/lib/openai'
+import { createChatFreeFirst } from '@/lib/openai'
 import type OpenAI from 'openai'
 
 const STYLE_PROFILES: Record<string, string> = {
@@ -105,9 +105,7 @@ ${styleDesc}
 
 请根据以上信息，生成多语言宣传视频旁白脚本。`
 
-    const client = getClient()
-    const response = await client.chat.completions.create({
-      model: getDefaultModel(),
+    const { response, engine, model: usedModel } = await createChatFreeFirst({
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
@@ -116,6 +114,7 @@ ${styleDesc}
       max_tokens: 8192,
     } as OpenAI.Chat.Completions.ChatCompletionCreateParamsNonStreaming)
 
+    console.log(`[brand-promotion/script] engine=${engine} model=${usedModel}`)
     const content = response.choices[0]?.message?.content
     if (!content) {
       return NextResponse.json(

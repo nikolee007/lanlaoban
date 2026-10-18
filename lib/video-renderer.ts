@@ -1,5 +1,13 @@
 'use client'
 
+import {
+  buildTtsMasterClock,
+  captionCues,
+  photoCutPoints,
+  type AudioMasterClock,
+  type CaptionCue,
+} from './presenter-pipeline'
+
 /* ─────────────────── Types ─────────────────── */
 
 export interface RenderPromotionVideoOptions {
@@ -29,7 +37,6 @@ const BG_BOTTOM = '#0f0f23'
 
 const TRANSITION_DURATION = 0.5  // seconds for photo cross-fade
 const SLOGAN_SLIDE_DURATION = 0.35
-const SLOGAN_STAY_DURATION = 2.2
 
 /* ─────────────────── Helpers ─────────────────── */
 
@@ -150,30 +157,32 @@ function drawPhotoWithAlpha(
 function drawSlogan(
   ctx: CanvasRenderingContext2D,
   text: string,
-  animProgress: number, // 0..1 within the slogan cycle
+  localProgress: number, // 0..1 within **这一句自己的**时间窗（来自音频时钟）
+  cueDurationSec: number,
   fontFamily: string,
 ): void {
-  // animProgress phases: 0-0.15 slide in, 0.15-0.85 stay, 0.85-1.0 slide out
-  const slideInEnd = SLOGAN_SLIDE_DURATION / (SLOGAN_SLIDE_DURATION + SLOGAN_STAY_DURATION + SLOGAN_SLIDE_DURATION)
-  const stayEnd = (SLOGAN_SLIDE_DURATION + SLOGAN_STAY_DURATION) / (SLOGAN_SLIDE_DURATION + SLOGAN_STAY_DURATION + SLOGAN_SLIDE_DURATION)
+  // 滑入/滑出都按**秒**算，不按固定百分比：
+  // 长句给足停留时间，短句也不会来不及看清就滑走（旧实现整段等分，短句一闪而过）。
+  const edge = Math.min(SLOGAN_SLIDE_DURATION, Math.max(0.08, cueDurationSec / 3))
+  const tSec = localProgress * cueDurationSec
 
   let yOffset: number
   let alpha: number
 
-  if (animProgress < slideInEnd) {
+  if (tSec < edge) {
     // Slide in from bottom
-    const t = easeOutQuad(clamp(animProgress / slideInEnd, 0, 1))
+    const t = easeOutQuad(clamp(tSec / edge, 0, 1))
     yOffset = lerp(120, 0, t)
     alpha = t
-  } else if (animProgress < stayEnd) {
+  } else if (tSec > cueDurationSec - edge) {
+    // Slide out (upward)
+    const t = easeInOutCubic(clamp((tSec - (cueDurationSec - edge)) / edge, 0, 1))
+    yOffset = lerp(0, -80, t)
+    alpha = 1 - t
+  } else {
     // Stay
     yOffset = 0
     alpha = 1
-  } else {
-    // Slide out (upward)
-    const t = easeInOutCubic(clamp((animProgress - stayEnd) / (1 - stayEnd), 0, 1))
-    yOffset = lerp(0, -80, t)
-    alpha = 1 - t
   }
 
   // Draw text background bar
@@ -348,8 +357,11 @@ export async function renderPromotionVideo(
   if (!slogans.length) throw new Error('至少需要一句文案')
 
   const fps = FPS
-  const totalFrames = Math.ceil(duration * fps)
   const fontFamily = getFontFamily(language)
+  // 时基的唯一真相源 = **解码后的 TTS 音频时长**（音频 setup 段里赋值）。
+  // `options.duration` 只是生成脚本时的目标时长，真实配音必然偏离它 ——
+  // 旧实现拿它当总时长 ⇒ 画面/字幕与配音越到后面错得越多（lb-2）。
+  let masterDuration = duration
 
   // ── Canvas setup ──
   const canvas = document.createElement('canvas')
@@ -385,6 +397,10 @@ export async function renderPromotionVideo(
     const audioResponse = await fetch(audioUrl)
     const audioArrayBuffer = await audioResponse.arrayBuffer()
     const audioBuffer = await audioContext.decodeAudioData(audioArrayBuffer)
+    // 0.5s 以下视为解码异常（空音频/损坏），继续用目标时长，不让片子变成 0.1 秒
+    if (Number.isFinite(audioBuffer.duration) && audioBuffer.duration > 0.5) {
+      masterDuration = audioBuffer.duration
+    }
 
     audioSource = audioContext.createBufferSource()
     audioSource.buffer = audioBuffer
@@ -392,6 +408,19 @@ export async function renderPromotionVideo(
     audioSource.connect(audioDestination)
   } catch (e) {
     console.warn('[video-renderer] Audio setup failed, video will be silent:', e)
+  }
+
+  // ── 时基锁定：真实音频时长 + 同一份脚本的分句 ──
+  // 照片切点与字幕时间窗都只从这一个时钟派生，不再各算一套（lb-2）。
+  const totalFrames = Math.ceil(masterDuration * fps)
+  const clockLines = slogans.length > 0 ? slogans : [productName]
+  const clockRes = buildTtsMasterClock({ durationSec: masterDuration, lines: clockLines })
+  const clock: AudioMasterClock | null = clockRes.ok ? clockRes.value : null
+  const cues: CaptionCue[] = clock ? captionCues(clock) : []
+  if (masterDuration !== duration) {
+    console.info(
+      `[video-renderer] 时基改用真实配音时长 ${masterDuration.toFixed(2)}s（目标 ${duration}s）`,
+    )
   }
 
   // ── Stream setup ──
@@ -434,11 +463,12 @@ export async function renderPromotionVideo(
   }
 
   // ── Render frames ──
-  const photoDisplayDuration = duration / photos.length
-  const sloganCycleDuration = SLOGAN_SLIDE_DURATION + SLOGAN_STAY_DURATION + SLOGAN_SLIDE_DURATION
-  const sloganSlotDuration = slogans.length > 1
-    ? duration / slogans.length
-    : duration
+  // 照片切点来自时钟（语义分节）。时钟建不起来才退回等分 —— 保底，不阻断出片。
+  const photoCuts = clock ? photoCutPoints(clock, images.length) : []
+  const cutStarts =
+    images.length > 0 && photoCuts.length === images.length - 1
+      ? [0, ...photoCuts]
+      : Array.from({ length: Math.max(1, images.length) }, (_, i) => (masterDuration * i) / Math.max(1, images.length))
 
   let frameIndex = 0
 
@@ -491,23 +521,26 @@ export async function renderPromotionVideo(
       // 1. Background
       drawBackground(ctx)
 
-      // 2. Determine which photo to show
-      const rawPhotoIdx = t / photoDisplayDuration
-      const photoIdx = Math.floor(rawPhotoIdx)
-      const photoProgress = rawPhotoIdx - photoIdx // 0..1 within this photo
+      // 2. 照片：按**时钟切点**选当前这张（不再「总时长 ÷ 张数」）
+      let photoIdx = 0
+      while (photoIdx < cutStarts.length - 1 && t >= cutStarts[photoIdx + 1]) photoIdx += 1
+      photoIdx = clamp(photoIdx, 0, images.length - 1)
+      const photoStart = cutStarts[photoIdx] ?? 0
+      const photoEnd = cutStarts[photoIdx + 1] ?? masterDuration
+      const photoSpan = Math.max(0.001, photoEnd - photoStart)
+      const photoProgress = clamp((t - photoStart) / photoSpan, 0, 1)
 
-      // Transition: cross-fade during last TRANSITION_DURATION of each photo
-      const transitionProgress = (photoDisplayDuration - photoProgress * photoDisplayDuration) / TRANSITION_DURATION
-      const isTransitioning = transitionProgress < 1 && transitionProgress > 0 && photoIdx < images.length - 1
+      // 交叉淡入淡出：每个切点前 TRANSITION_DURATION 内完成
+      const remaining = photoEnd - t
+      const isTransitioning =
+        remaining > 0 && remaining < TRANSITION_DURATION && photoIdx < images.length - 1
 
-      if (isTransitioning && photoIdx < images.length - 1) {
-        // Draw current photo fading out
-        drawPhotoWithAlpha(ctx, images[photoIdx], photoProgress, 1 - transitionProgress)
-        // Draw next photo fading in
-        drawPhotoWithAlpha(ctx, images[photoIdx + 1], 0, transitionProgress)
+      if (isTransitioning) {
+        const p = clamp(1 - remaining / TRANSITION_DURATION, 0, 1)
+        drawPhotoWithAlpha(ctx, images[photoIdx], photoProgress, 1 - p)
+        drawPhotoWithAlpha(ctx, images[photoIdx + 1], 0, p)
       } else {
-        const idx = clamp(photoIdx, 0, images.length - 1)
-        drawPhotoKenBurns(ctx, images[idx], photoProgress)
+        drawPhotoKenBurns(ctx, images[photoIdx], photoProgress)
       }
 
       // 3. Dark overlay gradient for text readability
@@ -518,14 +551,20 @@ export async function renderPromotionVideo(
       ctx.fillStyle = overlayGrad
       ctx.fillRect(0, 0, WIDTH, HEIGHT)
 
-      // 4. Slogan animation
-      if (slogans.length > 0) {
-        const sloganRaw = t / sloganSlotDuration
-        const sloganIdx = Math.floor(sloganRaw) % slogans.length
-        const slotProgress = sloganRaw - Math.floor(sloganRaw) // 0..1 within this slot
-        const sloganAnimProgress = clamp(slotProgress / (sloganCycleDuration / sloganSlotDuration), 0, 1)
-
-        drawSlogan(ctx, slogans[sloganIdx], sloganAnimProgress, fontFamily)
+      // 4. 字幕：时间窗来自音频时钟（每句自己的起止），不再整段等分
+      if (cues.length > 0) {
+        let cueIdx = cues.findIndex((c) => t < c.endSec)
+        if (cueIdx === -1) cueIdx = cues.length - 1
+        const cue = cues[cueIdx]
+        const cueDur = Math.max(0.001, cue.endSec - cue.startSec)
+        const local = clamp((t - cue.startSec) / cueDur, 0, 1)
+        drawSlogan(ctx, cue.text, local, cueDur, fontFamily)
+      } else if (slogans.length > 0) {
+        // 时钟建不起来（理论上不会）：退回整段等分，宁可粗糙也别空着
+        const slot = masterDuration / slogans.length
+        const idx = Math.min(slogans.length - 1, Math.floor(t / slot))
+        const local = clamp((t - idx * slot) / slot, 0, 1)
+        drawSlogan(ctx, slogans[idx], local, slot, fontFamily)
       }
 
       // 5. Title card — product name at top during first 3 seconds

@@ -260,6 +260,81 @@ export function cutPoints(clock: AudioMasterClock): number[] {
   return clock.sections.map((s) => s.startSec)
 }
 
+/**
+ * 由 **TTS 音频时长 + 同一份脚本的分句** 建时钟（brand-promotion 渲染用）。
+ *
+ * ⚠️ 与 `buildAudioMasterClock` 的区别必须说清：那条要求 `asrOk=true`（逐句时间戳经 ASR 校验）；
+ *    这里**没有 ASR**，分句边界是按文本长度比例**估算**的 —— 总时长是真值（解码后的音频），
+ *    句间边界是估计。名字里带 Tts 就是提醒调用方别把它当逐字时间戳用。
+ *    之所以敢用：TTS 读的就是这些分句的拼接，同一份文本按字符数分配，误差远小于
+ *    原先「整段时长 ÷ 句数」的等分（中文长句短句长度差可达 3 倍）。
+ */
+export function buildTtsMasterClock(input: {
+  durationSec: number
+  lines: string[]
+  lockedAt?: string
+}): Result<AudioMasterClock> {
+  const { durationSec, lines } = input
+  if (!(durationSec > 0)) {
+    return { ok: false, code: 'NO_AUDIO_CLOCK', message: '音频时长必须为正数' }
+  }
+  const cleaned = lines.map((l) => String(l ?? '').trim()).filter(Boolean)
+  if (cleaned.length === 0) {
+    return { ok: false, code: 'NO_AUDIO_CLOCK', message: '分句为空，无法建时钟' }
+  }
+  // 权重 = 非空白字符数（中文一字一拍；英文按字符近似）。至少 1，避免纯标点行把除数打成 0。
+  const weights = cleaned.map((l) => Math.max(1, Array.from(l.replace(/\s/g, '')).length))
+  const totalWeight = weights.reduce((a, b) => a + b, 0)
+
+  const sections: ClockSection[] = []
+  let cursor = 0
+  for (let i = 0; i < cleaned.length; i += 1) {
+    const isLast = i === cleaned.length - 1
+    // 最后一节吃掉全部余量：浮点舍入误差不许在片尾留下一小截空白
+    const dur = isLast
+      ? Math.max(0.01, Number((durationSec - cursor).toFixed(3)))
+      : Math.max(0.01, Number(((durationSec * weights[i]) / totalWeight).toFixed(3)))
+    sections.push({
+      id: `tts-${i + 1}`,
+      script: cleaned[i],
+      startSec: Number(cursor.toFixed(3)),
+      durationSec: dur,
+    })
+    cursor += dur
+  }
+  // 末尾超差（累加舍入）就收回最后一节，保证永远不越界
+  const last = sections[sections.length - 1]
+  if (last.startSec + last.durationSec > durationSec) {
+    last.durationSec = Number(Math.max(0.01, durationSec - last.startSec).toFixed(3))
+  }
+  return { ok: true, value: { durationSec, sections, lockedAt: input.lockedAt ?? new Date().toISOString() } }
+}
+
+/**
+ * 画面切点：把 `photoCount - 1` 个切点分配到各分节边界上。
+ *   · 照片 ≤ 分节：切点落在分节起点（一次讲话换一张图，不抢话）；
+ *   · 照片 > 分节：多出来的照片在该节内部等分（不让某张图跨两个语义段而不切）。
+ * 返回值不含 0 与结尾（调用方自己补），长度恒为 `photoCount - 1`。
+ */
+export function photoCutPoints(clock: AudioMasterClock, photoCount: number): number[] {
+  const n = Math.floor(photoCount)
+  if (n <= 1) return []
+  const secs = clock.sections
+  const cuts: number[] = []
+  for (let i = 1; i < n; i += 1) {
+    if (secs.length === 0) {
+      cuts.push(Number(((clock.durationSec * i) / n).toFixed(3)))
+      continue
+    }
+    const pos = (i / n) * secs.length
+    const idx = Math.min(secs.length - 1, Math.max(0, Math.floor(pos)))
+    const within = pos - idx
+    const t = secs[idx].startSec + secs[idx].durationSec * within
+    cuts.push(Number(t.toFixed(3)))
+  }
+  return cuts
+}
+
 /* ───────────────────────── ③ 成本护栏 ───────────────────────── */
 
 export const DEFAULT_RETRY_CEILING = 3

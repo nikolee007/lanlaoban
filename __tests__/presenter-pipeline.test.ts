@@ -6,6 +6,8 @@ import {
   advanceTo,
   newJob,
   buildAudioMasterClock,
+  buildTtsMasterClock,
+  photoCutPoints,
   timeWithin,
   captionCues,
   cutPoints,
@@ -152,6 +154,49 @@ describe('② 音频总时钟', () => {
     expect(timeWithin(r.value, -0.5).ok).toBe(false)
     const inRange = timeWithin(r.value, 12)
     expect(inRange.ok && inRange.value).toBe(12)
+  })
+})
+
+// lb-2（2026-10-18）：brand-promotion 的真实 TTS 时基 —— 没有 ASR，只有「总时长真值 + 按句长估算」。
+describe('②-b TTS 时基（brand-promotion）', () => {
+  it('按分句字长分配；总时长严格等于真实音频时长', () => {
+    const r = buildTtsMasterClock({ durationSec: 30, lines: ['短句', '这是一句明显更长的卖点文案'] })
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const [a, b] = r.value.sections
+    expect(a.startSec).toBe(0)
+    expect(b.startSec).toBeCloseTo(a.durationSec, 3)
+    expect(a.startSec + a.durationSec + b.durationSec).toBeCloseTo(30, 2)
+    // 长句拿到更多时间（等分会各 15s）
+    expect(b.durationSec).toBeGreaterThan(a.durationSec)
+    // 字幕窗与时钟一致
+    expect(captionCues(r.value)[1].endSec).toBeCloseTo(30, 2)
+  })
+
+  it('非法输入拒绝建时钟（不许静默回 0 时长）', () => {
+    expect(buildTtsMasterClock({ durationSec: 0, lines: ['x'] }).ok).toBe(false)
+    expect(buildTtsMasterClock({ durationSec: 10, lines: [] }).ok).toBe(false)
+    expect(buildTtsMasterClock({ durationSec: 10, lines: ['   '] }).ok).toBe(false)
+  })
+
+  it('画面切点：照片多于分节时在节内等分；少于分节时落在分节起点', () => {
+    // 故意让第二句远长于其他句：4 节等分时 2 张图的切点会是机械的 15s，
+    // 按字长分配后应落在「第三句起点」（约 25s） —— 两者必须分得开，否则测试是空转。
+    const r = buildTtsMasterClock({
+      durationSec: 30,
+      lines: ['一', '这是一句明显更长的第二句文案', '三', '四'],
+    })
+    expect(r.ok).toBe(true)
+    if (!r.ok) return
+    const two = photoCutPoints(r.value, 2)
+    expect(two).toHaveLength(1)
+    expect(two[0]).toBeGreaterThan(20)
+    expect(two[0]).toBeLessThan(30)
+
+    const many = photoCutPoints(r.value, 8)
+    expect(many).toHaveLength(7)
+    expect([...many].sort((a, b) => a - b)).toEqual(many)
+    expect(many[many.length - 1]).toBeLessThan(30)
   })
 })
 

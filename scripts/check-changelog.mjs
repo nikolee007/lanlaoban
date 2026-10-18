@@ -8,6 +8,7 @@
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { execSync } from 'node:child_process'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const SRC = join(root, 'public/changelog.json')
@@ -123,6 +124,23 @@ check(`A7 版本号与时间同向（越新越高，问题：${verOrderBad.join(
     )
   }
 }
+
+
+// ── 软提醒（不改变退出码）：「谁上线谁写说明」不能只靠人记 ───────────────────
+// 自最新一条更新说明的时间以来，仓库里又有了新提交 ⇒ 构建日志里打出来提醒。
+// Docker 构建没有 .git（或命令不可用）时静默跳过 —— 提示失败不该弄红构建。
+try {
+  const lastTime = entries[0]?.time
+  if (lastTime) {
+    const out = execSync(`git log --since="${lastTime}" --oneline -- .`, {
+      cwd: root, encoding: 'utf8', timeout: 5000, stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim()
+    const n = out ? out.split('\n').length : 0
+    if (n > 0) {
+      console.log(`\n📝 提示：自 ${lastTime} 以来仓库有 ${n} 个提交 —— 若其中有用户可感知的变化，上线前把它写进 public/changelog.json。`)
+    }
+  }
+} catch { /* 无 git / 非仓库：跳过 */ }
 
 if (bad.length) {
   console.log(`\n🔴 更新说明门禁未过：${bad.length} 条`)

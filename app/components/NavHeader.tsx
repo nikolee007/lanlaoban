@@ -224,6 +224,14 @@ export default function NavHeader() {
                     <FiSettings className="w-4 h-4 text-gray-400" />
                     {t('account.settings', locale)}
                   </Link>
+                  <Link
+                    href="/changelog"
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    onClick={() => setUserMenuOpen(false)}
+                  >
+                    <FiFileText className="w-4 h-4 text-gray-400" />
+                    {t('account.changelog', locale)}
+                  </Link>
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"

@@ -5,6 +5,7 @@ import FeedbackButton from './components/FeedbackButton'
 import ErrorBoundary from './components/ErrorBoundary'
 import JsonLd from './components/JsonLd'
 import NewUserGuide from './components/NewUserGuide'
+import UpdateNoticeBar from './components/UpdateNoticeBar'
 import BackgroundTaskMonitor from './components/BackgroundTaskMonitor'
 import CopilotWrap from './components/CopilotWrap'
 import '@copilotkit/react-ui/styles.css'
@@ -73,6 +74,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <BackgroundTaskMonitor />
             <FeedbackButton />
             <NewUserGuide />
+            {/* 新版本首次进入的轻提示（同一版本只提示一次；拉不到更新说明时整条不渲染） */}
+            <UpdateNoticeBar />
           </Providers>
           </CopilotWrap>
         </ErrorBoundary>

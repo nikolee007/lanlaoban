@@ -105,6 +105,11 @@ export default function AboutPage() {
       {/* Footer */}
       <footer className="bg-[#0A0A0B] text-white/50 py-12 px-6 text-sm text-center">
         <p>© 2026 懒老板 — AI IP操盘手 & AI 产品导演</p>
+        <p className="mt-3">
+          <Link href="/changelog" className="text-white/70 hover:text-[#FF6034] transition-colors">
+            更新说明
+          </Link>
+        </p>
       </footer>
     </div>
   )
